@@ -175,6 +175,18 @@ CAPTCHA/MFA, then reads a local Keychain item and submits the official form
 through native DOM setters. Credentials and Android login state are never part
 of the repository.
 
+The September 8 session-persistence investigation found a separate cause of
+repeated sign-in: TFT 18.1-5423749 starts Riot with `persistLogin: false`.
+The reflected Unreal Config property belongs to
+`/Script/OnlineSubsystemRiot.RGIOPRiotGamesApiSettings` in `Engine.ini`.
+The launcher now enables `bPersistLogin=True` before starting TFT, alongside
+the existing UI-scale configuration. Riot continues to own and encrypt its
+session; the launcher does not store passwords or copy authentication files.
+On a cloned AVD, the runtime configuration changed to `persistLogin: true`,
+and a real signed-in session survived an application force-stop and two cold
+Android boots without credential entry. See the sanitized
+[`validation artifact`](../artifacts/riot-session-persistence-validation-20260908.json).
+
 ## Fixed-stage campaign
 
 On 2026-08-05/06, the autonomous harness replaced ad-hoc screens with fresh

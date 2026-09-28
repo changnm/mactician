@@ -1053,7 +1053,8 @@ fi
 # resolution-dependent DPI rule. Stage it before every game start without
 # changing the 3D framebuffer resolution or r.ScreenPercentage. TFT may later
 # normalize Saved/Config/Android/Engine.ini, so the launcher preference remains
-# the source of truth and is reapplied on every Play.
+# the source of truth and is reapplied on every Play. Also enable Riot's
+# built-in session persistence: the shipped RGIOP default disables it.
 readonly ENGINE_CONFIG="$PROFILE_DIR/Engine.ini"
 UI_SCALE_TEMP_DIR="$(mktemp -d /private/tmp/tft-ui-scale.XXXXXX)"
 readonly ENGINE_CONFIG_CURRENT="$UI_SCALE_TEMP_DIR/Engine.ini.current"
