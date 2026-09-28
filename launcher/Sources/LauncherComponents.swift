@@ -4,8 +4,8 @@ import SwiftUI
 struct LauncherBrandMark: View {
     var body: some View {
         MacticianMark()
-            .frame(width: 34, height: 34)
-        .accessibilityHidden(true)
+            .frame(width: 40, height: 40)
+            .accessibilityHidden(true)
     }
 }
 
@@ -104,11 +104,11 @@ struct LauncherStatusIcon: View {
                     .tint(color)
             } else {
                 Image(systemName: symbol)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 28, weight: .semibold))
                     .foregroundColor(color)
             }
         }
-        .frame(width: 48, height: 48)
+        .frame(width: 64, height: 64)
         .accessibilityHidden(true)
     }
 }
@@ -121,53 +121,19 @@ struct LauncherStatusHeader: View {
     var spinning = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: LauncherTheme.Spacing.regular) {
+        HStack(alignment: .center, spacing: 20) {
             LauncherStatusIcon(symbol: symbol, color: color, spinning: spinning)
             VStack(alignment: .leading, spacing: LauncherTheme.Spacing.xSmall) {
                 Text(title)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: 23, weight: .semibold))
                     .foregroundColor(LauncherTheme.ColorToken.textPrimary)
                 Text(description)
-                    .font(.system(size: 13))
+                    .font(.system(size: 15))
                     .foregroundColor(LauncherTheme.ColorToken.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .accessibilityElement(children: .combine)
-    }
-}
-
-struct LauncherSummaryField<Content: View>: View {
-    let label: String
-    let value: String
-    let detail: String?
-    let content: Content
-
-    init(
-        label: String,
-        value: String,
-        detail: String? = nil,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.label = label
-        self.value = value
-        self.detail = detail
-        self.content = content()
-    }
-
-    var body: some View {
-        content
-            .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: LauncherTheme.Metric.controlRadius)
-                    .fill(LauncherTheme.ColorToken.raisedControl.opacity(0.82))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: LauncherTheme.Metric.controlRadius)
-                    .stroke(LauncherTheme.ColorToken.neutralBorder, lineWidth: 1)
-            )
-            .accessibilityLabel(label)
-            .accessibilityValue(detail.map { "\(value), \($0)" } ?? value)
     }
 }
 
@@ -260,6 +226,62 @@ struct LauncherDivider: View {
         Rectangle()
             .fill(LauncherTheme.ColorToken.neutralBorder)
             .frame(height: 1)
+    }
+}
+
+// The main launcher uses larger actions; settings retain their existing control styles.
+struct LauncherActionButtonStyle: ButtonStyle {
+    enum Kind { case primary, secondary, support }
+    var kind: Kind = .primary
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.isFocused) private var isFocused
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+
+    private var accent: Color {
+        switch kind {
+        case .primary: return Color(red: 0, green: 0.94, blue: 0.53)
+        case .secondary: return LauncherTheme.ColorToken.raisedControl
+        case .support: return Color(red: 0.66, green: 0.12, blue: 0.94)
+        }
+    }
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: kind == .secondary ? .medium : .bold))
+            .fixedSize(horizontal: true, vertical: false)
+            .foregroundColor(
+                !isEnabled ? LauncherTheme.ColorToken.textTertiary
+                    : kind == .primary ? LauncherTheme.ColorToken.window : .white
+            )
+            .padding(.horizontal, 22)
+            .frame(minHeight: 54)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(LinearGradient(
+                        colors: isEnabled
+                            ? [accent.opacity(isHovered ? 1 : 0.94), accent]
+                            : [LauncherTheme.ColorToken.raisedControl],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(
+                        Color.white.opacity(kind == .secondary ? (isHovered ? 0.32 : 0.20) : 0.12),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: accent.opacity(isEnabled && kind != .secondary ? 0.20 : 0), radius: 12, y: 3)
+            .brightness(configuration.isPressed ? -0.08 : isHovered ? 0.04 : 0)
+            .scaleEffect(reduceMotion || !configuration.isPressed ? 1 : 0.98)
+            .overlay(
+                RoundedRectangle(cornerRadius: 13)
+                    .stroke(isFocused ? LauncherTheme.ColorToken.interactive : .clear, lineWidth: 2)
+                    .padding(-3)
+            )
+            .onHover { isHovered = $0 }
     }
 }
 

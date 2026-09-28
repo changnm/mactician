@@ -70,16 +70,17 @@ struct LauncherView: View {
 
             VStack(spacing: 0) {
                 header
-                hero(compact: compactHeight)
-                Spacer(minLength: LauncherTheme.Spacing.medium)
-                LauncherStateDeck(model: model, showSettings: $showSettings)
-                    .frame(
-                        width: min(
-                            LauncherTheme.Metric.contentMaxWidth,
-                            max(0, availableWidth - LauncherTheme.Metric.stateDeckInset * 2)
-                        )
-                    )
-                communityActions
+                ScrollView {
+                    VStack(spacing: 0) {
+                        hero(compact: compactHeight)
+                        LauncherStateDeck(model: model, showSettings: $showSettings)
+                        communityActions
+                            .padding(.top, LauncherTheme.Spacing.large)
+                    }
+                    .padding(.horizontal, LauncherTheme.Metric.stateDeckInset)
+                    .padding(.bottom, LauncherTheme.Spacing.large)
+                    .frame(maxWidth: .infinity)
+                }
                 footer
             }
             .frame(width: availableWidth)
@@ -97,139 +98,123 @@ struct LauncherView: View {
     }
 
     private var artwork: some View {
-        ZStack {
-            if let heroImage {
-                Image(nsImage: heroImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            } else {
-                LauncherTheme.ColorToken.surface
+        GeometryReader { geometry in
+            ZStack {
+                if let heroImage {
+                    Image(nsImage: heroImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                }
+
+                LinearGradient(
+                    stops: [
+                        .init(color: LauncherTheme.ColorToken.window.opacity(0.65), location: 0),
+                        .init(color: LauncherTheme.ColorToken.window.opacity(0.34), location: 0.34),
+                        .init(color: LauncherTheme.ColorToken.window.opacity(0.76), location: 0.7),
+                        .init(color: LauncherTheme.ColorToken.window.opacity(0.98), location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                LinearGradient(
+                    colors: [LauncherTheme.ColorToken.window.opacity(0.78), .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
             }
-
-            LinearGradient(
-                stops: [
-                    .init(color: LauncherTheme.ColorToken.surface.opacity(0.06), location: 0),
-                    .init(color: LauncherTheme.ColorToken.surface.opacity(0.22), location: 0.42),
-                    .init(color: LauncherTheme.ColorToken.surface.opacity(0.9), location: 0.78),
-                    .init(color: LauncherTheme.ColorToken.surface, location: 1)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
-            LinearGradient(
-                colors: [LauncherTheme.ColorToken.surface.opacity(0.9), .clear],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
         }
         .accessibilityHidden(true)
+        .allowsHitTesting(false)
     }
 
     private var header: some View {
-        HStack(spacing: 0) {
-            Color.clear
-                .frame(width: LauncherTheme.Metric.trafficLightReserve)
-
+        HStack(spacing: LauncherTheme.Spacing.medium) {
             LauncherBrandMark()
-                .padding(.trailing, LauncherTheme.Spacing.medium)
-
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text("Mactician")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(LauncherTheme.ColorToken.textPrimary)
                 Text(LauncherL10n.text("header.subtitle"))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(LauncherTheme.ColorToken.textTertiary)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(LauncherTheme.ColorToken.textSecondary)
             }
 
             LauncherDragRegion()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityHidden(true)
 
-            HStack(spacing: LauncherTheme.Spacing.small) {
-                Circle()
-                    .fill(
-                        model.isNativeIPadRuntimeSelected
-                            ? LauncherTheme.ColorToken.warning
-                            : LauncherTheme.ColorToken.interactive
-                    )
-                    .frame(width: 7, height: 7)
-                    .accessibilityHidden(true)
-                Text(
-                    model.isNativeIPadRuntimeSelected
-                        ? LauncherL10n.text("header.native_ipad_experimental")
-                        : model.gameVersionSummary
-                )
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundColor(LauncherTheme.ColorToken.textPrimary)
-            }
-            .padding(.leading, LauncherTheme.Spacing.medium)
-            .accessibilityElement(children: .combine)
-
             Text(LauncherBuildInfo.display)
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .font(.system(size: 12, weight: .medium, design: .monospaced))
                 .foregroundColor(LauncherTheme.ColorToken.textSecondary)
-                .padding(.leading, LauncherTheme.Spacing.medium)
-
-            Button { showSettings = true } label: {
-                Image(systemName: "gearshape.fill")
-            }
-            .buttonStyle(LauncherIconButtonStyle())
-            .accessibilityLabel(LauncherL10n.text("settings.open"))
-            .help(LauncherL10n.text("settings.open"))
-            .padding(.leading, LauncherTheme.Spacing.medium)
         }
-        .padding(.trailing, LauncherTheme.Spacing.xLarge)
-        .frame(height: LauncherTheme.Metric.headerHeight)
-        .background(Color.black.opacity(0.2))
+        .padding(.horizontal, LauncherTheme.Metric.trafficLightReserve)
+        .frame(height: 64)
+        .background(Color.black.opacity(0.22))
         .overlay(alignment: .bottom) { LauncherDivider() }
     }
 
     private func hero(compact: Bool) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: LauncherTheme.Spacing.small) {
-                Text(LauncherL10n.text("hero.eyebrow"))
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .tracking(1.1)
-                    .foregroundColor(LauncherTheme.ColorToken.interactive)
-
+        let prominent = model.mode == .ready && !model.isNativeIPadRuntimeSelected
+        return HStack {
+            VStack(alignment: .leading, spacing: LauncherTheme.Spacing.regular) {
                 Text(LauncherL10n.text("hero.title"))
-                    .font(.system(size: compact ? 30 : 34, weight: .black, design: .serif))
+                    .font(.system(size: compact ? (prominent ? 38 : 32) : 44, weight: .black, design: .serif))
+                    .lineSpacing(0)
                     .foregroundColor(LauncherTheme.ColorToken.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
                     .shadow(color: Color.black.opacity(0.45), radius: 6, y: 2)
 
-                if !compact {
-                    Text(LauncherL10n.text("hero.description"))
-                        .font(.system(size: 13))
-                        .foregroundColor(LauncherTheme.ColorToken.textSecondary)
-                }
+                Text(LauncherL10n.text("hero.description"))
+                    .font(.system(size: compact ? 17 : 19, weight: .medium))
+                    .foregroundColor(LauncherTheme.ColorToken.textSecondary)
             }
             Spacer()
         }
-        .padding(.horizontal, LauncherTheme.Metric.trafficLightReserve)
-        .frame(height: compact ? 104 : 152, alignment: .leading)
+        .padding(.horizontal, LauncherTheme.Metric.stateDeckPadding)
+        .frame(height: compact ? (prominent ? 176 : 144) : (prominent ? 296 : 196), alignment: .leading)
     }
 
     private var communityActions: some View {
-        HStack(spacing: LauncherTheme.Spacing.medium) {
-            Spacer()
+        HStack(spacing: LauncherTheme.Spacing.large) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 28))
+                .foregroundColor(LauncherTheme.ColorToken.interactive)
+                .frame(width: 36)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(LauncherL10n.text("community.title"))
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(LauncherTheme.ColorToken.textPrimary)
+                Text(LauncherL10n.text("community.description"))
+                    .font(.system(size: 15))
+                    .foregroundColor(LauncherTheme.ColorToken.textSecondary)
+            }
+            Spacer(minLength: LauncherTheme.Spacing.small)
+
+            Link(destination: MacticianIdentity.donateURL) {
+                Label(LauncherL10n.text("action.donate"), systemImage: "heart")
+                    .frame(minWidth: 106)
+            }
+            .buttonStyle(LauncherActionButtonStyle(kind: .support))
 
             Link(destination: MacticianIdentity.feedbackURL) {
                 Label(LauncherL10n.text("action.suggest_improvement"), systemImage: "lightbulb")
             }
-            .buttonStyle(LauncherSecondaryButtonStyle())
-
-            Link(destination: MacticianIdentity.donateURL) {
-                Label(LauncherL10n.text("action.donate"), systemImage: "heart")
-            }
-            .buttonStyle(LauncherSecondaryButtonStyle())
+            .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
         }
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.horizontal, LauncherTheme.Metric.trafficLightReserve)
-        .padding(.top, LauncherTheme.Spacing.regular)
+        .padding(.horizontal, LauncherTheme.Metric.stateDeckPadding)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.06, green: 0.035, blue: 0.12).opacity(0.88))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(LauncherTheme.ColorToken.interactive.opacity(0.65), lineWidth: 1)
+        )
     }
 
     private var footer: some View {
@@ -247,9 +232,9 @@ struct LauncherView: View {
             Spacer()
             Text(LauncherL10n.text("footer.legal"))
         }
-        .font(.system(size: 10, weight: .medium))
-        .foregroundColor(LauncherTheme.ColorToken.textTertiary)
-        .padding(.horizontal, LauncherTheme.Metric.trafficLightReserve)
-        .frame(height: 36)
+        .font(.system(size: 11, weight: .medium))
+        .foregroundColor(LauncherTheme.ColorToken.textSecondary)
+        .padding(.horizontal, LauncherTheme.Metric.stateDeckInset + 12)
+        .frame(height: 44)
     }
 }

@@ -4,8 +4,8 @@
 "about.descriptor" = "TFT launcher for Apple Silicon";
 
 "hero.eyebrow" = "MACTICIAN · TFT LAUNCHER";
-"hero.title" = "Keep playing TFT on your Mac.";
-"hero.description" = "Mactician prepares the environment, starts the game, and keeps your local setup in one place.";
+"hero.title" = "Keep playing TFT\non your Mac.";
+"hero.description" = "Fast. Stable. Open source.";
 
 "footer.private_build" = "Free and open source";
 "footer.apple_silicon" = "Apple silicon";
@@ -36,7 +36,7 @@
 
 "action.play" = "Play";
 "action.suggest_improvement" = "Suggest an improvement";
-"action.donate" = "Send a donation";
+"action.donate" = "Donate";
 "action.update_game" = "Update game";
 "action.install" = "Install";
 "action.pause" = "Pause";
@@ -207,3 +207,6 @@
 "edition.choose" = "Switch game edition";
 "edition.download_on_selection" = "On installation";
 "edition.install.description" = "Install the selected game edition. The other edition and its saved sign-in stay available.";
+"action.settings" = "Settings";
+"community.title" = "Enjoying Mactician?";
+"community.description" = "Help support its development.";

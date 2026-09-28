@@ -6,36 +6,52 @@ struct LauncherStateDeck: View {
     @Binding var showSettings: Bool
 
     var body: some View {
-        Group {
-            switch model.mode {
-            case .needsInstall:
-                if model.isNativeIPadRuntimeSelected {
-                    LauncherNativeIPadRequiredView(model: model)
-                } else {
-                    LauncherInstallRequiredView(model: model)
-                }
-            case .installing:
-                LauncherInstallingView(model: model)
-            case .ready:
-                if model.isNativeIPadRuntimeSelected {
-                    LauncherNativeIPadReadyView(model: model)
-                } else {
-                    LauncherReadyView(model: model, showSettings: $showSettings)
-                }
-            case .launching:
-                LauncherLaunchingView(model: model)
-            case .playing:
-                LauncherPlayingView(model: model)
-            case .stopping:
-                LauncherStoppingView(model: model)
-            case .failed:
-                LauncherFailureView(model: model)
+        stateContent
+            .padding(LauncherTheme.Metric.stateDeckPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .launcherSurface(radius: 14, fill: LauncherTheme.ColorToken.surface.opacity(0.95))
+            .shadow(color: Color.black.opacity(0.34), radius: 18, y: 8)
+    }
+
+    @ViewBuilder
+    private var stateContent: some View {
+        switch model.mode {
+        case .needsInstall:
+            if model.isNativeIPadRuntimeSelected {
+                LauncherNativeIPadRequiredView(model: model, showSettings: $showSettings)
+            } else {
+                LauncherInstallRequiredView(model: model, showSettings: $showSettings)
             }
+        case .installing:
+            LauncherInstallingView(model: model, showSettings: $showSettings)
+        case .ready:
+            if model.isNativeIPadRuntimeSelected {
+                LauncherNativeIPadReadyView(model: model, showSettings: $showSettings)
+            } else {
+                LauncherReadyView(model: model, showSettings: $showSettings)
+            }
+        case .launching:
+            LauncherLaunchingView(model: model, showSettings: $showSettings)
+        case .playing:
+            LauncherPlayingView(model: model, showSettings: $showSettings)
+        case .stopping:
+            LauncherStoppingView(model: model, showSettings: $showSettings)
+        case .failed:
+            LauncherFailureView(model: model, showSettings: $showSettings)
         }
-        .padding(LauncherTheme.Metric.stateDeckPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .launcherSurface()
-        .shadow(color: Color.black.opacity(0.34), radius: 18, y: 8)
+    }
+}
+
+private struct LauncherSettingsButton: View {
+    @Binding var showSettings: Bool
+
+    var body: some View {
+        Button { showSettings = true } label: {
+            Label(LauncherL10n.text("action.settings"), systemImage: "gearshape.fill")
+        }
+        .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
+        .keyboardShortcut(",", modifiers: .command)
+        .help(LauncherL10n.text("settings.open"))
     }
 }
 
@@ -82,6 +98,7 @@ private struct LauncherEditionMenu: View {
 
 private struct LauncherNativeIPadRequiredView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
     @State private var showsForgetConfirmation = false
 
     var body: some View {
@@ -109,13 +126,13 @@ private struct LauncherNativeIPadRequiredView: View {
                 Button(LauncherL10n.text("native_ipad.choose")) {
                     model.chooseNativeIPadApplication()
                 }
-                .buttonStyle(LauncherPrimaryButtonStyle())
+                .buttonStyle(LauncherActionButtonStyle())
                 .keyboardShortcut(.defaultAction)
 
                 Button(LauncherL10n.text("native_ipad.use_android")) {
                     model.selectRuntime(.androidEmulator)
                 }
-                .buttonStyle(LauncherSecondaryButtonStyle())
+                .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
                 if model.nativeIPadHasSavedState {
                     Button(LauncherL10n.text("native_ipad.forget")) {
                         showsForgetConfirmation = true
@@ -123,6 +140,7 @@ private struct LauncherNativeIPadRequiredView: View {
                     .buttonStyle(LauncherTertiaryButtonStyle(tint: LauncherTheme.ColorToken.danger))
                 }
                 Spacer()
+                LauncherSettingsButton(showSettings: $showSettings)
             }
         }
         .alert(
@@ -141,6 +159,7 @@ private struct LauncherNativeIPadRequiredView: View {
 
 private struct LauncherNativeIPadReadyView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
     @State private var showsForgetConfirmation = false
 
     var body: some View {
@@ -154,9 +173,10 @@ private struct LauncherNativeIPadReadyView: View {
                 )
                 Spacer()
                 Button(LauncherL10n.text("action.play")) { model.play() }
-                    .buttonStyle(LauncherPrimaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle())
                     .keyboardShortcut(.defaultAction)
                     .disabled(model.nativeIPadDescriptor == nil)
+                LauncherSettingsButton(showSettings: $showSettings)
             }
 
             if let descriptor = model.nativeIPadDescriptor {
@@ -198,7 +218,7 @@ private struct LauncherNativeIPadReadyView: View {
                 Button(LauncherL10n.text("native_ipad.revalidate")) {
                     model.revalidateNativeIPadApplication()
                 }
-                .buttonStyle(LauncherSecondaryButtonStyle())
+                .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
                 Button(LauncherL10n.text("native_ipad.replace")) {
                     model.chooseNativeIPadApplication()
                 }
@@ -242,6 +262,7 @@ private struct LauncherNativeIPadReadyView: View {
 
 private struct LauncherInstallRequiredView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
     @State private var showsInstallDetails = false
 
     var body: some View {
@@ -320,10 +341,11 @@ private struct LauncherInstallRequiredView: View {
                 LauncherEditionMenu(model: model)
 
                 Button(LauncherL10n.text("action.install")) { model.install() }
-                    .buttonStyle(LauncherPrimaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle())
                     .keyboardShortcut(.defaultAction)
                     .disabled(!model.licenseAccepted && !model.hasAndroidRuntime)
                     .accessibilityHint(model.hasAndroidRuntime ? "" : LauncherL10n.text("install.license.hint"))
+                LauncherSettingsButton(showSettings: $showSettings)
             }
         }
     }
@@ -355,6 +377,7 @@ private struct LauncherInstallRequiredView: View {
 
 private struct LauncherInstallingView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: LauncherTheme.Spacing.large) {
@@ -383,7 +406,7 @@ private struct LauncherInstallingView: View {
                 Button(
                     LauncherL10n.text(model.isPaused ? "action.resume" : "action.pause")
                 ) { model.togglePause() }
-                    .buttonStyle(LauncherSecondaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
                     .disabled(model.installCancellationRequested)
 
                 Button(LauncherL10n.text("action.cancel")) { model.cancelInstall() }
@@ -394,6 +417,7 @@ private struct LauncherInstallingView: View {
 
                 Button(LauncherL10n.text("action.view_log")) { model.openLog() }
                     .buttonStyle(LauncherTertiaryButtonStyle())
+                LauncherSettingsButton(showSettings: $showSettings)
             }
         }
     }
@@ -418,37 +442,33 @@ private struct LauncherReadyView: View {
     @Binding var showSettings: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: LauncherTheme.Spacing.large) {
-            HStack(alignment: .center, spacing: LauncherTheme.Spacing.large) {
-                LauncherStatusHeader(
-                    symbol: "checkmark",
-                    color: LauncherTheme.ColorToken.success,
-                    title: LauncherL10n.text("ready.title"),
-                    description: LauncherL10n.text("ready.description")
-                )
-                Spacer()
-                HStack(spacing: LauncherTheme.Spacing.medium) {
-                    LauncherEditionMenu(model: model)
-                    if model.isGameUpdateAvailable {
-                        Button(LauncherL10n.text("action.update_game")) { model.updateGame() }
-                            .buttonStyle(LauncherPrimaryButtonStyle())
-                            .keyboardShortcut(.defaultAction)
-                    } else {
-                        Button(LauncherL10n.text("action.play")) { model.play() }
-                            .buttonStyle(LauncherPrimaryButtonStyle())
-                            .keyboardShortcut(.defaultAction)
-                            .disabled(model.isCheckingGameUpdate)
+        HStack(alignment: .center, spacing: LauncherTheme.Spacing.large) {
+            LauncherStatusHeader(
+                symbol: "checkmark",
+                color: LauncherTheme.ColorToken.success,
+                title: LauncherL10n.text("ready.title"),
+                description: LauncherL10n.text("ready.description")
+            )
+            Spacer(minLength: LauncherTheme.Spacing.regular)
+            HStack(spacing: LauncherTheme.Spacing.regular) {
+                if model.isGameUpdateAvailable {
+                    Button { model.updateGame() } label: {
+                        Label(LauncherL10n.text("action.update_game"), systemImage: "arrow.down.circle.fill")
+                            .frame(minWidth: 116)
                     }
+                    .buttonStyle(LauncherActionButtonStyle())
+                    .keyboardShortcut(.defaultAction)
+                } else {
+                    Button { model.play() } label: {
+                        Label(LauncherL10n.text("action.play"), systemImage: "play.fill")
+                            .frame(minWidth: 116)
+                    }
+                    .buttonStyle(LauncherActionButtonStyle())
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(model.isCheckingGameUpdate)
                 }
+                LauncherSettingsButton(showSettings: $showSettings)
             }
-
-            HStack(spacing: LauncherTheme.Spacing.medium) {
-                languageField
-                profileField
-                advancedField
-            }
-
-            hotkeyRow
         }
         .onAppear {
             model.refreshHotkeyStatus()
@@ -472,217 +492,11 @@ private struct LauncherReadyView: View {
             Text(model.gameUpdateResultMessage ?? "")
         }
     }
-
-    private var languageField: some View {
-        LauncherSummaryField(
-            label: LauncherL10n.text("field.game_language"),
-            value: model.selectedLanguage.title
-        ) {
-            HStack(spacing: LauncherTheme.Spacing.medium) {
-                Image(systemName: "globe")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(LauncherTheme.ColorToken.interactive)
-                    .frame(width: 20)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: LauncherTheme.Spacing.xSmall) {
-                    LauncherFieldLabel(text: LauncherL10n.text("field.game_language"))
-                    LauncherMenuControl(
-                        value: model.selectedLanguage.title,
-                        showsBackground: false
-                    ) {
-                        ForEach(GameLanguage.supported) { language in
-                            Button {
-                                model.selectLanguage(language.id)
-                            } label: {
-                                if language.id == model.selectedLanguageID {
-                                    Label(language.title, systemImage: "checkmark")
-                                } else {
-                                    Text(language.title)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, LauncherTheme.Spacing.regular)
-            .padding(.vertical, LauncherTheme.Spacing.small)
-            .contentShape(Rectangle())
-        }
-    }
-
-    private var profileField: some View {
-        LauncherSummaryField(
-            label: LauncherL10n.text("field.resolution"),
-            value: model.selectedProfile.displayResolution
-        ) {
-            HStack(spacing: LauncherTheme.Spacing.medium) {
-                Image(systemName: "display")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(LauncherTheme.ColorToken.interactive)
-                    .frame(width: 20)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: LauncherTheme.Spacing.xSmall) {
-                    LauncherFieldLabel(text: LauncherL10n.text("field.resolution"))
-                    LauncherMenuControl(
-                        value: model.selectedProfile.displayResolution,
-                        showsBackground: false
-                    ) {
-                        ForEach(model.manifest.profiles) { profile in
-                            let title = profile.displayResolution
-                            Button {
-                                model.selectProfile(profile.id)
-                            } label: {
-                                if profile.id == model.selectedProfileID {
-                                    Label(title, systemImage: "checkmark")
-                                } else {
-                                    Text(title)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, LauncherTheme.Spacing.regular)
-            .padding(.vertical, LauncherTheme.Spacing.small)
-            .contentShape(Rectangle())
-        }
-    }
-
-    private var advancedField: some View {
-        LauncherSummaryField(
-            label: LauncherL10n.text("field.advanced_settings"),
-            value: model.selectedConfiguration.fullSummary
-        ) {
-            Button { showSettings = true } label: {
-                summaryLabel(
-                    label: LauncherL10n.text("field.advanced_settings"),
-                    value: LauncherL10n.format(
-                        "ready.advanced_summary_format",
-                        model.selectedUIScalePercent,
-                        model.selectedMemoryMB / 1024,
-                        model.selectedCPUCores
-                    ),
-                    detail: LauncherL10n.text("ready.advanced_open"),
-                    symbol: "slider.horizontal.3"
-                )
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func summaryLabel(
-        label: String,
-        value: String,
-        detail: String?,
-        symbol: String
-    ) -> some View {
-        HStack(spacing: LauncherTheme.Spacing.medium) {
-            Image(systemName: symbol)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(LauncherTheme.ColorToken.interactive)
-                .frame(width: 20)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: LauncherTheme.Spacing.xSmall) {
-                LauncherFieldLabel(text: label)
-                Text(value)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(LauncherTheme.ColorToken.textPrimary)
-                    .lineLimit(1)
-                if let detail {
-                    Text(detail)
-                        .font(.system(size: 11))
-                        .foregroundColor(LauncherTheme.ColorToken.textTertiary)
-                        .lineLimit(1)
-                }
-            }
-            Spacer(minLength: LauncherTheme.Spacing.small)
-            Image(systemName: "chevron.down")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(LauncherTheme.ColorToken.interactive)
-                .accessibilityHidden(true)
-        }
-        .padding(.horizontal, LauncherTheme.Spacing.regular)
-        .padding(.vertical, LauncherTheme.Spacing.medium)
-        .contentShape(Rectangle())
-    }
-
-    private var hotkeyRow: some View {
-        HStack(spacing: LauncherTheme.Spacing.medium) {
-            Image(systemName: hotkeySymbol)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(hotkeyColor)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LauncherL10n.text("hotkeys.title"))
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(LauncherTheme.ColorToken.textPrimary)
-                Text(hotkeyStatusText)
-                    .font(.system(size: 11))
-                    .foregroundColor(LauncherTheme.ColorToken.textSecondary)
-                Text(LauncherL10n.text("hotkeys.shortcuts"))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundColor(LauncherTheme.ColorToken.textTertiary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer()
-            if needsPermissionAction {
-                Button(LauncherL10n.text("hotkeys.grant_access")) { model.requestInputPermissions() }
-                    .buttonStyle(LauncherTertiaryButtonStyle())
-            }
-        }
-        .padding(.horizontal, LauncherTheme.Spacing.regular)
-        .frame(minHeight: 68)
-        .background(
-            RoundedRectangle(cornerRadius: LauncherTheme.Metric.controlRadius)
-                .fill(
-                    needsHotkeyAction
-                        ? LauncherTheme.ColorToken.warning.opacity(0.09)
-                        : Color.black.opacity(0.18)
-                )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: LauncherTheme.Metric.controlRadius)
-                .stroke(
-                    needsHotkeyAction
-                        ? LauncherTheme.ColorToken.warning.opacity(0.36)
-                        : Color.clear,
-                    lineWidth: 1
-                )
-        )
-        .accessibilityElement(children: .combine)
-    }
-
-    private var needsHotkeyAction: Bool {
-        model.hotkeyStatus == .permissionRequired
-            || model.hotkeyStatus == .unavailable
-    }
-
-    private var needsPermissionAction: Bool {
-        model.hotkeyStatus == .permissionRequired
-    }
-
-    private var hotkeyStatusText: String {
-        LauncherL10n.text(model.hotkeyStatus.localizationKey)
-    }
-
-    private var hotkeyColor: Color {
-        switch model.hotkeyStatus {
-        case .ready, .active: return LauncherTheme.ColorToken.success
-        case .permissionRequired, .unavailable: return LauncherTheme.ColorToken.warning
-        }
-    }
-
-    private var hotkeySymbol: String {
-        switch model.hotkeyStatus {
-        case .ready, .active: return "checkmark.circle.fill"
-        case .permissionRequired, .unavailable: return "exclamationmark.circle.fill"
-        }
-    }
 }
 
 private struct LauncherLaunchingView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: LauncherTheme.Spacing.large) {
@@ -711,7 +525,8 @@ private struct LauncherLaunchingView: View {
                 Button(LauncherL10n.text("action.view_log")) { model.openLog() }
                     .buttonStyle(LauncherTertiaryButtonStyle())
                 Button(LauncherL10n.text("action.stop")) { model.stopGame() }
-                    .buttonStyle(LauncherSecondaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
+                LauncherSettingsButton(showSettings: $showSettings)
             }
         }
     }
@@ -719,6 +534,7 @@ private struct LauncherLaunchingView: View {
 
 private struct LauncherPlayingView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
 
     var body: some View {
         if model.isNativeIPadRuntimeSelected {
@@ -739,7 +555,8 @@ private struct LauncherPlayingView: View {
                 )
                 Spacer()
                 Button(LauncherL10n.text("action.stop_game")) { model.stopGame() }
-                    .buttonStyle(LauncherSecondaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
+                LauncherSettingsButton(showSettings: $showSettings)
             }
             if let descriptor = model.nativeIPadDescriptor {
                 Label(
@@ -770,7 +587,8 @@ private struct LauncherPlayingView: View {
                 )
                 Spacer()
                 Button(LauncherL10n.text("action.stop_game")) { model.stopGame() }
-                    .buttonStyle(LauncherSecondaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
+                LauncherSettingsButton(showSettings: $showSettings)
             }
             configurationSummary(configuration, full: true)
             HStack(spacing: LauncherTheme.Spacing.medium) {
@@ -813,6 +631,7 @@ private struct LauncherPlayingView: View {
 
 private struct LauncherStoppingView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: LauncherTheme.Spacing.large) {
@@ -835,6 +654,7 @@ private struct LauncherStoppingView: View {
                 Spacer()
                 Button(LauncherL10n.text("action.view_log")) { model.openLog() }
                     .buttonStyle(LauncherTertiaryButtonStyle())
+                LauncherSettingsButton(showSettings: $showSettings)
             }
         }
     }
@@ -842,6 +662,7 @@ private struct LauncherStoppingView: View {
 
 private struct LauncherFailureView: View {
     @ObservedObject var model: LauncherModel
+    @Binding var showSettings: Bool
     @State private var showsTechnicalDetails = false
 
     var body: some View {
@@ -888,9 +709,6 @@ private struct LauncherFailureView: View {
             }
 
             HStack(spacing: LauncherTheme.Spacing.medium) {
-                if !model.isNativeIPadRuntimeSelected {
-                    LauncherEditionMenu(model: model)
-                }
                 if failure.recoveryAction != .none {
                     Button(LauncherL10n.text(
                         model.isNativeIPadRuntimeSelected
@@ -901,15 +719,18 @@ private struct LauncherFailureView: View {
                     )) {
                         model.recoverFromFailure()
                     }
-                    .buttonStyle(LauncherPrimaryButtonStyle())
+                    .buttonStyle(LauncherActionButtonStyle())
                     .keyboardShortcut(.defaultAction)
                 }
                 if !model.isNativeIPadRuntimeSelected
                     && (failure.origin == .launch || failure.origin == .runtime) {
                     Button(LauncherL10n.text("action.repair_installation")) { model.repair() }
-                        .buttonStyle(LauncherSecondaryButtonStyle())
+                        .buttonStyle(LauncherActionButtonStyle(kind: .secondary))
                 }
                 Spacer()
+                LauncherSettingsButton(showSettings: $showSettings)
+            }
+            HStack(spacing: LauncherTheme.Spacing.medium) {
                 Button(LauncherL10n.text("action.view_log")) { model.openLog() }
                     .buttonStyle(LauncherTertiaryButtonStyle())
                 Button(LauncherL10n.text("action.data_folder")) { model.openDataFolder() }

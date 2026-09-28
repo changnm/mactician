@@ -4,8 +4,8 @@
 "about.descriptor" = "Лаунчер TFT для Mac с Apple Silicon";
 
 "hero.eyebrow" = "MACTICIAN · ЛАУНЧЕР TFT";
-"hero.title" = "Продолжайте играть в TFT на Mac.";
-"hero.description" = "Mactician готовит окружение, запускает игру и хранит локальные настройки в одном месте.";
+"hero.title" = "Продолжайте играть\nв TFT на Mac.";
+"hero.description" = "Быстро. Стабильно. Открытый код.";
 
 "footer.private_build" = "Бесплатно и с открытым исходным кодом";
 "footer.apple_silicon" = "Apple Silicon";
@@ -36,7 +36,7 @@
 
 "action.play" = "Играть";
 "action.suggest_improvement" = "Предложить улучшение";
-"action.donate" = "Отправить донат";
+"action.donate" = "Поддержать";
 "action.update_game" = "Обновить игру";
 "action.install" = "Установить";
 "action.pause" = "Приостановить";
@@ -207,3 +207,6 @@
 "edition.choose" = "Выбрать версию игры";
 "edition.download_on_selection" = "При установке";
 "edition.install.description" = "Установите выбранную версию игры. Другая версия и её аккаунт сохранятся.";
+"action.settings" = "Настройки";
+"community.title" = "Нравится Mactician?";
+"community.description" = "Поддержите его развитие.";

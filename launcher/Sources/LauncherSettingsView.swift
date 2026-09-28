@@ -106,6 +106,39 @@ struct LauncherSettingsView: View {
                     ? LauncherL10n.text("settings.runtime_locked")
                     : nil
             )
+            settingRow(LauncherL10n.text("edition.label")) {
+                LauncherMenuControl(value: model.selectedEdition.title) {
+                    ForEach(GameEdition.allCases) { edition in
+                        Button {
+                            model.selectEdition(edition)
+                        } label: {
+                            if edition == model.selectedEdition {
+                                Label(edition.title, systemImage: "checkmark")
+                            } else {
+                                Text(edition.title)
+                            }
+                        }
+                    }
+                }
+                .frame(width: 230)
+                .disabled(model.editionSelectionLocked)
+            }
+            settingRow(LauncherL10n.text("field.resolution")) {
+                LauncherMenuControl(value: model.selectedProfile.displayResolution) {
+                    ForEach(model.manifest.profiles) { profile in
+                        Button {
+                            model.selectProfile(profile.id)
+                        } label: {
+                            if profile.id == model.selectedProfileID {
+                                Label(profile.displayResolution, systemImage: "checkmark")
+                            } else {
+                                Text(profile.displayResolution)
+                            }
+                        }
+                    }
+                }
+                .frame(width: 230)
+            }
             settingRow(LauncherL10n.text("field.game_language")) {
                 LauncherMenuControl(value: model.selectedLanguage.title) {
                     ForEach(GameLanguage.supported) { language in
