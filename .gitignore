@@ -1,6 +1,7 @@
 # Build and release output
 /dist/
 /dist-build*/
+/branding/*.app/
 /launcher/.build/
 /runtime/
 /.build/
