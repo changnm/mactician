@@ -217,10 +217,10 @@ final class LauncherModel: ObservableObject {
 
     var downloadSize: String {
         let runtimeBytes = hasAndroidRuntime ? 0 : LauncherMetadata.totalDownloadBytes(in: manifest)
-        if selectedEdition == .vietnam, gameRelease == nil {
+        if selectedEdition != .global, gameRelease == nil {
             return LauncherL10n.text("edition.download_on_selection")
         }
-        let gameBytes = selectedEdition == .vietnam
+        let gameBytes = selectedEdition != .global
             ? gameRelease?.apks.reduce(Int64(0)) { $0 + $1.size } ?? 0 : 0
         return LauncherMetadata.byteCount(runtimeBytes + gameBytes)
     }

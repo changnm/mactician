@@ -93,7 +93,7 @@ tft_resolve_avd_home() {
 tft_resolve_game_package() {
     local game_package="${TFT_GAME_PACKAGE:-com.riotgames.league.teamfighttactics}"
     case "$game_package" in
-        com.riotgames.league.teamfighttactics|com.riotgames.league.teamfighttacticsvn)
+        com.riotgames.league.teamfighttactics|com.riotgames.league.teamfighttacticsvn|com.riotgames.league.teamfighttacticstw)
             print -r -- "$game_package"
             ;;
         *)

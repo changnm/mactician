@@ -28,16 +28,25 @@ enum MacticianIdentity {
 enum GameEdition: String, Codable, CaseIterable, Identifiable {
     case global
     case vietnam
+    case taiwan
 
     var id: String { rawValue }
-    var title: String { self == .global ? "Global" : "Vietnam (VNG)" }
+    var title: String {
+        switch self {
+        case .global: return "Global"
+        case .vietnam: return "Vietnam (VNG)"
+        case .taiwan: return "Taiwan"
+        }
+    }
     var packageName: String {
-        self == .global
-            ? "com.riotgames.league.teamfighttactics"
-            : "com.riotgames.league.teamfighttacticsvn"
+        switch self {
+        case .global: return "com.riotgames.league.teamfighttactics"
+        case .vietnam: return "com.riotgames.league.teamfighttacticsvn"
+        case .taiwan: return "com.riotgames.league.teamfighttacticstw"
+        }
     }
     var updatePath: String {
-        "/mactician/updates/game" + (self == .vietnam ? "/vietnam" : "")
+        "/mactician/updates/game" + (self == .global ? "" : "/\(id)")
     }
     var updateURL: URL {
         URL(string: "https://sergeinaumov.dev\(updatePath)/manifest.json")!

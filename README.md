@@ -38,8 +38,8 @@ is configured independently.
 
 ## Features
 
-- Choose Global or Vietnam (VNG) on the launch screen. Vietnam downloads on
-  first selection; both editions keep their game data and sign-ins.
+- Choose Global, Vietnam (VNG), or Taiwan on the launch screen. Regional editions
+  download on first selection; each edition keeps its own game data and sign-in.
 
 - Installs and verifies pinned Android Platform Tools, Emulator, and system
   image archives.

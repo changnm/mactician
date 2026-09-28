@@ -47,7 +47,7 @@ struct LauncherPaths {
     var downloads: URL { root.appendingPathComponent("downloads", isDirectory: true) }
     func gameCache(for edition: GameEdition) -> URL {
         // Keep the existing Global cache in place when upgrading the launcher.
-        root.appendingPathComponent(edition == .global ? "game" : "game/vietnam", isDirectory: true)
+        root.appendingPathComponent(edition == .global ? "game" : "game/\(edition.id)", isDirectory: true)
     }
     func hostedGameFeed(for edition: GameEdition) -> URL {
         gameCache(for: edition).appendingPathComponent("manifest.json")

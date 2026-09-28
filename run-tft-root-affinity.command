@@ -22,7 +22,11 @@ readonly BOOT_TIMEOUT_SECONDS="${TFT_BOOT_TIMEOUT_SECONDS:-120}"
 PACKAGE="$(tft_resolve_game_package)" || exit 2
 readonly PACKAGE
 # Global keeps its legacy directories so interrupted pre-upgrade runs can recover.
-readonly EDITION_SUFFIX="${${PACKAGE:#com.riotgames.league.teamfighttactics}:+-vietnam}"
+case "$PACKAGE" in
+    com.riotgames.league.teamfighttactics) readonly EDITION_SUFFIX="" ;;
+    com.riotgames.league.teamfighttacticsvn) readonly EDITION_SUFFIX="-vietnam" ;;
+    com.riotgames.league.teamfighttacticstw) readonly EDITION_SUFFIX="-taiwan" ;;
+esac
 readonly ACTIVITY="com.epicgames.unreal.SplashActivity"
 readonly ANGLE_BASE_FEATURES="exposeNonConformantExtensionsAndVersions:exposeES32ForTesting"
 readonly ANGLE_EXTRA_FEATURES="${TFT_ANGLE_EXTRA_FEATURES:-}"

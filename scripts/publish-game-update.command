@@ -19,7 +19,8 @@ readonly BUILD_TOOLS="${MACTICIAN_ANDROID_BUILD_TOOLS:-}"
 case "$EDITION" in
     global) readonly GAME_PATH="game" ;;
     vietnam) readonly GAME_PATH="game/vietnam" ;;
-    *) print -u2 "MACTICIAN_GAME_EDITION must be global or vietnam."; exit 2 ;;
+    taiwan) readonly GAME_PATH="game/taiwan" ;;
+    *) print -u2 "MACTICIAN_GAME_EDITION must be global, vietnam, or taiwan."; exit 2 ;;
 esac
 typeset -i PREPARE_ONLY=0
 

@@ -25,7 +25,7 @@ esac
 
 readonly PACKAGE="${TFT_GAME_PACKAGE:-com.riotgames.league.teamfighttactics}"
 case "$PACKAGE" in
-    com.riotgames.league.teamfighttactics|com.riotgames.league.teamfighttacticsvn) ;;
+    com.riotgames.league.teamfighttactics|com.riotgames.league.teamfighttacticsvn|com.riotgames.league.teamfighttacticstw) ;;
     *)
         print -r -- '{"event":"error","message":"Unsupported TFT game package","code":2}'
         exit 2

@@ -4,7 +4,10 @@ The current application metadata is version 1.2.0, build 49.
 
 ## Unreleased
 
-Planned for 1.3.0: the validated Global Vulkan buffer-view cache.
+### Added
+
+- Taiwan edition with independent downloads, updates, and sign-in alongside Global
+  and Vietnam (VNG).
 
 ## 1.2.0 — 2026-09-08
 
