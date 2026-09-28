@@ -143,7 +143,7 @@ final class PerformanceCollector {
 
     private func cacheExposure() -> String {
         // Fixed allowlisted packages only; never evaluate data received from the server.
-        guard [GameEdition.global.packageName, GameEdition.vietnam.packageName].contains(package) else { return "unknown" }
+        guard GameEdition.allCases.contains(where: { $0.packageName == package }) else { return "unknown" }
         let command = "p=$(pidof \(package)); [ -n \"$p\" ] && [ -r /proc/$p/maps ] || exit 1; v=$(getprop debug.mactician.vk_view_cache); if grep -q libVkLayer_Mactician_buffer_view_cache.so /proc/$p/maps; then [ \"$v\" = 1 ] && echo enabled || echo unknown; elif [ \"$v\" != 1 ]; then echo disabled; else echo unknown; fi"
         guard let data = shell(command), let text = String(data: data, encoding: .utf8) else { return "unknown" }
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)

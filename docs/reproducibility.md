@@ -13,7 +13,7 @@ packages, downloaded Android runtime, AVD userdata, or signing credentials.
 | Google APIs ARM64 system image | Android 36 revision 7 | `fb47d861d6f87230ee0fe70f610d579935ca77f41a0eefbf391595d3dc4b5ee2` |
 | Sparkle | 2.9.4 | `ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9` |
 
-The game release is `18.1-5423749`, package
+The game release is `18.3-5530794`, package
 `com.riotgames.league.teamfighttactics`. The four split names, sizes, and
 SHA-256 values are in `launcher/Resources/release-manifest.json`; the APK bytes
 are deliberately absent from Git.
@@ -21,8 +21,92 @@ are deliberately absent from Git.
 The current release manifest itself hashes to:
 
 ```text
-69886ab75fefa4bf69ca3df3d1a95cbdfad9c34492278ef9eb3aa48edd3bedc5  launcher/Resources/release-manifest.json
+f125e2d0b27617d5cf4f2ad56878d94c3f193cc5e16d923ac19c1da198238111  launcher/Resources/release-manifest.json
 ```
+
+## TFT 18.3-5530794 validation — 2026-09-24
+
+Global `18.3-5530794` (version code `8530794`) was extracted from the ARM64
+[APKMirror bundle](https://www.apkmirror.com/apk/riot-games-inc/teamfight-tactics-league-of-legends-strategy-game/tft-teamfight-tactics-18-3-5530794-release/tft-teamfight-tactics-18-3-5530794-android-apk-download/).
+The complete bundle SHA-256 is
+`2daa90932806d5a24f7b959b4701805db98dcdc90a54770e303f6e3f0f6db6f4`.
+Official Android Build Tools 36 verified all four unmodified splits against
+Riot certificate SHA-256
+`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`,
+matching the previously pinned base APK.
+
+The four splits upgraded `18.2-5492233` in a read-only `Tft` AVD session with
+`adb install-multiple --no-streaming -r -g`. The version code became `8530794`
+and `firstInstallTime` remained unchanged. Starting `SplashActivity` reached
+Unreal `GameActivity`; the process remained alive for more than 30 seconds
+with an empty crash buffer and no fatal records. The test session was stopped
+afterward. This checks installation and startup, not a complete match or
+performance.
+
+The full tests, Swift typecheck, ad-hoc app build, and nested code-signature
+verification passed. The control app contains the exact tested manifest and
+four APKs. Repository validation passed in a clean source copy; the original
+working tree retains a pre-existing validation failure caused by Russian
+resources in the untracked `branding/Mactician.app` copy.
+
+The Global signed game feed was published on 2026-09-24. Its public manifest
+passed `HostedGameUpdate.decodeAndVerify`; all four public APK HEAD requests
+and full downloads matched the tested sizes and SHA-256 hashes and had
+immutable cache headers. The Sparkle appcast remained byte-for-byte unchanged;
+no Mactician app release was published.
+
+## TFT 18.2-5492233 validation — 2026-09-17
+
+Global `18.2-5492233` (version code `8492233`) was extracted from the ARM64
+[APKMirror bundle](https://www.apkmirror.com/apk/riot-games-inc/teamfight-tactics-league-of-legends-strategy-game/tft-teamfight-tactics-18-2-5492233-release/tft-teamfight-tactics-18-2-5492233-android-apk-download/).
+Official Android Build Tools 36 verified all four unmodified splits against
+Riot certificate SHA-256
+`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`,
+matching the previously pinned base APK.
+
+The four splits upgraded `18.2-5450971` in a read-only `Tft` AVD session with
+`adb install-multiple --no-streaming -r -g`. The version code became `8492233`
+and `firstInstallTime` remained unchanged. Starting `SplashActivity` reached
+Unreal `GameActivity`; the process remained alive for more than 60 seconds
+with an empty crash buffer. The test session was stopped afterward. This
+checks installation and startup, not a complete match or performance.
+
+The full tests, Swift typecheck, ad-hoc app build, and nested code-signature
+verification passed. Repository validation passed in a clean source copy;
+the original working tree has a pre-existing validation failure caused by
+Russian resources in the untracked `branding/Mactician.app` copy.
+
+The Global signed game feed was published on 2026-09-17. Its public manifest
+passed `HostedGameUpdate.decodeAndVerify`; all four public APK downloads
+matched the tested sizes and SHA-256 hashes and had immutable cache headers.
+The Sparkle appcast remained byte-for-byte unchanged.
+
+## TFT 18.2 validation — 2026-09-10
+
+Global `18.2-5450971` (version code `8450971`) was extracted from the ARM64
+[APKMirror bundle](https://www.apkmirror.com/apk/riot-games-inc/teamfight-tactics-league-of-legends-strategy-game/tft-teamfight-tactics-18-2-5450971-release/tft-teamfight-tactics-18-2-5450971-android-apk-download/).
+Official Android Build Tools 36 verified all four unmodified splits against
+Riot certificate SHA-256
+`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`.
+[Vietnam](vietnam.md) and [Taiwan](taiwan.md) passed the same checks for their
+separate packages and APK hashes.
+
+All three editions upgraded from `18.1-5423749` in a test AVD copy without
+changing `firstInstallTime`. The normal `RuntimeController` path, using the
+built app's resources, reached Unreal `GameActivity` and remained alive for
+45 seconds with empty crash logs. Global retained its signed-in session and
+began patching; Vietnam and Taiwan displayed their content-download prompts.
+This verifies installation and startup, not a complete match or performance.
+The existing buffer-view-cache allowlist remains tied to the previously tested
+18.1 APK and therefore falls back automatically on 18.2.
+
+Repository validation passed in a clean source copy; the full tests, Swift
+typecheck, ad-hoc app build, and nested code-signature verification passed.
+
+Global, Vietnam, and Taiwan signed game feeds were published on 2026-09-10.
+Each public manifest passed `HostedGameUpdate.decodeAndVerify`; all 12 public
+APK downloads matched the tested sizes and SHA-256 hashes and had immutable
+cache headers. The Sparkle appcast remained byte-for-byte unchanged.
 
 ## Active profile hashes
 

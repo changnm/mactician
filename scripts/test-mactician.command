@@ -2422,7 +2422,7 @@ if ! grep -Fq 'field__input--animate' \
     exit 1
 fi
 
-for game_test_package in com.riotgames.league.teamfighttactics com.riotgames.league.teamfighttacticsvn; do
+for game_test_package in com.riotgames.league.teamfighttactics com.riotgames.league.teamfighttacticsvn com.riotgames.league.teamfighttacticstw; do
     resolved_package="$(TFT_GAME_PACKAGE="$game_test_package" zsh -c 'source "$1"; tft_resolve_game_package' -- "$PROJECT_DIR/scripts/android-environment.sh")"
     [[ "$resolved_package" == "$game_test_package" ]] || exit 1
 done
@@ -2511,7 +2511,7 @@ fi
 exit 0
 FAKE_ADB_EOF
 chmod 755 "$GAME_EXIT_ADB"
-for game_test_package in com.riotgames.league.teamfighttactics com.riotgames.league.teamfighttacticsvn; do
+for game_test_package in com.riotgames.league.teamfighttactics com.riotgames.league.teamfighttacticsvn com.riotgames.league.teamfighttacticstw; do
 rm -f "$GAME_EXIT_STATE"
 env \
     TFT_RUNTIME_PROJECT="$LIFECYCLE_ROOT/runtime" \

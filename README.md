@@ -25,7 +25,7 @@ Built for two tacticians. Shared with everyone.
   runtime preflight
 - Status: **experimental, best effort**; there is no support or compatibility
   SLA
-- Compatibility is pinned to TFT `18.1-5423749`, Android Emulator 37.1.11,
+- Compatibility is pinned to TFT `18.3-5530794`, Android Emulator 37.1.11,
   and Android 36. A game or emulator update can require a new Mactician release.
 
 ## Preview
@@ -38,8 +38,8 @@ is configured independently.
 
 ## Features
 
-- Choose Global or Vietnam (VNG) on the launch screen. Vietnam downloads on
-  first selection; both editions keep their game data and sign-ins.
+- Choose Global, Vietnam (VNG), or Taiwan in Settings. Regional editions
+  download on first selection; each edition keeps its own game data and sign-in.
 
 - Installs and verifies pinned Android Platform Tools, Emulator, and system
   image archives.

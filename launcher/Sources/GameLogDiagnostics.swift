@@ -31,7 +31,8 @@ struct GameLogObservation: Codable, Equatable {
     static let maximumResponseBytes = maximumLogBytes + 4096
 
     static func command(package: String) -> String? {
-        guard ["com.riotgames.league.teamfighttactics", "com.riotgames.league.teamfighttacticsvn"].contains(package) else { return nil }
+        guard ["com.riotgames.league.teamfighttactics", "com.riotgames.league.teamfighttacticsvn",
+               "com.riotgames.league.teamfighttacticstw"].contains(package) else { return nil }
         // No root, log-level changes, writes, or process attachment. Snapshot the
         // process and file on both sides so replacement/truncation fails closed.
         return """

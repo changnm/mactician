@@ -22,7 +22,11 @@ readonly BOOT_TIMEOUT_SECONDS="${TFT_BOOT_TIMEOUT_SECONDS:-120}"
 PACKAGE="$(tft_resolve_game_package)" || exit 2
 readonly PACKAGE
 # Global keeps its legacy directories so interrupted pre-upgrade runs can recover.
-readonly EDITION_SUFFIX="${${PACKAGE:#com.riotgames.league.teamfighttactics}:+-vietnam}"
+case "$PACKAGE" in
+    com.riotgames.league.teamfighttactics) readonly EDITION_SUFFIX="" ;;
+    com.riotgames.league.teamfighttacticsvn) readonly EDITION_SUFFIX="-vietnam" ;;
+    com.riotgames.league.teamfighttacticstw) readonly EDITION_SUFFIX="-taiwan" ;;
+esac
 readonly ACTIVITY="com.epicgames.unreal.SplashActivity"
 readonly ANGLE_BASE_FEATURES="exposeNonConformantExtensionsAndVersions:exposeES32ForTesting"
 readonly ANGLE_EXTRA_FEATURES="${TFT_ANGLE_EXTRA_FEATURES:-}"
@@ -1101,7 +1105,8 @@ fi
 # resolution-dependent DPI rule. Stage it before every game start without
 # changing the 3D framebuffer resolution or r.ScreenPercentage. TFT may later
 # normalize Saved/Config/Android/Engine.ini, so the launcher preference remains
-# the source of truth and is reapplied on every Play.
+# the source of truth and is reapplied on every Play. Also enable Riot's
+# built-in session persistence: the shipped RGIOP default disables it.
 readonly ENGINE_CONFIG="$PROFILE_DIR/Engine.ini"
 UI_SCALE_TEMP_DIR="$(mktemp -d /private/tmp/tft-ui-scale.XXXXXX)"
 readonly ENGINE_CONFIG_CURRENT="$UI_SCALE_TEMP_DIR/Engine.ini.current"

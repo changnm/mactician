@@ -1128,7 +1128,7 @@ enum LauncherTests {
         try expect(GameLanguage.language(withID: "ru-RU").title == "Russian", "Russian game language")
         try expect(GameLanguage.language(withID: "unsupported") == .english, "language fallback")
         try expect(
-            LauncherMetadata.gameDisplayVersion(from: manifest.game.version) == "18.1",
+            LauncherMetadata.gameDisplayVersion(from: manifest.game.version) == "18.3",
             "manifest-derived game display version"
         )
         try expect(
@@ -1615,92 +1615,114 @@ enum LauncherTests {
     ) throws {
         try expect(GameEdition.selection(saved: nil) == .global
             && GameEdition.selection(saved: "unknown") == .global
-            && GameEdition.selection(saved: "vietnam") == .vietnam, "edition preference migration")
-        let vietnam = GameRelease(
-            packageName: GameEdition.vietnam.packageName, version: globalRelease.version,
-            versionCode: globalRelease.versionCode, baseSHA256: globalRelease.baseSHA256,
-            apks: globalRelease.apks.map { apk in
-                GameAPK(name: apk.name, size: apk.size, sha256: apk.sha256, url: URL(string:
-                    "https://sergeinaumov.dev\(GameEdition.vietnam.updatePath)/releases/\(globalRelease.baseSHA256)/\(apk.name)"))
+            && GameEdition.selection(saved: "vietnam") == .vietnam
+            && GameEdition.selection(saved: "taiwan") == .taiwan, "edition preference migration")
+        for edition in [GameEdition.vietnam, .taiwan] {
+            let regional = GameRelease(
+                packageName: edition.packageName, version: globalRelease.version,
+                versionCode: globalRelease.versionCode, baseSHA256: globalRelease.baseSHA256,
+                apks: globalRelease.apks.map { apk in
+                    GameAPK(name: apk.name, size: apk.size, sha256: apk.sha256, url: URL(string:
+                        "https://sergeinaumov.dev\(edition.updatePath)/releases/\(globalRelease.baseSHA256)/\(apk.name)"))
+                }
+            )
+            func signed(_ release: GameRelease) throws -> Data {
+                let payload = try JSONEncoder().encode(HostedGameFeed(
+                    schemaVersion: 1, publishedAt: "2026-09-04T12:00:00Z", release: release
+                ))
+                return try JSONEncoder().encode(HostedGameFeedEnvelope(schemaVersion: 1,
+                    payload: payload.base64EncodedString(),
+                    signature: key.signature(for: payload).base64EncodedString()))
             }
-        )
-        func signed(_ release: GameRelease) throws -> Data {
-            let payload = try JSONEncoder().encode(HostedGameFeed(
-                schemaVersion: 1, publishedAt: "2026-09-04T12:00:00Z", release: release
-            ))
-            return try JSONEncoder().encode(HostedGameFeedEnvelope(schemaVersion: 1,
-                payload: payload.base64EncodedString(),
-                signature: key.signature(for: payload).base64EncodedString()))
-        }
-        func rejected(_ message: String, _ operation: () throws -> Void) throws {
-            do { try operation() } catch is LauncherError { return }
-            throw TestFailure(message)
-        }
-        let publicKey = key.publicKey.rawRepresentation.base64EncodedString()
-        try expect(HostedGameUpdate.decodeAndVerify(signed(vietnam), edition: .vietnam,
-            publicKeyBase64: publicKey).release == vietnam, "signed VNG feed")
-        try rejected("VNG feed accepted in Global channel") {
-            _ = try HostedGameUpdate.decodeAndVerify(signed(vietnam), edition: .global, publicKeyBase64: publicKey)
-        }
-        try rejected("Global feed accepted in VNG channel") {
-            _ = try HostedGameUpdate.decodeAndVerify(signed(globalRelease), edition: .vietnam, publicKeyBase64: publicKey)
-        }
-        for url in [
-            globalRelease.apks[0].url!.absoluteString,
-            "https://sergeinaumov.dev\(GameEdition.vietnam.updatePath)/releases/wrong/base.apk",
-            vietnam.apks[0].url!.absoluteString + "?redirect=other",
-            vietnam.apks[0].url!.absoluteString.replacingOccurrences(of: "sergeinaumov.dev", with: "example.com")
-        ] {
-            let badRelease = GameRelease(packageName: vietnam.packageName, version: vietnam.version,
-                versionCode: vietnam.versionCode, baseSHA256: vietnam.baseSHA256,
-                apks: [GameAPK(name: "base.apk", size: 100, sha256: vietnam.baseSHA256, url: URL(string: url))])
-            try rejected("Wrong VNG APK URL accepted: \(url)") {
-                _ = try HostedGameUpdate.decodeAndVerify(signed(badRelease), edition: .vietnam, publicKeyBase64: publicKey)
+            func rejected(_ message: String, _ operation: () throws -> Void) throws {
+                do { try operation() } catch is LauncherError { return }
+                throw TestFailure(message)
             }
+            let publicKey = key.publicKey.rawRepresentation.base64EncodedString()
+            try expect(HostedGameUpdate.decodeAndVerify(signed(regional), edition: edition,
+                publicKeyBase64: publicKey).release == regional, "signed \(edition.title) feed")
+            try rejected("\(edition.title) feed accepted in Global channel") {
+                _ = try HostedGameUpdate.decodeAndVerify(signed(regional), edition: .global, publicKeyBase64: publicKey)
+            }
+            try rejected("Global feed accepted in \(edition.title) channel") {
+                _ = try HostedGameUpdate.decodeAndVerify(signed(globalRelease), edition: edition, publicKeyBase64: publicKey)
+            }
+            let otherRegional: GameEdition = edition == .taiwan ? .vietnam : .taiwan
+            try rejected("Regional feed accepted in another regional channel") {
+                _ = try HostedGameUpdate.decodeAndVerify(signed(regional), edition: otherRegional, publicKeyBase64: publicKey)
+            }
+            for url in [
+                globalRelease.apks[0].url!.absoluteString,
+                "https://sergeinaumov.dev\(otherRegional.updatePath)/releases/\(regional.baseSHA256)/base.apk",
+                "https://sergeinaumov.dev\(edition.updatePath)/releases/wrong/base.apk",
+                regional.apks[0].url!.absoluteString + "?redirect=other",
+                regional.apks[0].url!.absoluteString.replacingOccurrences(of: "sergeinaumov.dev", with: "example.com")
+            ] {
+                let badRelease = GameRelease(packageName: regional.packageName, version: regional.version,
+                    versionCode: regional.versionCode, baseSHA256: regional.baseSHA256,
+                    apks: [GameAPK(name: "base.apk", size: 100, sha256: regional.baseSHA256, url: URL(string: url))])
+                try rejected("Wrong \(edition.title) APK URL accepted: \(url)") {
+                    _ = try HostedGameUpdate.decodeAndVerify(signed(badRelease), edition: edition, publicKeyBase64: publicKey)
+                }
+            }
+            var legacy: [String: Any] = [
+                "schemaVersion": 1, "stage": "ready", "installedComponents": ["emulator": "test"],
+                "gameVersion": manifest.game.version, "gameVersionCode": manifest.game.versionCode ?? 1,
+                "gameBaseSHA256": manifest.game.baseSHA256, "overlaySHA256": String(repeating: "c", count: 64),
+                "updatedAt": "2026-09-04T12:00:00Z"
+            ]
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            var state = try decoder.decode(InstallState.self, from: JSONSerialization.data(withJSONObject: legacy))
+            try expect(state.schemaVersion == 2 && state.isReady(for: .global, release: manifest.game)
+                && state.games[edition.id] == nil, "v1 migrates only Global without reinstalling")
+            let installedGlobal = state.games["global"]
+            state.games[edition.id] = InstalledGameState(release: regional, overlaySHA256: String(repeating: "d", count: 64))
+            let roundtrip = try JSONDecoder().decode(InstallState.self, from: JSONEncoder().encode(state))
+            try expect(roundtrip == state && roundtrip.isReady(for: edition, release: regional)
+                && roundtrip.isReady(for: .global, release: manifest.game), "v2 preserves both editions")
+            state.games.removeValue(forKey: edition.id)
+            try expect(state.games["global"] == installedGlobal && state.isReady(for: .global, release: manifest.game),
+                "removing incomplete \(edition.title) state preserves Global")
+            legacy["stage"] = "downloading"
+            let partial = try decoder.decode(InstallState.self, from: JSONSerialization.data(withJSONObject: legacy))
+            try expect(partial.games.isEmpty && !partial.isRuntimeReady, "partial v1 install stays incomplete")
+            var newer = InstalledGameState(release: regional, overlaySHA256: "hash")
+            newer.gameVersionCode = regional.versionCode! + 1
+            try rejected("\(edition.title) downgrade accepted") {
+                try InstallerService.validateCandidate(regional, edition: edition, installed: newer)
+            }
+            newer.gameVersionCode = regional.versionCode
+            newer.gameBaseSHA256 = String(repeating: "f", count: 64)
+            try rejected("same version code with a different APK accepted") {
+                try InstallerService.validateCandidate(regional, edition: edition, installed: newer)
+            }
+            let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            let paths = try LauncherPaths(root: root, resources: root.appendingPathComponent("Resources"))
+            try expect(paths.gameCache(for: .global).path == root.appendingPathComponent("game").path
+                && paths.hostedGameFeed(for: .global) != paths.hostedGameFeed(for: edition)
+                && paths.overlayAPK(for: .global) != paths.overlayAPK(for: edition)
+                && paths.gameResources(for: regional, edition: edition) != paths.gameResources,
+                "edition paths preserve Global and never use its bundled APK for \(edition.title)")
+            let activity = "topResumedActivity=ActivityRecord{test u0 \(edition.packageName)/com.epicgames.unreal.GameActivity t1}"
+            try expect(BridgeAndroidActivityClassifier.classify(dumpsysOutput: activity,
+                packageName: edition.packageName) == .gameplay,
+                "\(edition.title) gameplay detection")
         }
-        var legacy: [String: Any] = [
-            "schemaVersion": 1, "stage": "ready", "installedComponents": ["emulator": "test"],
-            "gameVersion": manifest.game.version, "gameVersionCode": manifest.game.versionCode ?? 1,
-            "gameBaseSHA256": manifest.game.baseSHA256, "overlaySHA256": String(repeating: "c", count: 64),
-            "updatedAt": "2026-09-04T12:00:00Z"
-        ]
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        var state = try decoder.decode(InstallState.self, from: JSONSerialization.data(withJSONObject: legacy))
-        try expect(state.schemaVersion == 2 && state.isReady(for: .global, release: manifest.game)
-            && state.games["vietnam"] == nil, "v1 migrates only Global without reinstalling")
-        let installedGlobal = state.games["global"]
-        state.games["vietnam"] = InstalledGameState(release: vietnam, overlaySHA256: String(repeating: "d", count: 64))
+        var state = InstallState()
+        for edition in GameEdition.allCases {
+            state.games[edition.id] = InstalledGameState(release: globalRelease, overlaySHA256: edition.id)
+        }
         let roundtrip = try JSONDecoder().decode(InstallState.self, from: JSONEncoder().encode(state))
-        try expect(roundtrip == state && roundtrip.isReady(for: .vietnam, release: vietnam)
-            && roundtrip.isReady(for: .global, release: manifest.game), "v2 preserves both editions")
-        state.games.removeValue(forKey: "vietnam")
-        try expect(state.games["global"] == installedGlobal && state.isReady(for: .global, release: manifest.game),
-            "removing incomplete VNG state preserves Global")
-        legacy["stage"] = "downloading"
-        let partial = try decoder.decode(InstallState.self, from: JSONSerialization.data(withJSONObject: legacy))
-        try expect(partial.games.isEmpty && !partial.isRuntimeReady, "partial v1 install stays incomplete")
-        var newer = InstalledGameState(release: vietnam, overlaySHA256: "hash")
-        newer.gameVersionCode = vietnam.versionCode! + 1
-        try rejected("VNG downgrade accepted") {
-            try InstallerService.validateCandidate(vietnam, edition: .vietnam, installed: newer)
-        }
-        newer.gameVersionCode = vietnam.versionCode
-        newer.gameBaseSHA256 = String(repeating: "f", count: 64)
-        try rejected("same version code with a different APK accepted") {
-            try InstallerService.validateCandidate(vietnam, edition: .vietnam, installed: newer)
-        }
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        let paths = try LauncherPaths(root: root, resources: root.appendingPathComponent("Resources"))
-        try expect(paths.gameCache(for: .global).path == root.appendingPathComponent("game").path
-            && paths.hostedGameFeed(for: .global) != paths.hostedGameFeed(for: .vietnam)
-            && paths.overlayAPK(for: .global) != paths.overlayAPK(for: .vietnam)
-            && paths.gameResources(for: vietnam, edition: .vietnam) != paths.gameResources,
-            "edition paths preserve Global and never use its bundled APK for VNG")
-        let activity = "topResumedActivity=ActivityRecord{test u0 com.riotgames.league.teamfighttacticsvn/com.epicgames.unreal.GameActivity t1}"
-        try expect(BridgeAndroidActivityClassifier.classify(dumpsysOutput: activity,
-            packageName: GameEdition.vietnam.packageName) == .gameplay,
-            "VNG gameplay detection")
+        try expect(roundtrip == state && roundtrip.games.count == 3, "v2 preserves all three editions")
+        state.games.removeValue(forKey: "taiwan")
+        try expect(state.games["global"] == roundtrip.games["global"]
+            && state.games["vietnam"] == roundtrip.games["vietnam"], "Taiwan removal preserves existing editions")
+        let paths = try LauncherPaths(root: URL(fileURLWithPath: "/tmp/edition-paths"),
+            resources: URL(fileURLWithPath: "/tmp/edition-resources"))
+        try expect(Set(GameEdition.allCases.map { paths.hostedGameFeed(for: $0) }).count == 3
+            && Set(GameEdition.allCases.map { paths.overlayAPK(for: $0) }).count == 3,
+            "all edition feed and overlay paths are distinct")
     }
 
     private static func runNativeIPadRuntimeTests(in temporary: URL, sourceRoot: URL) throws {
@@ -2579,6 +2601,11 @@ enum LauncherTests {
         try expect(GameLogObservation.decode(Data("game_not_running\n".utf8)).outcome == "game_not_running", "game closure is observable")
         try expect(GameLogObservation.decode(Data(repeating: 65, count: GameLogObservation.maximumResponseBytes + 1)).outcome == "invalid_snapshot", "oversized logs rejected")
         try expect(GameLogObservation.command(package: "x; touch /tmp/test") == nil, "shell package must be allowlisted")
+        for edition in GameEdition.allCases {
+            let command = GameLogObservation.command(package: edition.packageName)
+            try expect(command?.contains("/Android/data/\(edition.packageName)/") == true,
+                "log collection uses the selected \(edition.title) package")
+        }
         var counters = GameLogDiagnostics()
         counters.record(result, context: "both_unknown")
         counters.record(GameLogObservation(outcome: "log_unavailable"), context: "gameplay")

@@ -254,7 +254,7 @@ final class InstallerService {
             hosted = nil
         }
         guard let gameRelease = hosted?.feed.release ?? bundled else {
-            throw LauncherError.process("Vietnam (VNG) could not be downloaded. Check your connection and retry.")
+            throw LauncherError.process("\(edition.title) could not be downloaded. Check your connection and retry.")
         }
         try Self.validateCandidate(gameRelease, edition: edition, installed: state.games[edition.id])
         let gameBytes = gameRelease.apks.reduce(Int64(0)) { $0 + $1.size }

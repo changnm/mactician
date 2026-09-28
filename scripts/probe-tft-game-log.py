@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--samples", type=int, default=1)
     parser.add_argument("--interval", type=float, default=15)
-    parser.add_argument("--package", choices=["com.riotgames.league.teamfighttactics", "com.riotgames.league.teamfighttacticsvn"], default="com.riotgames.league.teamfighttactics")
+    parser.add_argument("--package", choices=["com.riotgames.league.teamfighttactics", "com.riotgames.league.teamfighttacticsvn", "com.riotgames.league.teamfighttacticstw"], default="com.riotgames.league.teamfighttactics")
     parser.add_argument("--bracket", action="store_true", help="Read both boundaries around a two-second wait; no frame collector or telemetry")
     args = parser.parse_args()
     if not 1 <= args.samples <= 120 or not 5 <= args.interval <= 60:

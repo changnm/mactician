@@ -14,6 +14,7 @@ RIOT_CERTIFICATE = "931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079
 PACKAGES = {
     "global": "com.riotgames.league.teamfighttactics",
     "vietnam": "com.riotgames.league.teamfighttacticsvn",
+    "taiwan": "com.riotgames.league.teamfighttacticstw",
 }
 REQUIRED_SPLITS = {None, "config.arm64_v8a", "config.en", "config.mdpi"}
 
