@@ -1,10 +1,20 @@
 # Changelog
 
-The current application metadata is version 1.2.5, build 54.
+The current application metadata is version 1.3.0, build 55.
 
 ## Unreleased
 
-Planned for 1.3.0: the validated Global Vulkan buffer-view cache.
+No unreleased changes.
+
+## 1.3.0 — 2026-09-28
+
+- Cache repeated Vulkan buffer-view creation on the Global TFT ANGLE path,
+  reducing guest-to-host waits without changing graphics quality or settings.
+- Enable the cache for the exact Global TFT 18.1-5423749 and 18.3-5530794
+  builds; other editions and game revisions keep the existing rendering path.
+- Restore temporary Android cache settings after shutdown and recover them
+  on the next launch after an interrupted session.
+- Thank everyone who donated: their support made this performance update possible.
 
 ## 1.2.5 — 2026-09-25
 

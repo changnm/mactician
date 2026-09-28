@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "utc_date": "2026-09-06",
+  "kind": "host_angle_kosmickrisp_capability_screen",
+  "host": {
+    "macos": "26.6",
+    "build": "25G72",
+    "gpu": "Apple M1 Max"
+  },
+  "probe": {
+    "source": "artifacts/angle-egl-probe.cpp",
+    "source_sha256": "c6281ea6c47e7ea46cdb636f78d752e53e86c570d9a04416e06fab2d18144880",
+    "binary_sha256": "dd6f6a6f42020fb9f373b3a3c547e315992beb1337f141fc087458d12a4a7026",
+    "build_flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror"
+    ],
+    "surface": "EGL pbuffer",
+    "backend": "vulkan"
+  },
+  "binaries": [
+    {
+      "sdk_relative_path": "gles_angle/libEGL.dylib",
+      "sha256": "98b472757d25c9fbc961663600042597f209a2833372f60da122bc9f9be02ba8",
+      "size_bytes": 517040
+    },
+    {
+      "sdk_relative_path": "gles_angle/libGLESv2.dylib",
+      "sha256": "b2b299ef7bf3ab24fdcb0b346b0329d222beeb95e12fb0a704d6a1c8ba7ecef1",
+      "size_bytes": 14248080
+    },
+    {
+      "sdk_relative_path": "vulkan/libvulkan.dylib",
+      "sha256": "503d0ac1aa24b8f65f74d9eee49b75399d0ed7852e9761a29d11e2234386330d",
+      "size_bytes": 679200
+    },
+    {
+      "sdk_relative_path": "vulkan/libvulkan_kosmickrisp.dylib",
+      "sha256": "76e0a64bf1105c11b1d811577245878cdd690facf064be46dc744128b3fb984b",
+      "size_bytes": 14831808
+    },
+    {
+      "sdk_relative_path": "vulkan/libMoltenVK.dylib",
+      "sha256": "5bf89ff9e1529db0a8fce0c933b71669f51664c93f940196375624d077efdc59",
+      "size_bytes": 11527888
+    },
+    {
+      "sdk_relative_path": "vulkan/libkosmickrisp_icd.json",
+      "sha256": "be75f1b3c7cd013b723f9046a78d500a4640a3cd29c33309e2b597adfd5942d4",
+      "size_bytes": 146
+    },
+    {
+      "sdk_relative_path": "vulkan/MoltenVK_icd.json",
+      "sha256": "578ff08cd0d8734619357541771a5abc9c3470ca300030219a971a9e9dbbe466",
+      "size_bytes": 179
+    }
+  ],
+  "methodology": {
+    "isolation": "Separate host processes, explicit single Vulkan ICD, same ANGLE and Vulkan-loader binaries. No AVD or TFT launch.",
+    "selection": "VK_DRIVER_FILES and VK_ICD_FILENAMES both select the same ICD; DYLD_LIBRARY_PATH points to the packaged Vulkan directory; VK_LOADER_DEBUG=driver records manifest selection.",
+    "sequence": [
+      "kosmickrisp",
+      "moltenvk",
+      "kosmickrisp-repeat",
+      "kosmickrisp-strict"
+    ],
+    "timing": "Correctness/capability tests only; execution time is not a performance result.",
+    "limits": "Zero exit in strict mode means the supported subset passed; the probe deliberately continues after an unsupported ES 3.2 request."
+  },
+  "runs": [
+    {
+      "id": "kosmickrisp",
+      "process_returncode": 1,
+      "timed_out": false,
+      "feature_overrides_enabled": "exposeNonConformantExtensionsAndVersions:exposeES32ForTesting",
+      "raw_stdout_sha256": "20541b59320b2e1469b2fea7678431252c0731c4ccbbb87d5431bd96e2794016",
+      "raw_stderr_sha256": "dd89b767ff469cc2b02813d6c7d7d70365acb19c18247f0362efde080f18bd1e",
+      "driver_manifest_observed_in_loader_log": true,
+      "contexts": [
+        {
+          "actual_version": "ES3.2",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass",
+            "texture_buffer": "pass",
+            "es32_geometry_pipeline": "fail",
+            "es32_tessellation_pipeline": "fail",
+            "es32_shader_stages": "fail"
+          }
+        },
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        },
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        }
+      ],
+      "es32_creation_rejected": false,
+      "geometry_tessellation_limit_zero": true
+    },
+    {
+      "id": "kosmickrisp-repeat",
+      "process_returncode": 1,
+      "timed_out": false,
+      "feature_overrides_enabled": "exposeNonConformantExtensionsAndVersions:exposeES32ForTesting",
+      "raw_stdout_sha256": "20541b59320b2e1469b2fea7678431252c0731c4ccbbb87d5431bd96e2794016",
+      "raw_stderr_sha256": "dd89b767ff469cc2b02813d6c7d7d70365acb19c18247f0362efde080f18bd1e",
+      "driver_manifest_observed_in_loader_log": true,
+      "contexts": [
+        {
+          "actual_version": "ES3.2",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass",
+            "texture_buffer": "pass",
+            "es32_geometry_pipeline": "fail",
+            "es32_tessellation_pipeline": "fail",
+            "es32_shader_stages": "fail"
+          }
+        },
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        },
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        }
+      ],
+      "es32_creation_rejected": false,
+      "geometry_tessellation_limit_zero": true
+    },
+    {
+      "id": "kosmickrisp-strict",
+      "process_returncode": 0,
+      "timed_out": false,
+      "feature_overrides_enabled": "",
+      "raw_stdout_sha256": "1bab6c53f02f6fc3e75b0252561f3ca431348e0316953d1b9e65653a60f6a858",
+      "raw_stderr_sha256": "dd89b767ff469cc2b02813d6c7d7d70365acb19c18247f0362efde080f18bd1e",
+      "driver_manifest_observed_in_loader_log": true,
+      "contexts": [
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        },
+        {
+          "actual_version": "ES3.1",
+          "renderer": "ANGLE (Apple, Vulkan 1.3.348 (Apple M1 Max (0x00000064)), KosmicKrisp-26.1.99)",
+          "functional_results": {
+            "compute_ssbo": "pass",
+            "image_load_store": "pass",
+            "sync": "pass"
+          }
+        }
+      ],
+      "es32_creation_rejected": true,
+      "geometry_tessellation_limit_zero": false
+    },
+    {
+      "id": "moltenvk",
+      "process_returncode": -6,
+      "timed_out": false,
+      "feature_overrides_enabled": "exposeNonConformantExtensionsAndVersions:exposeES32ForTesting",
+      "raw_stdout_sha256": "23f2c3ce97627063a5bdcf02b63eb8c6e69b5aaf34d8bbe9f93a38e76feb7b82",
+      "raw_stderr_sha256": "4778621f1e1dc287d9bff2e948228fc6d4b5d07ca7107b9c0f0aa6b05416da80",
+      "driver_manifest_observed_in_loader_log": true,
+      "contexts": [],
+      "es32_creation_rejected": false,
+      "geometry_tessellation_limit_zero": false
+    }
+  ],
+  "conclusions": {
+    "proven": "The packaged host ANGLE fbf66f49c7cc can execute the tested GLES 3.1 functions plus a texture-buffer workload through KosmicKrisp-26.1.99 on M1 Max.",
+    "es32": "The exposed ES 3.2 context is incomplete: geometry and tessellation pipelines fail with zero limits. Strict ES 3.2 context creation is rejected.",
+    "moltenvk_control": "Same host probe aborts with SIGABRT under the explicitly selected packaged MoltenVK driver. This is not a failure of the working guest-ANGLE production path.",
+    "new_opportunity": "Reopens hardware-host-ANGLE research using a Vulkan backend, avoiding the need to implement ES 3.1/3.2 in ANGLE Metal first. Still requires a compatible guest GLES encoder and host capability propagation.",
+    "not_proven": [
+      "TFT compatibility",
+      "Presented-window EGL surface correctness",
+      "Guest GLES encoder compatibility",
+      "Android emulator using KosmicKrisp",
+      "FPS improvement",
+      "Geometry/tessellation support"
+    ],
+    "promotion_eligible": false
+  },
+  "primary_references": [
+    {
+      "url": "https://www.lunarg.com/lunarg-releases-vulkan-sdk-1-4-357-0/",
+      "scope": "July 28 2026 release reports up to 2.35x versus the preceding KosmicKrisp SDK, Metal 4 encoding and reduced ONE_TIME_SUBMIT CPU overhead. Not a comparison against MoltenVK or TFT."
+    },
+    {
+      "url": "https://docs.mesa3d.org/drivers/kosmickrisp.html",
+      "scope": "Apple Silicon/macOS 26+ requirements and driver documentation."
+    }
+  ]
+}

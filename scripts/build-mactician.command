@@ -64,6 +64,8 @@ for apk expected_hash in ${(kv)EXPECTED_APK_HASHES}; do
     fi
 done
 
+"$PROJECT_DIR/scripts/build-vulkan-view-cache.command" >/dev/null
+
 copy_plain_file() {
     local source_path="$1"
     local destination_path="$2"
@@ -84,6 +86,7 @@ rm -rf "$BUILD_DIR/module-cache" "$APP" "$DMG"
 mkdir -p "$BUILD_DIR" "$APP_CONTENTS/MacOS" "$RESOURCES" "$HELPERS" "$FRAMEWORKS" "$GAME_RESOURCES" \
     "$THIRD_PARTY_LICENSES" \
     "$RUNTIME_TEMPLATE/scripts" \
+    "$RUNTIME_TEMPLATE/runtime/vulkan-buffer-view-cache" \
     "$RUNTIME_TEMPLATE/artifacts/tft-18.1-angle-opengl" \
     "$EMULATOR_APP_CONTENTS/MacOS" "$EMULATOR_APP_CONTENTS/Resources" \
     "$DIST_DIR"
@@ -120,11 +123,13 @@ TFT_SCREEN_CLASSIFIER_BINARY="$HELPERS/tft-screen-classifier" \
 (
     cd "$PROJECT_DIR"
     shasum -a 256 run-tft-root-affinity.command run-tft-angle-opengl.command \
-        scripts/run-asg-experiment.command scripts/enable-tft-login-persistence.command \
+        scripts/run-asg-experiment.command scripts/guest-vulkan-view-cache.sh \
+        scripts/enable-tft-login-persistence.command \
         launcher/Resources/release-manifest.json launcher/Resources/launcher-runtime.command \
         launcher/Resources/emulator-host.command launcher/Sources/InputBridgeService.swift \
         launcher/Sources/PerformanceCollector.swift launcher/Sources/PerformanceModels.swift launcher/Sources/PerformanceDiagnostics.swift launcher/Sources/GameLogDiagnostics.swift \
         launcher/Sources/LauncherModel.swift launcher/Sources/LauncherTelemetryService.swift \
+        native/vulkan-buffer-view-cache/layer.c runtime/vulkan-buffer-view-cache/libVkLayer_Mactician_buffer_view_cache.so \
         tools/tft-screen-classifier.swift
 ) | shasum -a 256 | awk '{print $1}' > "$RESOURCES/performance-runtime.sha256"
 copy_plain_file "$LAUNCHER_DIR/Resources/QEMU-Hypervisor.entitlements" "$RESOURCES/QEMU-Hypervisor.entitlements"
@@ -158,6 +163,11 @@ copy_plain_file "$PROJECT_DIR/scripts/run-asg-experiment.command" "$RUNTIME_TEMP
 copy_plain_file "$PROJECT_DIR/scripts/watch-root-pso.command" "$RUNTIME_TEMPLATE/scripts/watch-root-pso.command"
 copy_plain_file "$PROJECT_DIR/scripts/update-tft-performance-mode.command" "$RUNTIME_TEMPLATE/scripts/update-tft-performance-mode.command"
 copy_plain_file "$PROJECT_DIR/scripts/enable-tft-login-persistence.command" "$RUNTIME_TEMPLATE/scripts/enable-tft-login-persistence.command"
+copy_plain_file "$PROJECT_DIR/scripts/guest-vulkan-view-cache.sh" "$RUNTIME_TEMPLATE/scripts/guest-vulkan-view-cache.sh"
+for cache_file in libVkLayer_Mactician_buffer_view_cache.so libVkLayer_Mactician_buffer_view_cache.so.sha256; do
+    copy_plain_file "$PROJECT_DIR/runtime/vulkan-buffer-view-cache/$cache_file" \
+        "$RUNTIME_TEMPLATE/runtime/vulkan-buffer-view-cache/$cache_file"
+done
 copy_plain_file "$PROJECT_DIR/scripts/android-environment.sh" "$RUNTIME_TEMPLATE/scripts/android-environment.sh"
 copy_plain_file "$PROJECT_DIR/artifacts/tft-pbe-18.1-5212127-angle-opengl/Android_Codex.DeviceProfiles.shader-prewarm.ini" \
     "$RUNTIME_TEMPLATE/artifacts/tft-18.1-angle-opengl/Android_Codex.DeviceProfiles.shader-prewarm.ini"

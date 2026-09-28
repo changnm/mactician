@@ -19,7 +19,7 @@ Built for two tacticians. Shared with everyone.
 
 ## Project status
 
-- Version: **1.2.5** (build 54)
+- Version: **1.3.0** (build 55)
 - Host architecture: **Apple Silicon (`arm64`)**
 - Minimum deployment target: **macOS 12.0**, enforced by the build target and
   runtime preflight
@@ -127,6 +127,9 @@ Apple Silicon production source set.
 
 ### Local ad-hoc build
 
+Install Android NDK r27d (`27.3.13750724`) and set `TFT_ANDROID_NDK` to its
+directory; see [Building](docs/building.md). It builds the bundled Vulkan cache.
+
 ```sh
 PROJECT_DIR="$PWD"
 TFT_GAME_APK_DIR="$PROJECT_DIR/private/tft-apks" \
@@ -134,7 +137,7 @@ TFT_GAME_APK_DIR="$PROJECT_DIR/private/tft-apks" \
 ```
 
 This produces `dist/Mactician.app` and
-`dist/Mactician-1.2.5.dmg`, signed ad hoc for local validation.
+`dist/Mactician-1.3.0.dmg`, signed ad hoc for local validation.
 
 ### Provisioning integration test
 

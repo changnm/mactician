@@ -17,6 +17,7 @@ Benchmark tables and acceptance rules are summarized separately in
 9. [Login WebView failures](#login-webview-failures)
 10. [Fixed-stage campaign](#fixed-stage-campaign)
 11. [Historical and rejected findings](#historical-and-rejected-findings)
+12. [September buffer-view cache](#september-buffer-view-cache)
 
 ## Compatibility problem
 
@@ -675,3 +676,22 @@ promoting it. The policy audit is
 Negative results remain represented by explicit profiles where reproducibility
 has engineering value. Their status is indexed in
 [Launch profiles](launch-profiles.md).
+
+## September buffer-view cache
+
+The September 8 current-game trace identified synchronous Vulkan buffer-view
+creation in guest ANGLE as a substantial RHI cost. A bounded Android Vulkan
+layer now shares identical active views with reference counts and retains
+released views until eviction or buffer/device teardown. The pinned global
+game automatically uses the built layer; other game revisions fall back until
+validated. App-targeted layer settings and the staged library are journaled and
+recovered on shutdown or the next cold launch, including a cache-disabled launch.
+
+The final 65,536-entry layer improved an unchanged Trial planning scene from
+41.34 to 59.48 FPS (+43.9%), with median p95 falling from 34.06 to 18.67 ms.
+Two stage-1-8 fights with opposite switch orders improved by 59.0% and 72.4%.
+The changing combat load and early Trial stage limit extrapolation to late PvP.
+Native lifecycle/thread/dispatch tests, Android HWASan/UBSan, real GPU readbacks,
+and interrupted-launch recovery passed. The separate KosmicKrisp host-driver
+screen was negative for this guest-ANGLE workload. Full measurements and limits
+are in [the experiment report](performance-experiments-20260908.md).

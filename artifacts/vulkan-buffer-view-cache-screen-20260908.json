@@ -1,0 +1,1259 @@
+{
+  "schema_version": 2,
+  "date": "2026-09-08",
+  "game_version": "18.1-5423749",
+  "host": "Apple M1 Max, 32 GB",
+  "profile_sha256": "b0b83466abef72b1f7f751bf92e804abbd3f9a1aac02f502a5d979d40f2b71ef",
+  "status": "integrated_shared_cache_planning_and_opposite_order_combat_pass_cold_recovery_pass",
+  "selected_capacity": 65536,
+  "selected_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+  "integrated_runs": [
+    {
+      "run_id": "20260908T025053Z__performance-max-view-cache-integrated-planning__11026",
+      "cache_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "mechanism": "Shared active identical buffer views with reference counts; 65536 entries; privateData bypass",
+      "capture_protocol": "short_windows_sequence_host_gates_deferred_semantics_v4",
+      "scene": "Tockers Trials 1-5 planning",
+      "metadata_verified": true,
+      "visual_same_roster_and_no_obvious_corruption": true,
+      "cleanup_verified": true,
+      "order": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "blocks": [
+        {
+          "index": 1,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 84,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 41.636,
+            "mean_ms": 24.017657,
+            "p50_ms": 18.645792,
+            "p95_ms": 33.67325,
+            "p99_ms": 34.962458,
+            "max_ms": 37.303667,
+            "frames_over_ms": {
+              "16.67": 70,
+              "20": 38,
+              "33.33": 7,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 2,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 120,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 59.536,
+            "mean_ms": 16.796631,
+            "p50_ms": 16.476667,
+            "p95_ms": 18.794125,
+            "p99_ms": 19.48075,
+            "max_ms": 33.445375,
+            "frames_over_ms": {
+              "16.67": 53,
+              "20": 1,
+              "33.33": 1,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 3,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 120,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 59.526,
+            "mean_ms": 16.79925,
+            "p50_ms": 16.774334,
+            "p95_ms": 18.477833,
+            "p99_ms": 19.493375,
+            "max_ms": 32.224583,
+            "frames_over_ms": {
+              "16.67": 63,
+              "20": 2,
+              "33.33": 0,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 4,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 84,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 41.652,
+            "mean_ms": 24.008235,
+            "p50_ms": 18.3845,
+            "p95_ms": 34.186083,
+            "p99_ms": 37.435583,
+            "max_ms": 50.76525,
+            "frames_over_ms": {
+              "16.67": 62,
+              "20": 36,
+              "33.33": 14,
+              "40": 1,
+              "50": 1,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 5,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 120,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 59.357,
+            "mean_ms": 16.847215,
+            "p50_ms": 16.637,
+            "p95_ms": 18.827625,
+            "p99_ms": 19.405,
+            "max_ms": 33.318833,
+            "frames_over_ms": {
+              "16.67": 58,
+              "20": 1,
+              "33.33": 0,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 6,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 82,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 41.047,
+            "mean_ms": 24.362415,
+            "p50_ms": 18.5365,
+            "p95_ms": 33.933583,
+            "p99_ms": 34.954167,
+            "max_ms": 37.03325,
+            "frames_over_ms": {
+              "16.67": 69,
+              "20": 39,
+              "33.33": 14,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 7,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 81,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 40.119,
+            "mean_ms": 24.925833,
+            "p50_ms": 19.346792,
+            "p95_ms": 34.202958,
+            "p99_ms": 34.83725,
+            "max_ms": 35.089583,
+            "frames_over_ms": {
+              "16.67": 63,
+              "20": 40,
+              "33.33": 17,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 8,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 120,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 59.426,
+            "mean_ms": 16.827547,
+            "p50_ms": 16.647875,
+            "p95_ms": 18.54025,
+            "p99_ms": 19.408833,
+            "max_ms": 36.099417,
+            "frames_over_ms": {
+              "16.67": 58,
+              "20": 1,
+              "33.33": 1,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        }
+      ],
+      "medians": {
+        "0": {
+          "fps": 41.341499999999996,
+          "mean_ms": 24.190036,
+          "p95_ms": 34.059833,
+          "p99_ms": 34.9583125
+        },
+        "1": {
+          "fps": 59.476,
+          "mean_ms": 16.813398499999998,
+          "p95_ms": 18.6671875,
+          "p99_ms": 19.4447915
+        }
+      },
+      "median_fps_change_percent": 43.86512342319462
+    },
+    {
+      "run_id": "20260908T030054Z__performance-max-view-cache-integrated-combat__16532",
+      "cache_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "capture_protocol": "short_windows_sequence_host_gates_deferred_semantics_v4",
+      "scene": "Tockers Trials 1-8 combat",
+      "metadata_verified": true,
+      "cleanup_verified": true,
+      "order": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "blocks": [
+        {
+          "index": 1,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 56,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 27.759,
+            "mean_ms": 36.024465,
+            "p50_ms": 33.735333,
+            "p95_ms": 50.330083,
+            "p99_ms": 50.464334,
+            "max_ms": 51.002375,
+            "frames_over_ms": {
+              "16.67": 56,
+              "20": 54,
+              "33.33": 33,
+              "40": 11,
+              "50": 6,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 2,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 89,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 44.139,
+            "mean_ms": 22.655737,
+            "p50_ms": 18.171333,
+            "p95_ms": 33.850333,
+            "p99_ms": 35.809459,
+            "max_ms": 35.82975,
+            "frames_over_ms": {
+              "16.67": 65,
+              "20": 32,
+              "33.33": 13,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 3,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 80,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 39.654,
+            "mean_ms": 25.218297,
+            "p50_ms": 30.353834,
+            "p95_ms": 33.74675,
+            "p99_ms": 34.172416,
+            "max_ms": 36.010958,
+            "frames_over_ms": {
+              "16.67": 67,
+              "20": 41,
+              "33.33": 12,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 4,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 67,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 33.456,
+            "mean_ms": 29.890447,
+            "p50_ms": 32.390333,
+            "p95_ms": 39.900917,
+            "p99_ms": 50.360708,
+            "max_ms": 50.880125,
+            "frames_over_ms": {
+              "16.67": 60,
+              "20": 50,
+              "33.33": 24,
+              "40": 4,
+              "50": 2,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 5,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 103,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 50.67,
+            "mean_ms": 19.735472,
+            "p50_ms": 17.40125,
+            "p95_ms": 34.2015,
+            "p99_ms": 34.638875,
+            "max_ms": 35.054667,
+            "frames_over_ms": {
+              "16.67": 62,
+              "20": 22,
+              "33.33": 8,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 6,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 77,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 38.762,
+            "mean_ms": 25.798151,
+            "p50_ms": 30.6575,
+            "p95_ms": 34.199042,
+            "p99_ms": 35.454709,
+            "max_ms": 35.599292,
+            "frames_over_ms": {
+              "16.67": 69,
+              "20": 43,
+              "33.33": 13,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        }
+      ],
+      "first_pair_fps_change_percent": 59.00788933318923
+    },
+    {
+      "run_id": "20260908T031056Z__performance-max-view-cache-integrated-combat__20090",
+      "cache_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "capture_protocol": "short_windows_sequence_host_gates_deferred_semantics_v4",
+      "scene": "Tockers Trials 1-8 combat",
+      "metadata_verified": true,
+      "cleanup_verified": true,
+      "order": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "blocks": [
+        {
+          "index": 1,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 86,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 42.692,
+            "mean_ms": 23.423801,
+            "p50_ms": 18.456916,
+            "p95_ms": 34.582083,
+            "p99_ms": 47.991375,
+            "max_ms": 50.394917,
+            "frames_over_ms": {
+              "16.67": 65,
+              "20": 34,
+              "33.33": 10,
+              "40": 2,
+              "50": 1,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 2,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 50,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 24.763,
+            "mean_ms": 40.382077,
+            "p50_ms": 33.9315,
+            "p95_ms": 52.286916,
+            "p99_ms": 65.444792,
+            "max_ms": 133.916875,
+            "frames_over_ms": {
+              "16.67": 50,
+              "20": 49,
+              "33.33": 32,
+              "40": 16,
+              "50": 8,
+              "60": 2,
+              "100": 1
+            }
+          }
+        },
+        {
+          "index": 3,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 62,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 30.479,
+            "mean_ms": 32.809813,
+            "p50_ms": 33.202875,
+            "p95_ms": 47.906083,
+            "p99_ms": 49.342875,
+            "max_ms": 52.539625,
+            "frames_over_ms": {
+              "16.67": 61,
+              "20": 53,
+              "33.33": 31,
+              "40": 7,
+              "50": 1,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 4,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 69,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 33.94,
+            "mean_ms": 29.463891,
+            "p50_ms": 31.894916,
+            "p95_ms": 52.828417,
+            "p99_ms": 61.9885,
+            "max_ms": 65.518292,
+            "frames_over_ms": {
+              "16.67": 56,
+              "20": 41,
+              "33.33": 23,
+              "40": 11,
+              "50": 7,
+              "60": 2,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 5,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 86,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 42.644,
+            "mean_ms": 23.449819,
+            "p50_ms": 18.327208,
+            "p95_ms": 33.926458,
+            "p99_ms": 35.202375,
+            "max_ms": 40.408,
+            "frames_over_ms": {
+              "16.67": 68,
+              "20": 38,
+              "33.33": 10,
+              "40": 1,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 6,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 108,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 53.971,
+            "mean_ms": 18.528563,
+            "p50_ms": 17.188458,
+            "p95_ms": 32.238667,
+            "p99_ms": 33.388208,
+            "max_ms": 35.55875,
+            "frames_over_ms": {
+              "16.67": 69,
+              "20": 12,
+              "33.33": 3,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        }
+      ],
+      "first_pair_fps_change_percent": 72.40237451035819,
+      "visual_review": "First on/before and second off/after show the same fight, live units and effects with no obvious rendering corruption; combat naturally progressed from timer 29 to 18."
+    }
+  ],
+  "earlier_released_view_prototype": {
+    "scene": "Tockers Trials 1-5 planning",
+    "cache_capacity": 65536,
+    "cache_library_sha256": "2f1061078fedf068bfa13b57fe9d5e3c1425dcfb810d541e607f11383cb30ea2",
+    "mechanism": "Reuse identical VkBufferView objects after the caller destroys them; purge on underlying buffer/device destruction.",
+    "capture_protocol": "Same game PID, mode attested in process logs, unchanged planning stage before/after each 2-second window, eight counterbalanced blocks.",
+    "block_order": [
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    "blocks": [
+      {
+        "index": 1,
+        "enabled": false,
+        "pacing": {
+          "samples": 79,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 39.8,
+          "mean_ms": 25.11,
+          "p50_ms": 29.78475,
+          "p95_ms": 34.91275,
+          "p99_ms": 35.265167,
+          "max_ms": 36.61425,
+          "frames_over_ms": {
+            "16.67": 63,
+            "20": 42,
+            "33.33": 16,
+            "40": 0,
+            "50": 0,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 2,
+        "enabled": true,
+        "pacing": {
+          "samples": 104,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 51.6,
+          "mean_ms": 19.39,
+          "p50_ms": 17.00875,
+          "p95_ms": 34.722834,
+          "p99_ms": 35.622375,
+          "max_ms": 36.70575,
+          "frames_over_ms": {
+            "16.67": 57,
+            "20": 18,
+            "33.33": 9,
+            "40": 0,
+            "50": 0,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 3,
+        "enabled": true,
+        "pacing": {
+          "samples": 104,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 52,
+          "mean_ms": 19.23,
+          "p50_ms": 16.9085,
+          "p95_ms": 33.446,
+          "p99_ms": 34.010417,
+          "max_ms": 49.219875,
+          "frames_over_ms": {
+            "16.67": 63,
+            "20": 17,
+            "33.33": 7,
+            "40": 1,
+            "50": 0,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 4,
+        "enabled": false,
+        "pacing": {
+          "samples": 78,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 38.7,
+          "mean_ms": 25.87,
+          "p50_ms": 31.489709,
+          "p95_ms": 34.141833,
+          "p99_ms": 34.873667,
+          "max_ms": 51.272416,
+          "frames_over_ms": {
+            "16.67": 67,
+            "20": 42,
+            "33.33": 15,
+            "40": 1,
+            "50": 1,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 5,
+        "enabled": true,
+        "pacing": {
+          "samples": 110,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 54.1,
+          "mean_ms": 18.5,
+          "p50_ms": 17.081041,
+          "p95_ms": 33.120166,
+          "p99_ms": 33.541709,
+          "max_ms": 35.176209,
+          "frames_over_ms": {
+            "16.67": 62,
+            "20": 15,
+            "33.33": 4,
+            "40": 0,
+            "50": 0,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 6,
+        "enabled": false,
+        "pacing": {
+          "samples": 78,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 39,
+          "mean_ms": 25.62,
+          "p50_ms": 29.944667,
+          "p95_ms": 34.33875,
+          "p99_ms": 34.674166,
+          "max_ms": 50.8415,
+          "frames_over_ms": {
+            "16.67": 67,
+            "20": 42,
+            "33.33": 12,
+            "40": 1,
+            "50": 1,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 7,
+        "enabled": false,
+        "pacing": {
+          "samples": 76,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 38,
+          "mean_ms": 26.33,
+          "p50_ms": 31.203834,
+          "p95_ms": 34.800959,
+          "p99_ms": 50.334292,
+          "max_ms": 54.600375,
+          "frames_over_ms": {
+            "16.67": 62,
+            "20": 44,
+            "33.33": 17,
+            "40": 2,
+            "50": 2,
+            "60": 0,
+            "100": 0
+          }
+        }
+      },
+      {
+        "index": 8,
+        "enabled": true,
+        "pacing": {
+          "samples": 107,
+          "rounds": 1,
+          "window_seconds": 2,
+          "fps": 52.7,
+          "mean_ms": 18.97,
+          "p50_ms": 16.808541,
+          "p95_ms": 32.879333,
+          "p99_ms": 34.038292,
+          "max_ms": 36.097583,
+          "frames_over_ms": {
+            "16.67": 63,
+            "20": 15,
+            "33.33": 4,
+            "40": 0,
+            "50": 0,
+            "60": 0,
+            "100": 0
+          }
+        }
+      }
+    ],
+    "median_by_mode": {
+      "0": {
+        "fps": 38.85,
+        "mean_ms": 25.745,
+        "p95_ms": 34.5698545,
+        "p99_ms": 35.069417
+      },
+      "1": {
+        "fps": 52.35,
+        "mean_ms": 19.1,
+        "p95_ms": 33.283083,
+        "p99_ms": 34.0243545
+      }
+    },
+    "fps_median_gain_percent": 34.74903474903475,
+    "rollback_verified": true,
+    "raw_receipt_sha256": "83d086d597ddac57b00c5255253c8a5ac37a2107a560c539de09c6a4bacaedd4",
+    "limitations": [
+      "One independent planning session; not a late-PvP result.",
+      "p95 remains close to 33 ms; the strongest effect is mean/p50.",
+      "Earlier separate-boot 1-8 results are confounded by different friendly rosters and cannot establish a causal gain.",
+      "First combat paired attempt had only one accepted mode before the phase ended; excluded as a comparison.",
+      "Prototype used process-local dlsym interception; a standard Vulkan layer is being validated as the integration route."
+    ],
+    "combat_runs": [
+      {
+        "run_id": "20260908T020148Z__performance-max-view-layer64k-combat__86935",
+        "cache_library_sha256": "6f5da7a26f1c06015670b015ace1a3640a23fa785dfe804f1a2cc0f380a92013",
+        "metadata_verified": true,
+        "capture_protocol": "short_windows_metadata_after_sequence",
+        "order": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "blocks": [
+          {
+            "index": 1,
+            "enabled": false,
+            "accepted": true,
+            "pacing": {
+              "samples": 57,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 28.283,
+              "mean_ms": 35.356479,
+              "p50_ms": 34.061333,
+              "p95_ms": 49.379792,
+              "p99_ms": 49.458583,
+              "max_ms": 50.348083,
+              "frames_over_ms": {
+                "16.67": 56,
+                "20": 53,
+                "33.33": 38,
+                "40": 11,
+                "50": 1,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788833635.59787,
+            "end_epoch": 1788833637.674498
+          },
+          {
+            "index": 2,
+            "enabled": true,
+            "accepted": true,
+            "pacing": {
+              "samples": 80,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 39.713,
+              "mean_ms": 25.180438,
+              "p50_ms": 27.119167,
+              "p95_ms": 34.127208,
+              "p99_ms": 34.220041,
+              "max_ms": 34.304209,
+              "frames_over_ms": {
+                "16.67": 69,
+                "20": 43,
+                "33.33": 10,
+                "40": 0,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788833645.440801,
+            "end_epoch": 1788833647.516587
+          },
+          {
+            "index": 3,
+            "enabled": false,
+            "accepted": false,
+            "pacing": null,
+            "start_epoch": null,
+            "end_epoch": null
+          }
+        ],
+        "first_pair_fps_change_percent": 40.412968921260116,
+        "cleanup_verified": true
+      },
+      {
+        "run_id": "20260908T022157Z__performance-max-view-layer64k-combat__92144",
+        "cache_library_sha256": "6f5da7a26f1c06015670b015ace1a3640a23fa785dfe804f1a2cc0f380a92013",
+        "metadata_verified": true,
+        "capture_protocol": "short_windows_deferred_semantic_validation_shared_boundary",
+        "order": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "blocks": [
+          {
+            "index": 1,
+            "enabled": true,
+            "accepted": true,
+            "pacing": {
+              "samples": 77,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 38.797,
+              "mean_ms": 25.775418,
+              "p50_ms": 30.864291,
+              "p95_ms": 34.083417,
+              "p99_ms": 34.989625,
+              "max_ms": 35.428917,
+              "frames_over_ms": {
+                "16.67": 71,
+                "20": 44,
+                "33.33": 14,
+                "40": 0,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834498.4353878,
+            "end_epoch": 1788834500.5156748
+          },
+          {
+            "index": 2,
+            "enabled": false,
+            "accepted": true,
+            "pacing": {
+              "samples": 61,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 30.497,
+              "mean_ms": 32.790214,
+              "p50_ms": 33.491625,
+              "p95_ms": 34.853125,
+              "p99_ms": 49.282875,
+              "max_ms": 49.985792,
+              "frames_over_ms": {
+                "16.67": 59,
+                "20": 57,
+                "33.33": 33,
+                "40": 2,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834504.453661,
+            "end_epoch": 1788834506.527225
+          },
+          {
+            "index": 3,
+            "enabled": true,
+            "accepted": false,
+            "pacing": {
+              "samples": 80,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 39.36,
+              "mean_ms": 25.406514,
+              "p50_ms": 29.63175,
+              "p95_ms": 34.709625,
+              "p99_ms": 35.637292,
+              "max_ms": 39.084459,
+              "frames_over_ms": {
+                "16.67": 63,
+                "20": 44,
+                "33.33": 19,
+                "40": 0,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834510.364962,
+            "end_epoch": 1788834512.451454
+          },
+          {
+            "index": 4,
+            "enabled": false,
+            "accepted": false,
+            "pacing": {
+              "samples": 64,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 32.234,
+              "mean_ms": 31.022805,
+              "p50_ms": 33.0525,
+              "p95_ms": 35.560416,
+              "p99_ms": 47.44,
+              "max_ms": 48.252625,
+              "frames_over_ms": {
+                "16.67": 63,
+                "20": 52,
+                "33.33": 29,
+                "40": 3,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834516.30222,
+            "end_epoch": 1788834518.38006
+          },
+          {
+            "index": 5,
+            "enabled": true,
+            "accepted": false,
+            "pacing": {
+              "samples": 88,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 43.647,
+              "mean_ms": 22.911182,
+              "p50_ms": 17.855917,
+              "p95_ms": 34.107334,
+              "p99_ms": 34.687917,
+              "max_ms": 34.885667,
+              "frames_over_ms": {
+                "16.67": 68,
+                "20": 36,
+                "33.33": 11,
+                "40": 0,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834522.204772,
+            "end_epoch": 1788834524.28435
+          },
+          {
+            "index": 6,
+            "enabled": false,
+            "accepted": false,
+            "pacing": {
+              "samples": 77,
+              "rounds": 1,
+              "window_seconds": 2.0,
+              "fps": 38.199,
+              "mean_ms": 26.178504,
+              "p50_ms": 30.710958,
+              "p95_ms": 34.512666,
+              "p99_ms": 36.752416,
+              "max_ms": 49.085834,
+              "frames_over_ms": {
+                "16.67": 65,
+                "20": 46,
+                "33.33": 13,
+                "40": 1,
+                "50": 0,
+                "60": 0,
+                "100": 0
+              }
+            },
+            "start_epoch": 1788834528.2480562,
+            "end_epoch": 1788834530.321523
+          }
+        ],
+        "first_pair_fps_change_percent": 27.215791717218085,
+        "cleanup_verified": true
+      }
+    ],
+    "combat_limit": "Two early Trial fights with opposite switch orders support a local combat gain. Different fight rosters and capture overhead prevent treating these as a precise universal FPS multiplier. Later blocks rejected by scene gates are excluded."
+  },
+  "capacity_screen": [
+    {
+      "run_id": "20260908T035117Z__performance-max-view-cache-256k-combat__30721",
+      "capacity": 262144,
+      "cache_library_sha256": "dc622d0469b03b983c9012e109919c24c437c6f90e1f99eed027dd719190fca4",
+      "metadata_verified": true,
+      "cleanup_verified": true,
+      "scene": "Tockers Trials 1-8 combat",
+      "order": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "blocks": [
+        {
+          "index": 1,
+          "enabled": false,
+          "accepted": true,
+          "pacing": {
+            "samples": 48,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 24.444,
+            "mean_ms": 40.90954,
+            "p50_ms": 36.305209,
+            "p95_ms": 52.057542,
+            "p99_ms": 56.128001,
+            "max_ms": 68.398958,
+            "frames_over_ms": {
+              "16.67": 48,
+              "20": 47,
+              "33.33": 37,
+              "40": 22,
+              "50": 6,
+              "60": 1,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 2,
+          "enabled": true,
+          "accepted": true,
+          "pacing": {
+            "samples": 77,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 38.449,
+            "mean_ms": 26.008701,
+            "p50_ms": 30.985875,
+            "p95_ms": 34.410375,
+            "p99_ms": 34.928375,
+            "max_ms": 35.587791,
+            "frames_over_ms": {
+              "16.67": 65,
+              "20": 44,
+              "33.33": 16,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 3,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 107,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 53.088,
+            "mean_ms": 18.836587,
+            "p50_ms": 16.846125,
+            "p95_ms": 32.306792,
+            "p99_ms": 33.833625,
+            "max_ms": 35.250792,
+            "frames_over_ms": {
+              "16.67": 58,
+              "20": 14,
+              "33.33": 3,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 4,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 96,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 47.555,
+            "mean_ms": 21.028112,
+            "p50_ms": 17.482,
+            "p95_ms": 34.239292,
+            "p99_ms": 35.465083,
+            "max_ms": 36.168292,
+            "frames_over_ms": {
+              "16.67": 65,
+              "20": 25,
+              "33.33": 15,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 5,
+          "enabled": true,
+          "accepted": false,
+          "pacing": {
+            "samples": 93,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 59.984,
+            "mean_ms": 16.671162,
+            "p50_ms": 16.589584,
+            "p95_ms": 19.702667,
+            "p99_ms": 21.29,
+            "max_ms": 26.205333,
+            "frames_over_ms": {
+              "16.67": 45,
+              "20": 4,
+              "33.33": 0,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        },
+        {
+          "index": 6,
+          "enabled": false,
+          "accepted": false,
+          "pacing": {
+            "samples": 121,
+            "rounds": 1,
+            "window_seconds": 2.0,
+            "fps": 60.019,
+            "mean_ms": 16.661446,
+            "p50_ms": 16.811458,
+            "p95_ms": 18.30325,
+            "p99_ms": 18.530625,
+            "max_ms": 19.547584,
+            "frames_over_ms": {
+              "16.67": 66,
+              "20": 0,
+              "33.33": 0,
+              "40": 0,
+              "50": 0,
+              "60": 0,
+              "100": 0
+            }
+          }
+        }
+      ],
+      "fps_gain_percent": 57.29422353133693,
+      "raw_receipt_sha256": "edb559138f1af597d40a81b2d55f5d68486d35e7fba594433f71c7128d17269c",
+      "decision": "Not promoted. This one fight confirms a gain over cache-off, but does not demonstrate an additional gain over the better-tested 65536-entry build; rosters differ across runs."
+    }
+  ]
+}

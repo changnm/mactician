@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-08",
+  "scope": "Android GLES UBO synthetic screening; these are not TFT frame-rate results",
+  "hardware": "Apple M1 Max, macOS 26.6, 32 GiB",
+  "common": {
+    "emulator": "37.1.11",
+    "guest": "Android 36 ARM64 Google APIs r07",
+    "transport": "virtio-gpu-asg",
+    "cores": 4,
+    "memory_mb": 4096,
+    "display": "2560x1440@416",
+    "angle": "1166eec4c0b125e9e945196acfc549983ef72b18",
+    "rounds": 12,
+    "warmup_rounds": 4,
+    "frames_per_round": 120,
+    "render_target_size": 512
+  },
+  "drivers": {
+    "stock_moltenvk": {
+      "version": "1.4.0",
+      "sha256": "5bf89ff9e1529db0a8fce0c933b71669f51664c93f940196375624d077efdc59"
+    },
+    "sdk_moltenvk": {
+      "version": "1.4.2",
+      "sha256": "99fe9d36457e48d247a4bd15e43738a75f1d7dac724b2ea085212ed59e3254b2"
+    },
+    "packaged_kosmickrisp": {
+      "version": "26.1.99",
+      "revision": "eac8135525"
+    },
+    "sdk_kosmickrisp": {
+      "version": "26.2.99",
+      "revision": "92ec601a34",
+      "vulkan": "1.4.359"
+    }
+  },
+  "results": [
+    {
+      "label": "kosmickrisp-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 512,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 19615.072,
+      "p95_ns_per_draw": 19790.848,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.1.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230615Z__kosmickrisp-a__single_subdata__44254/summary.json",
+      "summary_sha256": "a9d8e274fff27f406a8d0fb170720f543e7bd816091ef0bb712c3fba3d86bb9f"
+    },
+    {
+      "label": "kosmickrisp-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 512,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 18526.22,
+      "p95_ns_per_draw": 18968.191,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.1.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230631Z__kosmickrisp-a__pooled_map_once__44440/summary.json",
+      "summary_sha256": "326b09cb28302fe66bba8f6abb3ff4f3b3dda3f601d24314162cddd50b6e6093"
+    },
+    {
+      "label": "kosmickrisp-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 19382.52,
+      "p95_ns_per_draw": 19508.242,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.1.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230647Z__kosmickrisp-a__single_subdata__44617/summary.json",
+      "summary_sha256": "d8a941ed76e4f8b5e02876008a5dfad89ff49903fd17cd48664922bbbe408ecb"
+    },
+    {
+      "label": "kosmickrisp-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 17081.13,
+      "p95_ns_per_draw": 17205.565,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.1.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230717Z__kosmickrisp-a__pooled_map_once__44253/summary.json",
+      "summary_sha256": "c8dd0f8162df4af06039d14e9c1beab0de462739a3b65a51da0dd89d3bbbba76"
+    },
+    {
+      "label": "moltenvk-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 512,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 5245.44,
+      "p95_ns_per_draw": 5578.72,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230909Z__moltenvk-a__single_subdata__45272/summary.json",
+      "summary_sha256": "f076e651a75219c57134f1ba3970acc975a00b357688ff0a1abbaa77d0b8b9eb"
+    },
+    {
+      "label": "moltenvk-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 512,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 2725.327,
+      "p95_ns_per_draw": 2954.174,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230915Z__moltenvk-a__pooled_map_once__45367/summary.json",
+      "summary_sha256": "0a72da7f91a796a9caf9043009ddd87ae0dabdd6882282bebc4b268b1ffc7b93"
+    },
+    {
+      "label": "moltenvk-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 4329.717,
+      "p95_ns_per_draw": 4414.294,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230920Z__moltenvk-a__single_subdata__45444/summary.json",
+      "summary_sha256": "53c0d8fdb94051a539179f37e6bc612596bf27e0695972f6d9138f877ff47465"
+    },
+    {
+      "label": "moltenvk-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 1991.29,
+      "p95_ns_per_draw": 2092.825,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260907T230928Z__moltenvk-a__pooled_map_once__45264/summary.json",
+      "summary_sha256": "6a412039efad75fee6693b53f55f2bf7780e6fd1779a9b032df4bcc40c6a28c9"
+    },
+    {
+      "label": "kosmickrisp-sdk-new-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 17917.269,
+      "p95_ns_per_draw": 18073.053,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.2.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T000619Z__kosmickrisp-sdk-new-a__single_subdata__56149/summary.json",
+      "summary_sha256": "0f01b8161f6bd20df89a45df1621c224d3c29e232556bfa877c97656648cd427"
+    },
+    {
+      "label": "kosmickrisp-sdk-new-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 16149.167,
+      "p95_ns_per_draw": 16236.234,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x00000064)), Apple-26.2.99)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T000647Z__kosmickrisp-sdk-new-a__pooled_map_once__56146/summary.json",
+      "summary_sha256": "a6503769eceeef32889a954f75aa2bbb432e8bcd592745a0e76b09b179c8411d"
+    },
+    {
+      "label": "moltenvk-single-vm-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 5039.781,
+      "p95_ns_per_draw": 5635.301,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T001303Z__moltenvk-single-vm-a__single_subdata__56863/summary.json",
+      "summary_sha256": "7b42d26f1fe437bf95d07527927b3198c17a3da35e2b079bb7c199f64c974541"
+    },
+    {
+      "label": "moltenvk-single-vm-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 2667.022,
+      "p95_ns_per_draw": 2712.033,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2208)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T001313Z__moltenvk-single-vm-a__pooled_map_once__56859/summary.json",
+      "summary_sha256": "2933146145a7a57b15e3ce6d7a83c617fea5a636afbdd387841eedf9d82b7480"
+    },
+    {
+      "label": "moltenvk-142-a",
+      "mode": "single_subdata",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 5661.658,
+      "p95_ns_per_draw": 6571.576,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2210)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T001409Z__moltenvk-142-a__single_subdata__57129/summary.json",
+      "summary_sha256": "d67f1710e3e671e38c193d1029195bf1351febb2e198af6987a3c227753d5c8e"
+    },
+    {
+      "label": "moltenvk-142-a",
+      "mode": "pooled_map_once",
+      "draws_per_frame": 1024,
+      "measured_rounds": 8,
+      "median_ns_per_draw": 2626.613,
+      "p95_ns_per_draw": 2927.14,
+      "gl_error_rounds": 0,
+      "renderer": "ANGLE (Apple, Vulkan 1.3.0 (Apple M1 Max (0x1A050207)), Apple-0.2.2210)",
+      "summary_path": "runtime/measurements/performance-8h-20260908/ubo/20260908T001424Z__moltenvk-142-a__pooled_map_once__57125/summary.json",
+      "summary_sha256": "2ff74d9f589a785b71c759b77df70eb08246380adbe82d11e511fd104c15bdb6"
+    }
+  ],
+  "limitations": [
+    "Initial labels kosmickrisp-a and moltenvk-a ran with another idle TFT VM, so compare them only as an exploratory bracket.",
+    "kosmickrisp-sdk-new-a, moltenvk-single-vm-a and moltenvk-142-a used one VM. Only one boot per driver so far; no independent-session confidence interval.",
+    "Zero GL errors is a basic correctness gate, not full image validation.",
+    "No TFT FPS improvement is established by this screen."
+  ],
+  "decision": "KosmicKrisp rejected for current guest-ANGLE draw path. MoltenVK 1.4.2 has no clear UBO microbenchmark win; game evaluation pending."
+}

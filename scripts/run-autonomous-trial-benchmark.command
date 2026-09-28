@@ -17,7 +17,7 @@ readonly GAME_ACTIVITY="$PACKAGE/com.epicgames.unreal.GameActivity"
 readonly CLASSIFIER="${TFT_SCREEN_CLASSIFIER_BINARY:-$PROJECT_DIR/runtime/tft-screen-classifier}"
 readonly CLASSIFIER_SOURCE="$PROJECT_DIR/tools/tft-screen-classifier.swift"
 readonly CLASSIFIER_BUILD="$PROJECT_DIR/scripts/build-tft-screen-classifier.command"
-readonly CAPTURE="$PROJECT_DIR/scripts/capture-frame-pacing.command"
+readonly CAPTURE="${TFT_FRAME_CAPTURE:-$PROJECT_DIR/scripts/capture-frame-pacing.command}"
 readonly UI_TRANSPORT_PROBE="$PROJECT_DIR/scripts/run-android-ui-transport-probe.command"
 readonly GLES_BUFFER_STRESS_PROBE="$PROJECT_DIR/scripts/run-android-gles-buffer-stress.command"
 readonly GLES_DRAW_STRESS_PROBE="$PROJECT_DIR/scripts/run-android-gles-draw-stress.command"
@@ -216,8 +216,8 @@ for target_stage in "${TARGET_STAGES[@]}"; do
         exit 2
     fi
 done
-if [[ "$TARGET_PHASE" != "combat" ]]; then
-    print "The autonomous Trial benchmark currently accepts only TFT_TRIAL_TARGET_PHASE=combat."
+if [[ "$TARGET_PHASE" != "combat" && ( "$TARGET_PHASE" != "planning" || -z "${TFT_FRAME_CAPTURE:-}" ) ]]; then
+    print "Planning requires an explicit TFT_FRAME_CAPTURE experiment."
     exit 2
 fi
 if [[ "$NAVIGATION_TIMEOUT" != <-> ]] || (( NAVIGATION_TIMEOUT < 60 || NAVIGATION_TIMEOUT > 7200 )); then
@@ -963,13 +963,12 @@ missed_target_stage() {
 collect_trial_rewards_fast() {
     local reward_point input_script=""
     typeset -a reward_points
-    # Three waypoints form a triangle through the common orb field. Send the
-    # whole route over one ADB shell and let the Little Legend traverse it while
-    # planning is active; the old policy paid for five host ADB round-trips and
-    # 3.5 seconds of fixed sleeps on every single stage.
-    reward_points=("1050 300" "860 610" "1280 700")
+    # Visit the center and right-side drops, including the ground below the
+    # floating orbs. The former left-side triangle left items, units and gold
+    # behind, making late-round survival depend on incomplete loot collection.
+    reward_points=("1050 450" "1370 420" "1510 490" "1400 570" "1050 625" "1420 850" "1050 800")
     for reward_point in "${reward_points[@]}"; do
-        input_script+="input tap $(game_scale_x "${reward_point% *}") $(game_scale_y "${reward_point#* }"); sleep 0.65; "
+        input_script+="input tap $(game_scale_x "${reward_point% *}") $(game_scale_y "${reward_point#* }"); sleep 1.25; "
     done
     "$ADB" -s "$SERIAL" shell "$input_script" >/dev/null
 }
@@ -1084,31 +1083,29 @@ reinforce_board_once_if_needed() {
     fi
 }
 
-equip_early_items_once() {
+equip_early_items() {
     LAST_ITEM_SWIPES=0
-    (( ITEMS_EQUIPPED == 0 )) || return 0
+    (( ITEMS_EQUIPPED < 3 )) || return 0
     typeset -a item_sources item_targets
     local item_source item_target input_script=""
     integer item_index=1
-    # These are 2048x1152 reference coordinates, just like every other board
-    # gesture. A fresh 2560x1440 Trial screenshot places the item-tray centers
-    # at x=60 and y=138+84n in this reference space, and the reliable left-back
-    # champion near (700,720). The former (480,665) target landed on empty
-    # board space above and left of that champion. Offer all four possible
-    # drops to the same unit because one can be a non-equippable selection or
-    # anvil; TFT itself rejects any component after the three-item maximum.
-    # This stays within one ADB shell and adds no host-side sleep.
-    item_sources=("60 138" "60 222" "60 306" "60 390")
-    item_targets=("700 720" "700 720" "700 720" "700 720")
+    # Select the item tab and hold before dragging: a quick swipe can scroll
+    # the inventory without picking up an item. Use up to three early batches
+    # as more loot arrives; keep the initial consumables in the top row alone.
+    # Targets are the first two right-side placements. TFT enforces item limits.
+    tap_game_reference 115 45
+    sleep 0.5
+    item_sources=("60 222" "140 222" "60 305" "140 305")
+    item_targets=("1500 720" "1500 720" "1320 720" "1320 720")
     for item_source in "${item_sources[@]}"; do
         item_target="${item_targets[$(( (item_index - 1) % ${#item_targets} + 1 ))]}"
-        input_script+="input swipe $(game_scale_x "${item_source% *}") $(game_scale_y "${item_source#* }") $(game_scale_x "${item_target% *}") $(game_scale_y "${item_target#* }") 220; "
+        input_script+="input draganddrop $(game_scale_x "${item_source% *}") $(game_scale_y "${item_source#* }") $(game_scale_x "${item_target% *}") $(game_scale_y "${item_target#* }") 600; "
         (( item_index += 1 ))
     done
     "$ADB" -s "$SERIAL" shell "$input_script" >/dev/null
-    ITEMS_EQUIPPED=1
+    (( ITEMS_EQUIPPED += 1 ))
     LAST_ITEM_SWIPES=4
-    print "Trial action: completed the single four-drop carry batch for early survival."
+    print "Trial action: completed early item batch $ITEMS_EQUIPPED/3 with hold-and-drag gestures."
 }
 
 handle_combat_shop() {
@@ -1146,11 +1143,11 @@ prepare_stage_fast() {
     spend_gold_on_xp 16
     reinforce_board_once_if_needed
     if (( $(stage_number "$stage") >= 102 )); then
-        equip_early_items_once
+        equip_early_items
     else
         LAST_ITEM_SWIPES=0
     fi
-    # Start the benchmark as soon as the one-time item batch and the single
+    # Start the benchmark as soon as the bounded item batch and the single
     # evidence-driven reinforcement (if any) are complete.
     tap_game_reference 1965 920
     integer elapsed=$(( SECONDS - started ))
@@ -1163,7 +1160,7 @@ prepare_stage_fast() {
         --argjson board_swipes "$LAST_BOARD_SWIPES" \
         --argjson item_swipes "$LAST_ITEM_SWIPES" \
         '{utc:$utc,event:"stage_prepared",stage:$stage,mode:$mode,trial_attempt:$trial_attempt,
-          duration_seconds:$duration_seconds,rerolls:0,reward_waypoints:3,
+          duration_seconds:$duration_seconds,rerolls:0,reward_waypoints:7,
           xp_attempts:16,board_swipes:$board_swipes,item_swipes:$item_swipes,fight_tapped:true}' \
         >> "$RUN_DIR/planning-events.jsonl"
     print "Trial action: $mode preparation for $stage completed in ${elapsed}s; reroll=0, board_swipes=$LAST_BOARD_SWIPES, item_swipes=$LAST_ITEM_SWIPES."

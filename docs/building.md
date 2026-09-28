@@ -6,6 +6,8 @@
 - Xcode Command Line Tools (`xcrun swiftc`, `xcrun clang`, `codesign`, `plutil`)
 - zsh, `jq`, `rg`, `curl`, `tar`, `zip`, `unzip`, `shasum`, and `xmllint`
 - Node.js only for `scripts/login-tft-from-keychain.command`
+- Android NDK r27d (`27.3.13750724`) for the bundled ARM64 Vulkan cache;
+  set `TFT_ANDROID_NDK` to its directory. End users do not need the NDK.
 - Four exact unmodified TFT `18.1-5423749` APK splits in a private local
   directory; names, sizes, and hashes are in
   `launcher/Resources/release-manifest.json`
@@ -31,6 +33,7 @@ cached copy is reused.
 ```sh
 ./scripts/verify-repository.command
 ./scripts/test-mactician.command
+TFT_ANDROID_NDK="$ANDROID_HOME/ndk/27.3.13750724" ./scripts/test-vulkan-view-cache.command
 ```
 
 Together these commands check repository policy, shell syntax, plist/strings
@@ -39,6 +42,19 @@ syntax, unit tests, and full Swift typechecking. The test script also verifies
 runtime shutdown classification, update safeguards, the scoped login repaint
 repair, English/Russian UI resources, resource selectors, overlay preparation, and
 state serialization.
+
+The native test command cross-compiles the shipped layer, tests its object
+lifetimes and dispatch on the host, and injects failures throughout its Android
+settings transaction. CI also runs it. GPU readbacks and paired game captures
+remain device tests; see [the cache implementation](../native/vulkan-buffer-view-cache/README.md).
+
+Install the pinned NDK with Android Studio or
+[`sdkmanager`](https://developer.android.com/tools/sdkmanager):
+
+```sh
+"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.3.13750724"
+export TFT_ANDROID_NDK="$ANDROID_HOME/ndk/27.3.13750724"
+```
 
 Equivalent focused checks include:
 
@@ -113,6 +129,8 @@ assesses the distribution.
 | Variable | Purpose |
 | --- | --- |
 | `TFT_GAME_APK_DIR` | Required build input directory containing four pinned APK splits |
+| `TFT_ANDROID_NDK` / `ANDROID_NDK_HOME` | Android NDK r27d for the native cache build |
+| `TFT_VULKAN_VIEW_CACHE` | `auto` enables the built cache on the validated game/ANGLE combination; `0` disables it; `1` requires it |
 | `MACTICIAN_CODESIGN_IDENTITY` | Developer ID Application identity; default `-` is ad hoc |
 | `MACTICIAN_NOTARY_PROFILE` | notarytool Keychain profile for a public release |
 | `TFT_ANDROID_SDK_ROOT` / `TFT_ROOT_SDK` | Explicit Android SDK for source launch scripts |

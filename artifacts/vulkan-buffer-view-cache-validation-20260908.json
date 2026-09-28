@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-08",
+  "selected_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+  "host_tests": {
+    "lifecycle_refcounts_eight_threads": "pass",
+    "instance_and_device_dispatch": "pass",
+    "undefined_behavior_sanitizer": "pass",
+    "transaction_failure_injection_tests": 8
+  },
+  "android_hwasan_ubsan": {
+    "65536": {
+      "exit_code": 0
+    },
+    "262144": {
+      "exit_code": 0
+    }
+  },
+  "gpu_readbacks": {
+    "libraries": {
+      "64k": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "256k": "dc622d0469b03b983c9012e109919c24c437c6f90e1f99eed027dd719190fca4"
+    },
+    "tests": {
+      "gpu_control": {
+        "exit_code": 0
+      },
+      "gpu_64k": {
+        "exit_code": 0,
+        "readbacks": 1024,
+        "toggle_order": [
+          1,
+          0,
+          1
+        ]
+      },
+      "gpu_256k": {
+        "exit_code": 0,
+        "readbacks": 1024,
+        "toggle_order": [
+          1,
+          0,
+          1
+        ]
+      }
+    },
+    "original_properties": {
+      "debug.vulkan.layers": "",
+      "debug.mactician.vk_view_cache": "",
+      "debug.angle.feature_overrides_enabled": "",
+      "debug.angle.feature_overrides_disabled": "exposeN*"
+    },
+    "properties_restored": true
+  },
+  "cold_recovery": {
+    "test": "external_emulator_shutdown_then_cache_disabled_cold_start",
+    "library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+    "journal_and_library_verified_before_shutdown": true,
+    "original_settings": {
+      "enable_gpu_debug_layers": "null",
+      "gpu_debug_app": "null",
+      "gpu_debug_layers": "null"
+    },
+    "original_mode": "",
+    "first_launcher_exit_code": 0,
+    "cold_recovery_settings_verified": true,
+    "cold_recovery_library_and_journal_absent": true,
+    "cache_disabled_game_process_verified": true,
+    "second_launcher_exit_code": 130,
+    "device_stopped": true
+  },
+  "launcher_unit_tests_and_swift_typecheck": "pass",
+  "local_adhoc_app_and_dmg_build": "pass",
+  "asan_limit": "Apple Clang 15 ASan failed an empty program on this macOS host. NDK r27 ASan failed a minimal pthread_create program in this guest. Android HWASan plus UBSan passed the full cache stress tests instead. TSan did not yield a usable run.",
+  "evidence_sha256": {
+    "native-final-host-tests.txt": "5ef414b772e82966f5c6f75408b8af82355f2dd2c21a208f7dc5a25e3319413c",
+    "cache-hwasan-16384-test.txt": "b41e678c433a3679ab4b17efe0643543ca098fa38588f705d236cb8bfb1d35b8",
+    "cache-hwasan-65536-test.txt": "b41e678c433a3679ab4b17efe0643543ca098fa38588f705d236cb8bfb1d35b8",
+    "gpu-integrated-readback-control.txt": "9a73ab0342d148487dbab20993028877d720c8dd243ebfdd219d8f6d31ebedf7",
+    "gpu-integrated-readback-64k.txt": "9a73ab0342d148487dbab20993028877d720c8dd243ebfdd219d8f6d31ebedf7",
+    "gpu-integrated-readback-256k.txt": "9a73ab0342d148487dbab20993028877d720c8dd243ebfdd219d8f6d31ebedf7",
+    "cache-cold-recovery-validation.json": "de3671e15df707e1c2445840bb949100b6397381f03dc3bb0b2df41b52c4df77",
+    "launcher-tests-cache.log": "c8597dd59fbc205bf13fce77cda391144dd674b2fd926f40f8a22a2be37bcdd7",
+    "build-cache-local.log": "a540405f25926a5ffe6a89f38e2d393352f9fae4458e5c39c234fd42aa8de37e"
+  },
+  "local_application_deployment": {
+    "scope": "Original installed application; only auth/cache runtime-template changes and renewed local code signature",
+    "identifier": "dev.sergeinaumov.mactician",
+    "version": "1.1.3",
+    "build": 48,
+    "signing_identity": "Developer ID Application: Sergei Naumov (828BPV7PF8)",
+    "hardened_runtime_preserved": true,
+    "executable_text_sha256_before_and_after": "de0eaec8fe3368900cee203ec29e2ec590e8ea6a6a3e770d2add8859479da2c3",
+    "new_notarization_submitted": false,
+    "public_release": false,
+    "original_bundle_backup_retained": true
+  },
+  "installed_runtime_cold_boots": [
+    {
+      "boot": "a",
+      "lobby_without_credential_entry": true,
+      "game_activity_verified": true,
+      "cache_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "mapped_library_and_active_settings_verified": true,
+      "previous_settings": {
+        "enable_gpu_debug_layers": "null",
+        "gpu_debug_app": "null",
+        "gpu_debug_layers": "null"
+      },
+      "previous_cache_mode": "",
+      "baseline_avd_hashes": {
+        "config.ini": "d0ee0d1e5b39c58e6909078bf4a363f1988cd3e8c5b95960dc9ddb366277f36a",
+        "hardware-qemu.ini": "4a2bd0f5bc6a737c5bfc8d408088b41d6e08c33f9de032c5f2bfa79bfd565ab7"
+      },
+      "screenshot_sha256": "a87a148a711223e43927bba70ad199734e4078d469a36a0878071528b5247fa9",
+      "normal_cache_cleanup_verified": true,
+      "device_stopped": true,
+      "avd_config_restored": true
+    },
+    {
+      "boot": "b",
+      "lobby_without_credential_entry": true,
+      "game_activity_verified": true,
+      "cache_library_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "mapped_library_and_active_settings_verified": true,
+      "previous_settings": {
+        "enable_gpu_debug_layers": "null",
+        "gpu_debug_app": "null",
+        "gpu_debug_layers": "null"
+      },
+      "previous_cache_mode": "",
+      "baseline_avd_hashes": {
+        "config.ini": "d0ee0d1e5b39c58e6909078bf4a363f1988cd3e8c5b95960dc9ddb366277f36a",
+        "hardware-qemu.ini": "4a2bd0f5bc6a737c5bfc8d408088b41d6e08c33f9de032c5f2bfa79bfd565ab7"
+      },
+      "screenshot_sha256": "594902ea5e63f219f3c927adb0a0e21a20a02a341bbcc88fac24b6b1de9196dc",
+      "normal_cache_cleanup_verified": true,
+      "device_stopped": true,
+      "avd_config_restored": true
+    }
+  ],
+  "repository_checks": {
+    "git_diff_check": "pass",
+    "telemetry_contract": "pass",
+    "clean_source_policy_check": "All preceding checks pass; existing docs/releasing.md Sparkle Keychain account name is rejected by verify-branding.command. Present in HEAD before this work."
+  },
+  "gui_play_stop_play_validation": {
+    "entrypoint": "Play button in installed /Applications/Mactician.app",
+    "lobby_without_credential_entry": true,
+    "ui_state": "Game running, TFT is open in Russian",
+    "user_preferences_unchanged": {
+      "display": "3840x2160",
+      "preset": "Maximum FPS",
+      "ui_scale_percent": 150,
+      "guest_memory_gib": 16,
+      "vcpus": 8
+    },
+    "game_pid": 3273,
+    "actual_mapped_cache_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+    "cache_mode": 1,
+    "runtime_refreshed_from_patched_template": true,
+    "template_file_sha256": {
+      "run-tft-root-affinity.command": "4bce47c384207943eb8967d5c1d329156e1bc4fc74b0787806814d5c5d81c274",
+      "scripts/enable-tft-login-persistence.command": "9d6d8c17011c1aaa58971bc67d6f93c443d7ef111a65fd0feb773a8a05bc0022",
+      "scripts/guest-vulkan-view-cache.sh": "28fdd10650a7a3ea8176535c95c55d86e79fbba4c264dfb9bfb84fc987e88762",
+      "runtime/vulkan-buffer-view-cache/libVkLayer_Mactician_buffer_view_cache.so": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa"
+    },
+    "avd_baseline_sha256": {
+      "config.ini": "d0ee0d1e5b39c58e6909078bf4a363f1988cd3e8c5b95960dc9ddb366277f36a",
+      "hardware-qemu.ini": "4a2bd0f5bc6a737c5bfc8d408088b41d6e08c33f9de032c5f2bfa79bfd565ab7"
+    },
+    "screenshot_sha256": "d5616bc7e2700782008e8fd25972613f7f6965ae02f978adaf571d1c7449795c",
+    "lobby_visual_review": "No obvious corruption",
+    "fps_claim": "This is a launch/login/graphics smoke check at the user settings; the paired FPS measurements used 2560x1440, 7 vCPUs and 6 GiB.",
+    "first_gui_stop": {
+      "device_stopped": true,
+      "avd_config_restored": true,
+      "ui_state": "Ready to play",
+      "cache_cleanup": "Deferred: existing RuntimeController.stop invokes emu kill before the root launcher finishes rollback; next cold Play must recover the durable journal."
+    },
+    "second_gui_play": {
+      "lobby_without_credential_entry": true,
+      "cold_journal_recovery_verified": true,
+      "fresh_transaction_original_settings_empty": true,
+      "mapped_cache_sha256": "8595828c89e232f737850f21fe03336714ea728e41ec876364aca8cdd7052baa",
+      "screenshot_sha256": "6af094713471b34cb4a4b4658e64d18c6159662baedc297135f50326f4fd26f9"
+    },
+    "final_graceful_cleanup": {
+      "device_stopped": true,
+      "avd_config_restored": true,
+      "cache_settings_and_library_restored": true,
+      "avd_lock_absent": true
+    }
+  }
+}

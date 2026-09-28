@@ -28,6 +28,14 @@ jobs:
       - name: Run launcher unit tests and production typecheck
         run: ./scripts/test-mactician.command
 
+      - name: Build and test the Android Vulkan buffer-view cache
+        run: |
+          export TFT_ANDROID_NDK="$ANDROID_HOME/ndk/27.3.13750724"
+          if [ ! -f "$TFT_ANDROID_NDK/source.properties" ]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.3.13750724"
+          fi
+          ./scripts/test-vulkan-view-cache.command
+
       - name: Reject whitespace and generated changes
         run: |
           git diff --check

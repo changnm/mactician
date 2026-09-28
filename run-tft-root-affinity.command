@@ -79,6 +79,42 @@ readonly UNREAL_LIB_OVERLAY_SHA256="${TFT_UNREAL_LIB_OVERLAY_SHA256:-}"
 readonly UNREAL_LIB_ORIGINAL_SHA256="dd59c46a07d6f7394add255a1f11ede357489a7f1b6f2f925bd87c878c16ec08"
 readonly UNREAL_LIB_REMOTE_DIR="/data/local/tmp/tft-unreal-lib-overlay$EDITION_SUFFIX"
 readonly WRAP_PROPERTY="wrap.$PACKAGE"
+readonly VIEW_CACHE_MODE="${TFT_VULKAN_VIEW_CACHE:-auto}"
+readonly VIEW_CACHE_LIBRARY="$PROJECT_DIR/runtime/vulkan-buffer-view-cache/libVkLayer_Mactician_buffer_view_cache.so"
+readonly VIEW_CACHE_TRANSACTION="$PROJECT_DIR/scripts/guest-vulkan-view-cache.sh"
+VIEW_CACHE_ENABLED=0
+VIEW_CACHE_MANAGED=0
+VIEW_CACHE_REMOTE=""
+VIEW_CACHE_SHA256=""
+case "$VIEW_CACHE_MODE" in
+    auto|0|1) ;;
+    *) print -u2 'TFT_VULKAN_VIEW_CACHE must be auto, 0, or 1.'; exit 2 ;;
+esac
+# Enable only the exact Global builds selected for this release. Quantitative
+# paired captures cover 18.1; do not extrapolate those results to 18.3.
+# Other game revisions fall back to the uncached path.
+if [[ "$VIEW_CACHE_MODE" != 0 && "$RENDERER" == angle-opengl \
+        && "$GUEST_GL_DRIVER" == angle \
+        && "$PACKAGE" == com.riotgames.league.teamfighttactics \
+        && ( "$ORIGINAL_BASE_SHA256" == 96a78f675d02cc3135891af0d3af70a2fac69794d72a5733c7c79cbef3611813 \
+            || "$ORIGINAL_BASE_SHA256" == 65c0a77440e2b60a409050881da15719aeeb66cf3bea3fe37f2226fe5718cd18 ) \
+        && -f "$VIEW_CACHE_LIBRARY" && -f "$VIEW_CACHE_LIBRARY.sha256" ]]; then
+    VIEW_CACHE_SHA256="$(< "$VIEW_CACHE_LIBRARY.sha256")"
+    if [[ ! "$VIEW_CACHE_SHA256" =~ '^[0-9a-f]{64}$' ]] \
+            || [[ "$(shasum -a 256 "$VIEW_CACHE_LIBRARY" | awk '{ print $1 }')" != "$VIEW_CACHE_SHA256" ]]; then
+        print -u2 'The Vulkan buffer-view cache failed its SHA-256 check.'
+        exit 1
+    fi
+    VIEW_CACHE_ENABLED=1
+elif [[ "$VIEW_CACHE_MODE" == 1 ]]; then
+    print -u2 'The Vulkan buffer-view cache requires its built library and the validated TFT ANGLE build.'
+    exit 2
+fi
+
+view_cache_transaction() {
+    "$ADB" -s "$SERIAL" shell sh -s -- "$1" "$PACKAGE" "$VIEW_CACHE_SHA256" \
+        < "$VIEW_CACHE_TRANSACTION"
+}
 
 OVERLAY_LABEL=""
 OVERLAY_APK=""
@@ -623,7 +659,7 @@ cleanup() {
         wait "$WATCHER_PID" >/dev/null 2>&1 || true
     fi
     if [[ ( "$OVERLAY_MOUNTED" == "1" || "$PROFILE_MANAGED" == "1" \
-            || "$UNREAL_LIB_MOUNTED" == "1" ) ]] \
+            || "$UNREAL_LIB_MOUNTED" == "1" || "$VIEW_CACHE_MANAGED" == "1" ) ]] \
             && "$ADB" -s "$SERIAL" get-state >/dev/null 2>&1; then
         "$ADB" -s "$SERIAL" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
         integer wait_attempt
@@ -633,6 +669,13 @@ cleanup() {
             fi
             sleep 0.25
         done
+        if [[ "$VIEW_CACHE_MANAGED" == 1 ]]; then
+            if view_cache_transaction recover; then
+                VIEW_CACHE_MANAGED=0
+            else
+                print 'Warning: the Vulkan-cache journal remains for recovery on the next launch.'
+            fi
+        fi
         if [[ "$PROFILE_MANAGED" == "1" && -n "$PROFILE_DESTINATION" ]]; then
             if [[ "$PROFILE_MOUNTED" == "1" ]]; then
                 if "$ADB" -s "$SERIAL" shell umount "$PROFILE_DESTINATION" >/dev/null 2>&1; then
@@ -734,6 +777,7 @@ cleanup() {
         fi
     fi
     if kill -0 "$EMULATOR_PID" >/dev/null 2>&1; then
+        "$ADB" -s "$SERIAL" shell sync >/dev/null 2>&1 || true
         "$ADB" -s "$SERIAL" emu kill >/dev/null 2>&1 || true
         wait "$EMULATOR_PID" >/dev/null 2>&1 || true
     fi
@@ -796,6 +840,10 @@ if [[ "$("$ADB" -s "$SERIAL" shell id -u 2>/dev/null | tr -d '\r')" != "0" ]]; t
     print "Official adbd root could not be enabled."
     exit 1
 fi
+
+# Recover even when this launch disables the cache or selects another renderer.
+"$ADB" -s "$SERIAL" shell am force-stop "$PACKAGE"
+view_cache_transaction recover
 
 if [[ -n "$GL_DRAW_FLUSH_INTERVAL" ]]; then
     readonly ACTIVE_DRAW_FLUSH_INTERVAL="$(
@@ -1310,6 +1358,13 @@ if ! "$ADB" -s "$SERIAL" shell cmd locale set-app-locales "$PACKAGE" "$GAME_LANG
 fi
 "$ADB" -s "$SERIAL" shell am force-stop "$PACKAGE"
 
+if [[ "$VIEW_CACHE_ENABLED" == 1 ]]; then
+    VIEW_CACHE_REMOTE="$(view_cache_transaction prepare | tr -d '\r')"
+    VIEW_CACHE_MANAGED=1
+    "$ADB" -s "$SERIAL" push "$VIEW_CACHE_LIBRARY" "$VIEW_CACHE_REMOTE" >/dev/null
+    view_cache_transaction activate
+fi
+
 # Riot's streaming installer can leave a zero-byte release manifest and sparse
 # chunk placeholders behind when its first download is interrupted. On every
 # later start the game tries to repair that cache, fails with "Truncated
@@ -1331,6 +1386,33 @@ if "$ADB" -s "$SERIAL" shell test -e "$STREAMING_INSTALL_MANIFEST" \
 fi
 
 "$ADB" -s "$SERIAL" shell am start -n "$PACKAGE/$ACTIVITY"
+
+if [[ "$VIEW_CACHE_MANAGED" == 1 ]]; then
+    typeset -i view_cache_waited=0
+    typeset VIEW_CACHE_GAME_PID
+    VIEW_CACHE_VERIFIED=0
+    while (( view_cache_waited < 90 )); do
+        VIEW_CACHE_GAME_PID="$("$ADB" -s "$SERIAL" shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r' || true)"
+        VIEW_CACHE_GAME_PID="${VIEW_CACHE_GAME_PID%% *}"
+        if [[ -n "$VIEW_CACHE_GAME_PID" ]] \
+                && "$ADB" -s "$SERIAL" shell cat "/proc/$VIEW_CACHE_GAME_PID/maps" 2>/dev/null \
+                    | grep -F -- "$VIEW_CACHE_REMOTE" >/dev/null; then
+            VIEW_CACHE_VERIFIED=1
+            break
+        fi
+        if ! kill -0 "$EMULATOR_PID" >/dev/null 2>&1; then
+            print 'The emulator exited while the Vulkan cache was being verified.'
+            exit 1
+        fi
+        sleep 1
+        (( view_cache_waited += 1 ))
+    done
+    if [[ "$VIEW_CACHE_VERIFIED" != 1 ]]; then
+        print 'The Vulkan buffer-view cache was not loaded by TFT.'
+        exit 1
+    fi
+    print "Vulkan buffer-view cache verified in TFT PID $VIEW_CACHE_GAME_PID; SHA-256 $VIEW_CACHE_SHA256."
+fi
 
 if [[ "$PROFILE_MOUNTED" == "1" ]]; then
     typeset -i profile_waited=0

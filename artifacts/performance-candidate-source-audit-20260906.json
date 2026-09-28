@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "utc_date": "2026-09-06",
+  "kind": "offline_performance_candidate_source_audit",
+  "game": {
+    "edition": "global",
+    "version": "18.1-5423749",
+    "manifest": "launcher/Resources/release-manifest.json",
+    "arm64_split_sha256": "04df5b1112bc36c25d9f46f1db192a6acbe30d5faac72feb4e4c4c057644b14a",
+    "arm64_split_matches_manifest": true,
+    "unmodified_unreal_sha256": "6e8e48bdd913a9ce80ce07c3deef48ffb808b12ee34addfe497b181327907667",
+    "unreal_size_bytes": 195617672
+  },
+  "method": {
+    "cvar_name": "Exact NUL-terminated UTF-16LE name and AArch64 registration argument x1.",
+    "storage": "Trace x2 in registration disassembly; map ELF64 PT_LOAD segments to file-backed data or zero-initialized BSS.",
+    "validation_tool": "Apple CommandLineTools llvm-objdump, plus Python standard-library ELF decoding.",
+    "boundary": "Initial image storage is not an effective runtime value; static initializers, configuration, profiles, saved settings, and runtime code can change it. No current-runtime defaults are claimed."
+  },
+  "cvars": [
+    {
+      "cvar": "Slate.EnableGlobalInvalidation",
+      "storage_vma": "0xbb492c0",
+      "storage_kind": "bss",
+      "width_bytes": 1,
+      "raw_le_hex": "00",
+      "initial_image_value": 0,
+      "runtime_value": null,
+      "registration_name_xref": "0x4e5f9f0",
+      "registration_constructor": "0x32b40e4"
+    },
+    {
+      "cvar": "Slate.EnableFastWidgetPath",
+      "storage_vma": "0xbb492ac",
+      "storage_kind": "bss",
+      "width_bytes": 1,
+      "raw_le_hex": "00",
+      "initial_image_value": 0,
+      "runtime_value": null,
+      "registration_name_xref": "0x4e5f9b4",
+      "registration_constructor": "0x32b40e4"
+    },
+    {
+      "cvar": "Slate.EnableInvalidationPanels",
+      "storage_vma": "0xba54a14",
+      "storage_kind": "file-backed",
+      "width_bytes": 1,
+      "raw_le_hex": "01",
+      "initial_image_value": 1,
+      "runtime_value": null,
+      "registration_name_xref": "0x50122a8",
+      "registration_constructor": "0x32b4580"
+    },
+    {
+      "cvar": "Slate.DeferRetainedRenderingRenderThread",
+      "storage_vma": "0xba5815c",
+      "storage_kind": "file-backed",
+      "width_bytes": 4,
+      "raw_le_hex": "01000000",
+      "initial_image_value": 1,
+      "runtime_value": null,
+      "registration_name_xref": "0x64f7df8",
+      "registration_constructor": "0x32b37dc"
+    },
+    {
+      "cvar": "OpenGL.UseStagingBuffer",
+      "storage_vma": "0xbce1a6c",
+      "storage_kind": "bss",
+      "width_bytes": 4,
+      "raw_le_hex": "00000000",
+      "initial_image_value": 0,
+      "runtime_value": null,
+      "registration_name_xref": "0x3c2daec",
+      "registration_constructor": "0x32b37dc"
+    },
+    {
+      "cvar": "OpenGL.UseMapBuffer",
+      "storage_vma": "0xba5e40c",
+      "storage_kind": "file-backed",
+      "width_bytes": 4,
+      "raw_le_hex": "01000000",
+      "initial_image_value": 1,
+      "runtime_value": null,
+      "registration_name_xref": "0x3c2db4c",
+      "registration_constructor": "0x32b37dc"
+    },
+    {
+      "cvar": "r.OpenGL.BinaryCachePeriodicFlushProgramCount",
+      "storage_vma": "0xba5e46c",
+      "storage_kind": "file-backed",
+      "width_bytes": 4,
+      "raw_le_hex": "14000000",
+      "initial_image_value": 20,
+      "runtime_value": null,
+      "registration_name_xref": "0x3c2e08c",
+      "registration_constructor": "0x32b37dc"
+    },
+    {
+      "cvar": "r.OpenGL.BinaryCacheMMapAfterEveryMB",
+      "storage_vma": "0xba5e470",
+      "storage_kind": "file-backed",
+      "width_bytes": 4,
+      "raw_le_hex": "32000000",
+      "initial_image_value": 50,
+      "runtime_value": null,
+      "registration_name_xref": "0x3c2e0bc",
+      "registration_constructor": "0x32b37dc"
+    }
+  ],
+  "angle": {
+    "revision": "1166eec4c0b125e9e945196acfc549983ef72b18",
+    "revision_provenance": "runtime/measurements/android-gles-ubo-density-512/20260815T042451Z__density512-control-0__single_subdata__54319/rounds.jsonl, first attestation record",
+    "current_runtime_attested": false,
+    "sources": [
+      {
+        "file": "vk_features.json",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/include/platform/vk_features.json",
+        "sha256": "0efe70b89574b80f2ee2ba7a8ece72574cd01b23a0a4f6914b64792b190c3a2f"
+      },
+      {
+        "file": "BufferVk.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/BufferVk.cpp",
+        "sha256": "d24c48ce804e5159d262dda1f34952401f18b7a71ca368340a6a8293b001cc2e"
+      },
+      {
+        "file": "ContextVk.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/ContextVk.cpp",
+        "sha256": "6cd5ab1f2583cdb29f2c3be840ce5f2bb2fe2cb4d7352a0499953d726edb2231"
+      },
+      {
+        "file": "ProgramExecutableVk.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/ProgramExecutableVk.cpp",
+        "sha256": "c3db5b9228e480d07282beaa7c6a0bafd79a5c549759d0372f03e461548bb161"
+      },
+      {
+        "file": "vk_renderer.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/vk_renderer.cpp",
+        "sha256": "3f805eb3909f46cf25e5fb7b4f380321c1f865e2e119bd5922000238eb1571c1"
+      },
+      {
+        "file": "vk_helpers.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/vk_helpers.cpp",
+        "sha256": "c687497eaf208ca4de2d9c56d1b1172bf55c4643302145d210c4f3070fd4f325"
+      },
+      {
+        "file": "vk_cache_utils.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/vk_cache_utils.cpp",
+        "sha256": "1aaa3e415528dd621b043c96adbc58e147874eb27ea8594a0ce2cc6d462b5ed4"
+      },
+      {
+        "file": "vk_mem_alloc_wrapper.cpp",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/src/libANGLE/renderer/vulkan/vk_mem_alloc_wrapper.cpp",
+        "sha256": "25a46a356938903897080219b038087c7dba6fb20a7eb8f9775d6081e3bc4546"
+      },
+      {
+        "file": "Feature.h",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/include/platform/Feature.h",
+        "sha256": "c48d5cb74dbd7ae80cb57cf3fcfe149d52623433da10d50ab691fae6aab772d0"
+      },
+      {
+        "file": "FeaturesVk_autogen.h",
+        "url": "https://chromium.googlesource.com/angle/angle/+/1166eec4c0b125e9e945196acfc549983ef72b18/include/platform/autogen/FeaturesVk_autogen.h",
+        "sha256": "f1246fb3bcacf14d4d7ddee3f88d1c5cceb163458ecc9a2effcdc970a31453fd"
+      }
+    ],
+    "findings": [
+      {
+        "feature": "preferHostCachedForNonStaticBufferUsage",
+        "status": "new_screening_candidate",
+        "evidence": [
+          "Feature.h:137,148 initializes feature state false.",
+          "FeaturesVk_autogen.h:1121 registers the exact override name.",
+          "vk_renderer.cpp has no feature-specific enabling condition for this flag.",
+          "BufferVk.cpp:90 changes preferred memory flags for DynamicDraw/StreamDraw.",
+          "vk_helpers.cpp:3701 also changes host-visible DynamicBuffer memory preference."
+        ],
+        "unresolved": [
+          "Effective feature and guest Vulkan memory properties.",
+          "Whether selected allocation memory types differ.",
+          "CPU cost and frame-tail effect."
+        ]
+      },
+      {
+        "feature": "persistentlyMappedBuffers",
+        "status": "reject_source_default_enablement_noop",
+        "source": "vk_renderer.cpp:5334",
+        "default_condition": "true"
+      },
+      {
+        "feature": "asyncCommandBufferResetAndGarbageCleanup",
+        "status": "reject_source_default_enablement_noop",
+        "source": "vk_renderer.cpp:5373",
+        "default_condition": "true"
+      },
+      {
+        "feature": "descriptorSetCache",
+        "status": "reject_source_default_enablement_noop_for_retained_apple_renderer",
+        "source": "vk_renderer.cpp:6204",
+        "default_condition": "not SwiftShader"
+      }
+    ]
+  },
+  "screening_order": [
+    "ANGLE preferHostCachedForNonStaticBufferUsage, after proving different memory selection.",
+    "Slate.EnableGlobalInvalidation=1, after effective-value query and UI safety checks.",
+    "OpenGL.UseStagingBuffer=1, after effective-value query and geometry-upload path attribution."
+  ],
+  "conditional_hitch_investigation": {
+    "cvars": [
+      "r.OpenGL.BinaryCachePeriodicFlushProgramCount",
+      "r.OpenGL.BinaryCacheMMapAfterEveryMB"
+    ],
+    "prerequisite": "PSO precaching active and a trace correlating long frames with cache flush/remap.",
+    "decision": "No threshold values chosen without runtime attribution; change one at a time and retain equivalent cache state."
+  },
+  "performance": {
+    "benchmarks_run": 0,
+    "game_launched": false,
+    "fps_gain": null,
+    "promoted_candidates": [],
+    "production_defaults_changed": false
+  }
+}

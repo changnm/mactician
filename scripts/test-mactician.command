@@ -72,6 +72,8 @@ for syntax_script in \
         "$PROJECT_DIR/scripts/watch-root-pso.command" \
         "$PROJECT_DIR/scripts/update-tft-performance-mode.command" \
         "$PROJECT_DIR/scripts/enable-tft-login-persistence.command" \
+        "$PROJECT_DIR/scripts/build-vulkan-view-cache.command" \
+        "$PROJECT_DIR/scripts/test-vulkan-view-cache.command" \
         "$PROJECT_DIR/scripts/android-environment.sh" \
         "$PROJECT_DIR/scripts/prepare-sparkle.command" \
         "$PROJECT_DIR/scripts/publish-mactician-update.command" \
@@ -80,6 +82,7 @@ for syntax_script in \
         "$PROJECT_DIR/scripts/integration-test-mactician.command"; do
     zsh -o NO_BG_NICE -n "$syntax_script"
 done
+sh -n "$PROJECT_DIR/scripts/guest-vulkan-view-cache.sh"
 
 python3 "$PROJECT_DIR/scripts/test-runtime-early-stop.py" "$LAUNCHER_DIR/Resources/launcher-runtime.command"
 
