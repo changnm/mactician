@@ -2312,6 +2312,14 @@ enum LauncherTests {
         let snapshot = try JSONDecoder().decode(PerformanceSnapshot.self, from: JSONSerialization.data(withJSONObject: performanceJSON))
         let roundTrip = try JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot)) as! NSDictionary
         try expect(roundTrip == performanceJSON as NSDictionary, "Swift performance payload agrees with API fixture")
+        try expect(snapshot.diagnostics == nil, "legacy snapshots retain absent diagnostics")
+        let diagnosticFixtureURL = fixtureURL.deletingLastPathComponent().appendingPathComponent("game-session-performance-diagnostics-v2.json")
+        let diagnosticFixture = try JSONSerialization.jsonObject(with: Data(contentsOf: diagnosticFixtureURL)) as! [String: Any]
+        let diagnosticJSON = diagnosticFixture["performance"] as! [String: Any]
+        let diagnosticSnapshot = try JSONDecoder().decode(PerformanceSnapshot.self, from: JSONSerialization.data(withJSONObject: diagnosticJSON))
+        try expect(try JSONSerialization.jsonObject(with: JSONEncoder().encode(diagnosticSnapshot)) as! NSDictionary == diagnosticJSON as NSDictionary,
+            "diagnostic wire fixture agrees with Swift")
+        try testPerformanceDiagnostics(runtime: snapshot.runtime)
         let histogram = snapshot.segments[0].histogram
         let row = zip(SurfaceFlingerTimeStats.buckets, histogram).map { "\($0)ms=\($1)" }.joined(separator: " ")
         let package = GameEdition.global.packageName
@@ -2350,7 +2358,7 @@ enum LauncherTests {
             defaults.set(String(ISO8601DateFormatter().string(from: Date()).prefix(10)), forKey: "telemetry.dailyActive.lastCreatedDay.v1")
             let loader = TelemetryLoaderStub()
             let service = LauncherTelemetryService(defaults: defaults, apiBaseURL: URL(string: "https://127.0.0.1:1/")!, device: device, loader: loader.load)
-            service.beginPerformance(runtime: snapshot.runtime, settings: settings)
+            service.beginPerformance(runtime: snapshot.runtime, settings: settings, language: "vi-VN")
             try waitFor("performance starts for \(state) version \(version)") { loader.requestCount == 1 }
             let starting = loader.event(at: 0)!
             try expect(starting["event"] as? String == "game_session_performance", "attempt exists before ready for every diagnostics choice")
@@ -2367,6 +2375,9 @@ enum LauncherTests {
             }
             let final = try pending()
             let finalPerformance = final[0]["performance"] as! [String: Any]
+            let finalDiagnostics = finalPerformance["diagnostics"] as! [String: Any]
+            try expect(finalDiagnostics["language"] as? String == "vi-VN", "requested language is fixed at launch")
+            try expect((finalDiagnostics["measurements"] as! [String: Int])["sampled"] == 2, "diagnostic counters survive checkpoints and refusal")
             try expect(final.count == 1 && finalPerformance["status"] as? String == "stopped", "checkpoints coalesce and final persists after refusal")
             try expect(finalPerformance["windows_attempted"] as? Int == 2, "samples continue after disabling optional diagnostics")
             loader.completeFirst(statusCode: 202)
@@ -2397,6 +2408,75 @@ enum LauncherTests {
             recovered.finishPerformance("launch_failed")
             try expect((try pending().last!["performance"] as! [String: Any])["status"] as? String == "launch_failed", "unknown diagnostics choice still creates performance attempts")
         }
+        let legacySuite = "LauncherTests.performance.legacy.\(UUID().uuidString)"
+        let legacyDefaults = UserDefaults(suiteName: legacySuite)!
+        defer { legacyDefaults.removePersistentDomain(forName: legacySuite) }
+        var legacyEvent = fixture
+        legacyEvent["occurred_at"] = ISO8601DateFormatter().string(from: Date())
+        var legacyPerformance = performanceJSON
+        legacyPerformance["status"] = "running"
+        legacyEvent["performance"] = legacyPerformance
+        legacyDefaults.set(try JSONSerialization.data(withJSONObject: legacyEvent), forKey: "telemetry.performance.active.v1")
+        let legacyService = LauncherTelemetryService(defaults: legacyDefaults, apiBaseURL: URL(string: "https://127.0.0.1:1/")!, device: device, loader: TelemetryLoaderStub().load)
+        legacyService.finishPerformance("stopped")
+        let recoveredData = legacyDefaults.data(forKey: "telemetry.performance.pending.v1")!
+        let recoveredEvents = try JSONSerialization.jsonObject(with: recoveredData) as! [[String: Any]]
+        let recoveredPerformance = recoveredEvents.last!["performance"] as! [String: Any]
+        try expect(recoveredPerformance["diagnostics"] == nil && recoveredPerformance["status"] as? String == "interrupted",
+            "legacy recovery does not invent diagnostics or change attempt identity")
+    }
+
+    private static func testPerformanceDiagnostics(runtime: PerformanceRuntime) throws {
+        func endpoint(_ state: String = "battle", stage: String? = "4-2", phase: String? = "combat", hud: Bool = true) throws -> PerformanceEndpoint {
+            let json: [String: Any] = ["diagnostics_version": 1, "state": state, "stage": stage ?? NSNull(),
+                "observed_stage": stage ?? NSNull(), "stage_read": stage != nil, "phase": phase ?? NSNull(),
+                "battle_hud": hud, "dimensions": "1920x1080"]
+            return PerformanceEndpoint.decode(try JSONSerialization.data(withJSONObject: json), expectedDimensions: "1920x1080")
+        }
+        let combat = try endpoint()
+        let planning = try endpoint(phase: "planning")
+        let nextRound = try endpoint(stage: "4-3")
+        let noStage = try endpoint(stage: nil)
+        let noPhase = try endpoint(phase: nil)
+        let patching = try endpoint("patching", stage: nil, phase: nil, hud: false)
+        try expect(combat.reason == "gameplay" && combat.scene == PerformanceScene(scene: "combat", stage: "4-2"), "diagnostics preserve gameplay classification")
+        try expect(noStage.reason == "stage_unreadable" && noPhase.reason == "phase_unrecognized", "partial evidence remains diagnostic only")
+        try expect(patching.reason == "non_gameplay" && patching.scene.scene == "unknown", "known non-gameplay preserves legacy unknown")
+        for (a, b, reason) in [(combat, planning, "phase_changed"), (combat, nextRound, "round_changed"),
+                              (combat, patching, "state_changed"), (combat, noPhase, "one_unknown"),
+                              (noStage, noStage, "both_unknown"), (patching, patching, "non_gameplay"),
+                              (combat, PerformanceEndpoint(reason: "helper_timeout"), "endpoint_failed")] {
+            try expect(PerformanceEndpoint.context(a, b) == reason, "context reason \(reason)")
+            try expect(PerformanceScene.bracket(a.scene, b.scene).scene == "unknown", "reason must not promote unknown to gameplay")
+        }
+        let invalid = PerformanceEndpoint.decode(Data(#"{"diagnostics_version":1,"state":"private value"}"#.utf8), expectedDimensions: "1920x1080")
+        try expect(invalid.reason == "invalid_response" && invalid.state.isEmpty, "unbounded helper values cannot enter telemetry")
+        let unsupported = PerformanceEndpoint.decode(Data(#"{"diagnostics_version":1,"error":"unsupported_dimensions","dimensions":"other"}"#.utf8), expectedDimensions: "1920x1080")
+        try expect(unsupported.reason == "unsupported_dimensions" && unsupported.dimensionMatch == false, "unsupported screenshot sizes are explained")
+        var p = PerformanceSnapshot(runtime: runtime, diagnostics: PerformanceDiagnostics(language: "en-US"))
+        p.readyMS = 0; p.elapsedMS = 600000
+        var h = [Int64](repeating: 0, count: 85); h[17] = 100
+        var sample = PerformanceSample(histogram: h, durationMS: 2000, scene: combat.scene)
+        sample.endpoints = [combat, combat]; sample.contextReason = "gameplay"
+        PerformanceDiagnostics.observe("classifier", milliseconds: 100, in: &sample.timings)
+        PerformanceDiagnostics.observe("classifier", milliseconds: 101, in: &sample.timings)
+        p.record(sample)
+        sample.scene = PerformanceScene(); sample.endpoints = [combat, planning]; sample.contextReason = "phase_changed"
+        sample.timings = [:]; p.record(sample)
+        p.record(PerformanceSample(background: true))
+        p.record(PerformanceSample(missingReason: "timestats_failed", endpoints: [patching]))
+        p.record(PerformanceSample(histogram: h, durationMS: 500))
+        p.record(PerformanceSample(histogram: [1], durationMS: 2000))
+        let d = p.diagnostics!
+        try expect(d.measurements.values.reduce(0, +) == p.windowsAttempted && d.measurements["sampled"] == 2,
+            "exactly one measurement outcome per foreground attempt")
+        try expect(d.contexts.values.reduce(0, +) == p.windowsAttempted-p.windowsMissing && d.contexts["phase_changed"] == 1,
+            "context denominator includes only successful windows")
+        try expect(d.endpoints.values.reduce(0, +) == 5 && d.states["battle"] == 4 && d.states["patching"] == 1,
+            "endpoint denominator counts screenshot boundaries, not windows")
+        try expect(d.measurements["invalid_duration"] == 1 && d.measurements["invalid_histogram"] == 1 && d.measurements["timestats_failed"] == 1,
+            "measurement failures keep distinct causes")
+        try expect(d.timings["classifier"]?[0] == 1 && d.timings["classifier"]?[1] == 1, "timing upper bounds match the API")
     }
 
     private static func expect(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {

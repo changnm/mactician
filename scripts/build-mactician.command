@@ -123,7 +123,7 @@ TFT_SCREEN_CLASSIFIER_BINARY="$HELPERS/tft-screen-classifier" \
         scripts/run-asg-experiment.command scripts/enable-tft-login-persistence.command \
         launcher/Resources/release-manifest.json launcher/Resources/launcher-runtime.command \
         launcher/Resources/emulator-host.command launcher/Sources/InputBridgeService.swift \
-        launcher/Sources/PerformanceCollector.swift launcher/Sources/PerformanceModels.swift \
+        launcher/Sources/PerformanceCollector.swift launcher/Sources/PerformanceModels.swift launcher/Sources/PerformanceDiagnostics.swift \
         launcher/Sources/LauncherModel.swift launcher/Sources/LauncherTelemetryService.swift \
         tools/tft-screen-classifier.swift
 ) | shasum -a 256 | awk '{print $1}' > "$RESOURCES/performance-runtime.sha256"

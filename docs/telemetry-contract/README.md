@@ -14,3 +14,9 @@ byte-identical copies for its HTTP contract tests. Run
 Schema v2 intentionally contains no installation identifier, account identity,
 network address, host name, serial number, MAC address, or game logs. Unknown
 fields are rejected by the server.
+
+`game-session-performance-v2.json` retains the legacy shape.
+`game-session-performance-diagnostics-v2.json` adds optional loss diagnostics v1;
+its counters describe one unknown non-gameplay window as well as successful
+combat and a missing frame window. See [field semantics](performance-diagnostics.md).
+Old attempts must not acquire this block during checkpoint recovery.

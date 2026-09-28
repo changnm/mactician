@@ -230,6 +230,15 @@ saved or uploaded. Intermediate transitions are not detectable. Game mode and
 downloaded Riot content are not identified. The classifier recognizes English
 and Russian UI; unsupported or unclear UI remains unknown.
 
+Loss diagnostics v1 add the requested game language and implementation
+`screen-bracket-diagnostics-v1`, with bounded cumulative counters for measurement
+outcomes, screenshot endpoint outcomes, recognized states, partial signals,
+dimensions and context outcomes. The classifier's scene rules remain unchanged.
+Only codes/counts leave the classifier; raw errors and OCR text remain excluded.
+The [diagnostic contract](telemetry-contract/performance-diagnostics.md) specifies
+denominators and timing buckets. Legacy attempts omit this block, including
+when recovered or retried by a newer launcher; absence is not zero failures.
+
 The active checkpoint and at most 16 pending attempts (256 KiB total) live in
 preferences. Pending attempts expire after seven days. Changing the optional
 diagnostics setting leaves collection, pending retries and recovery intact.

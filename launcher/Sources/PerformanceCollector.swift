@@ -12,15 +12,18 @@ final class PerformanceCollector {
     private let classifier: URL
     private let package: String
     private let targetPID: pid_t
+    private let expectedDimensions: String
+    private var lastSampleAt: TimeInterval?
+    private var lastRunFailure = "helper_failed"
     private let publish: (PerformanceSample) -> Void
     private var stopped = false
     private var process: Process?
     private var enabledTimeStats = false
     private var exposure = "unknown"
 
-    init(adb: URL, classifier: URL, package: String, targetPID: pid_t, publish: @escaping (PerformanceSample) -> Void) {
+    init(adb: URL, classifier: URL, package: String, targetPID: pid_t, expectedDimensions: String, publish: @escaping (PerformanceSample) -> Void) {
         self.adb = adb; self.classifier = classifier; self.package = package
-        self.targetPID = targetPID; self.publish = publish
+        self.targetPID = targetPID; self.expectedDimensions = expectedDimensions; self.publish = publish
     }
 
     func start() {
@@ -52,47 +55,66 @@ final class PerformanceCollector {
         if !foreground() {
             result.background = true
         } else {
+            if let previous = lastSampleAt { result.observe("interval", since: previous) }
+            lastSampleAt = began
             if let data = run(URL(fileURLWithPath: "/bin/ps"), ["-o", "rss=", "-p", String(targetPID)], maximumBytes: 128),
                let text = String(data: data, encoding: .utf8), let kb = Int64(text.trimmingCharacters(in: .whitespacesAndNewlines)) {
                 result.residentMB = min(1_048_576, max(0, kb / 1024))
             }
             if exposure == "unknown" { exposure = cacheExposure() }
             result.cacheState = exposure
-            let beforeScene = scene()
-            // The dedicated Mactician AVD has one collector. Clear once per window
-            // to bound historical layer entries, then subtract two snapshots.
-            // The guest may execute enable even if the ADB response is lost or
-            // cancelled. Always attempt cleanup after dispatching this command.
+            let beforeScene = scene(sample: &result)
+            // Cleanup is required even if the guest enabled TimeStats but its response was lost.
             enabledTimeStats = true
-            if shell("dumpsys SurfaceFlinger --timestats -clear -enable") != nil {
-                pause(0.25) // allow the active layer to register before the baseline
-                if let before = timeStats(), !isStopped, foreground() {
-                    let measuredAt = ProcessInfo.processInfo.systemUptime
-                    var focused = true
-                    for _ in 0..<20 {
-                        if isStopped { break }
-                        Thread.sleep(forTimeInterval: 0.1)
-                        if !foreground() { focused = false }
-                    }
-                    if !isStopped, let after = timeStats() {
-                        result.durationMS = Int64((ProcessInfo.processInfo.systemUptime - measuredAt) * 1000)
-                        let afterScene = scene()
-                        if focused, foreground() {
-                            result.histogram = SurfaceFlingerTimeStats.delta(before: before, after: after)
-                            result.scene = PerformanceScene.bracket(beforeScene, afterScene)
+            result.missingReason = "timestats_failed"
+            let enableBegan = ProcessInfo.processInfo.systemUptime
+            let enabled = shell("dumpsys SurfaceFlinger --timestats -clear -enable") != nil
+            result.observe("timestats", since: enableBegan)
+            if enabled {
+                pause(0.25)
+                if let before = timeStats(sample: &result), !isStopped {
+                    if foreground() {
+                        let measuredAt = ProcessInfo.processInfo.systemUptime
+                        if let captured = beforeScene.capturedAt { result.observe("before_gap", since: captured) }
+                        var focused = true
+                        for _ in 0..<20 {
+                            if isStopped { break }
+                            Thread.sleep(forTimeInterval: 0.1)
+                            if !foreground() { focused = false }
                         }
-                    }
+                        if !isStopped, let after = timeStats(sample: &result) {
+                            let measuredUntil = ProcessInfo.processInfo.systemUptime
+                            result.durationMS = Int64((measuredUntil - measuredAt) * 1000)
+                            let afterScene = scene(sample: &result)
+                            if let captured = afterScene.capturedAt {
+                                PerformanceDiagnostics.observe("after_gap", milliseconds: Int64((captured - measuredUntil) * 1000), in: &result.timings)
+                            }
+                            if focused, foreground() {
+                                result.histogram = SurfaceFlingerTimeStats.delta(before: before, after: after)
+                                if result.histogram == nil {
+                                    result.missingReason = before.name != after.name ? "layer_changed"
+                                        : zip(before.histogram, after.histogram).contains(where: { $1 < $0 }) ? "counter_reset" : "no_frames"
+                                }
+                                result.scene = PerformanceScene.bracket(beforeScene.scene, afterScene.scene)
+                                result.contextReason = PerformanceEndpoint.context(beforeScene, afterScene)
+                            } else { result.missingReason = "lost_focus" }
+                        }
+                    } else { result.missingReason = "lost_focus" }
                 }
             }
+            let disableBegan = ProcessInfo.processInfo.systemUptime
             disableTimeStats()
+            result.observe("timestats", since: disableBegan)
         }
         let totalMS = Int64((ProcessInfo.processInfo.systemUptime - began) * 1000)
         result.collectorMS = max(0, totalMS - (result.durationMS > 0 ? 2000 : 0))
+        result.observe("cycle", since: began)
         guard !isStopped else { return }
+        // Keep the existing schedule and wall-time budget during the diagnostic baseline.
+        let scheduledDelay = Double.random(in: 45...75)
+        let delay = max(scheduledDelay, Double(result.collectorMS) / 10)
+        result.backoff = !result.background && delay > scheduledDelay
         publish(result)
-        // Back off on expensive machines rather than spending a fixed OCR budget
-        // at the expense of gameplay. This is a wall-time duty budget, not CPU usage.
-        let delay = max(Double.random(in: 45...75), Double(result.collectorMS) / 10)
         queue.asyncAfter(deadline: .now() + delay) { [weak self] in self?.sample() }
     }
 
@@ -101,21 +123,40 @@ final class PerformanceCollector {
         while !isStopped, ProcessInfo.processInfo.systemUptime < until { Thread.sleep(forTimeInterval: 0.05) }
     }
 
-    private func scene() -> PerformanceScene {
-        guard FileManager.default.isExecutableFile(atPath: classifier.path),
-              let png = runADB(["exec-out", "screencap", "-p"], maximumBytes: 32*1024*1024),
-              let result = run(classifier, ["--telemetry-stdin"], input: png, maximumBytes: 2048) else { return PerformanceScene() }
-        return PerformanceScene.decode(result)
+    private func scene(sample: inout PerformanceSample) -> PerformanceEndpoint {
+        var endpoint = PerformanceEndpoint(reason: "helper_missing")
+        defer { sample.endpoints.append(endpoint) }
+        guard FileManager.default.isExecutableFile(atPath: classifier.path) else { return endpoint }
+        let began = ProcessInfo.processInfo.systemUptime
+        let png = runADB(["exec-out", "screencap", "-p"], maximumBytes: 32*1024*1024)
+        sample.observe("screencap", since: began)
+        guard let png else { endpoint.reason = "capture_failed"; return endpoint }
+        let helperBegan = ProcessInfo.processInfo.systemUptime
+        let data = run(classifier, ["--telemetry-diagnostics-stdin"], input: png, maximumBytes: 2048)
+        sample.observe("classifier", since: helperBegan)
+        if let data { endpoint = PerformanceEndpoint.decode(data, expectedDimensions: expectedDimensions) }
+        else { endpoint.reason = lastRunFailure }
+        endpoint.capturedAt = began
+        return endpoint
     }
 
-    private func timeStats() -> SurfaceFlingerTimeStats.Layer? {
-        guard let data = shell("dumpsys SurfaceFlinger --timestats -dump"), let text = String(data: data, encoding: .utf8) else { return nil }
-        return SurfaceFlingerTimeStats.parse(text, package: package)
+    private func timeStats(sample: inout PerformanceSample) -> SurfaceFlingerTimeStats.Layer? {
+        let began = ProcessInfo.processInfo.systemUptime
+        defer { sample.observe("timestats", since: began) }
+        guard let data = shell("dumpsys SurfaceFlinger --timestats -dump"), let text = String(data: data, encoding: .utf8) else {
+            sample.missingReason = "timestats_failed"; return nil
+        }
+        guard let layer = SurfaceFlingerTimeStats.parse(text, package: package) else {
+            sample.missingReason = text.contains("SurfaceView[\(package)/com.epicgames.unreal.GameActivity](BLAST)")
+                ? "invalid_histogram" : "layer_not_found"
+            return nil
+        }
+        return layer
     }
 
     private func cacheExposure() -> String {
         // Fixed allowlisted packages only; never evaluate data received from the server.
-        guard [GameEdition.global.packageName, GameEdition.vietnam.packageName].contains(package) else { return "unknown" }
+        guard GameEdition.allCases.contains(where: { $0.packageName == package }) else { return "unknown" }
         let command = "p=$(pidof \(package)); [ -n \"$p\" ] && [ -r /proc/$p/maps ] || exit 1; v=$(getprop debug.mactician.vk_view_cache); if grep -q libVkLayer_Mactician_buffer_view_cache.so /proc/$p/maps; then [ \"$v\" = 1 ] && echo enabled || echo unknown; elif [ \"$v\" != 1 ]; then echo disabled; else echo unknown; fi"
         guard let data = shell(command), let text = String(data: data, encoding: .utf8) else { return "unknown" }
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -135,6 +176,7 @@ final class PerformanceCollector {
     }
 
     private func run(_ executable: URL, _ arguments: [String], input: Data? = nil, maximumBytes: Int, allowStopped: Bool = false) -> Data? {
+        lastRunFailure = "helper_failed"
         let child = Process(), output = Pipe(), inputPipe = Pipe()
         child.executableURL = executable; child.arguments = arguments
         child.standardOutput = output; child.standardError = FileHandle.nullDevice
@@ -145,7 +187,8 @@ final class PerformanceCollector {
         lock.lock()
         guard !stopped || allowStopped else { lock.unlock(); return nil }
         do { try child.run(); process = child; lock.unlock() } catch { lock.unlock(); return nil }
-        let timeout = DispatchWorkItem { if child.isRunning { kill(child.processIdentifier, SIGKILL) } }
+        let deadline = CommandDeadline()
+        let timeout = DispatchWorkItem { deadline.terminate(child) }
         DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 10, execute: timeout)
         defer {
             timeout.cancel()
@@ -167,6 +210,18 @@ final class PerformanceCollector {
             data.append(chunk)
         }
         child.waitUntilExit()
+        if deadline.expired { lastRunFailure = "helper_timeout" }
         return child.terminationStatus == 0 ? data : nil
+    }
+}
+
+// The deadline fires on another queue; keep its diagnostic flag synchronized.
+private final class CommandDeadline: @unchecked Sendable {
+    private let lock = NSLock()
+    private var fired = false
+    var expired: Bool { lock.lock(); defer { lock.unlock() }; return fired }
+    func terminate(_ child: Process) {
+        lock.lock(); defer { lock.unlock() }
+        if child.isRunning { fired = true; kill(child.processIdentifier, SIGKILL) }
     }
 }

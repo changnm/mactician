@@ -60,10 +60,11 @@ struct PerformanceSnapshot: Codable, Equatable {
     var peakResidentMB: Int64 = 0
     var thermalSamples: [Int64] = [0, 0, 0, 0]
     var segments: [PerformanceSegment] = []
+    var diagnostics: PerformanceDiagnostics?
 
     var terminal: Bool { status != "starting" && status != "running" }
     enum CodingKeys: String, CodingKey {
-        case revision, status, collector, classifier, runtime, segments
+        case revision, status, collector, classifier, runtime, segments, diagnostics
         case elapsedMS = "elapsed_ms", readyMS = "ready_ms"
         case windowsAttempted = "windows_attempted", windowsMissing = "windows_missing"
         case backgroundSkipped = "background_skipped", collectorMS = "collector_ms"
@@ -71,17 +72,23 @@ struct PerformanceSnapshot: Codable, Equatable {
     }
 
     mutating func record(_ sample: PerformanceSample) {
+        var outcome = sample.missingReason
+        var context: String?
+        defer { diagnostics?.record(sample, measurement: outcome, context: context) }
         collectorMS += sample.collectorMS
         peakResidentMB = max(peakResidentMB, sample.residentMB)
         if (0..<4).contains(sample.thermalState) { thermalSamples[sample.thermalState] += 1 }
         if runtime.cacheState == "unknown", sample.cacheState != "unknown" { runtime.cacheState = sample.cacheState }
         if sample.background { backgroundSkipped += 1; return }
         windowsAttempted += 1
-        guard let histogram = sample.histogram, sample.durationMS >= 1000, sample.durationMS <= 10000,
-              histogram.count == SurfaceFlingerTimeStats.buckets.count,
+        guard let histogram = sample.histogram else { windowsMissing += 1; return }
+        guard sample.durationMS >= 1000, sample.durationMS <= 10000 else {
+            outcome = "invalid_duration"; windowsMissing += 1; return
+        }
+        guard histogram.count == SurfaceFlingerTimeStats.buckets.count,
               histogram.allSatisfy({ $0 >= 0 && $0 <= sample.durationMS }),
               histogram.reduce(0, +) > 0, histogram.reduce(0, +) <= sample.durationMS else {
-            windowsMissing += 1; return
+            outcome = "invalid_histogram"; windowsMissing += 1; return
         }
         let age = max(0, elapsedMS - (readyMS ?? elapsedMS))
         let band = age < 60000 ? "warmup" : age < 1_200_000 ? "early" : "sustained"
@@ -90,10 +97,12 @@ struct PerformanceSnapshot: Codable, Equatable {
         if let existing = segments.firstIndex(where: { $0.scene == scene.scene && $0.stageBand == scene.stageBand && $0.ageBand == band }) {
             index = existing
         } else {
-            guard segments.count < 24 else { windowsMissing += 1; return }
+            guard segments.count < 24 else { outcome = "segment_limit"; windowsMissing += 1; return }
             index = segments.count
             segments.append(PerformanceSegment(scene: scene.scene, stageBand: scene.stageBand, ageBand: band))
         }
+        outcome = "sampled"
+        context = sample.contextReason ?? (["planning", "combat"].contains(scene.scene) ? "gameplay" : scene.scene == "lobby" ? "lobby" : "both_unknown")
         segments[index].windows += 1
         segments[index].sampledMS += sample.durationMS
         for i in histogram.indices { segments[index].histogram[i] += histogram[i] }
@@ -128,6 +137,15 @@ struct PerformanceSample {
     var residentMB: Int64 = 0
     var thermalState = -1
     var cacheState = "unknown"
+    var missingReason = "measurement_failed"
+    var endpoints: [PerformanceEndpoint] = []
+    var contextReason: String?
+    var timings: [String: [Int64]] = [:]
+    var backoff = false
+
+    mutating func observe(_ key: String, since began: TimeInterval) {
+        PerformanceDiagnostics.observe(key, milliseconds: Int64((ProcessInfo.processInfo.systemUptime - began) * 1000), in: &timings)
+    }
 }
 
 enum SurfaceFlingerTimeStats {

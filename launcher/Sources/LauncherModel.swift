@@ -564,7 +564,7 @@ final class LauncherModel: ObservableObject {
                     runtime: .current(paths: paths, edition: selectedEdition, game: gameRelease, effects: effectsQuality),
                     settings: LauncherTelemetrySettings(profile: profile, effectsQuality: effectsQuality,
                         uiScalePercent: selectedUIScalePercent, androidMemoryMB: selectedMemoryMB,
-                        androidCPUCores: selectedCPUCores)
+                        androidCPUCores: selectedCPUCores), language: language.id
                 )
                 try androidRuntime.launch(
                     configuration: .android(AndroidRuntimeLaunchConfiguration(
@@ -878,7 +878,8 @@ final class LauncherModel: ObservableObject {
                     let generation = performanceGeneration
                     let collector = PerformanceCollector(adb: paths.adb,
                         classifier: paths.performanceClassifier,
-                        package: selectedEdition.packageName, targetPID: emulatorPID) { [weak self] sample in
+                        package: selectedEdition.packageName, targetPID: emulatorPID,
+                        expectedDimensions: profile.displaySize) { [weak self] sample in
                         DispatchQueue.main.async {
                             guard let self, self.performanceGeneration == generation else { return }
                             self.telemetry.recordPerformanceSample(sample)

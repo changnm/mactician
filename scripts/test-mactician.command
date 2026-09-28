@@ -2562,6 +2562,7 @@ xcrun swiftc \
     "$LAUNCHER_DIR/Sources/LauncherPresentation.swift" \
     "$LAUNCHER_DIR/Sources/LauncherTelemetryService.swift" \
     "$LAUNCHER_DIR/Sources/PerformanceModels.swift" \
+    "$LAUNCHER_DIR/Sources/PerformanceDiagnostics.swift" \
     "$LAUNCHER_DIR/Sources/PerformanceCollector.swift" \
     "$LAUNCHER_DIR/Sources/LauncherPaths.swift" \
     "$LAUNCHER_DIR/Sources/SystemServices.swift" \

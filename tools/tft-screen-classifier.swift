@@ -616,6 +616,12 @@ private func boardOccupancy(in lines: [OCRLine]) -> (units: Int, capacity: Int)?
     return nil
 }
 
+private let battleHUDMarkers = [
+        "SCORE", "DAMAGE DEALT", "SURVIVING DAMAGE", "BUY XP",
+        "СЧЕТ", "СЧЁТ", "НАНЕСЕННЫЙ УРОН", "НАНЕСЁННЫЙ УРОН",
+        "НАНЕСЕНО УРОНА", "УРОН ВЫЖИВШИХ", "КУПИТЬ ОПЫТ",
+    ]
+
 private func classify(lines: [OCRLine]) -> Classification {
     let matcher = EvidenceMatcher(lines: lines)
 
@@ -848,11 +854,6 @@ private func classify(lines: [OCRLine]) -> Classification {
         )
     }
 
-    let battleHUDMarkers = [
-        "SCORE", "DAMAGE DEALT", "SURVIVING DAMAGE", "BUY XP",
-        "СЧЕТ", "СЧЁТ", "НАНЕСЕННЫЙ УРОН", "НАНЕСЁННЫЙ УРОН",
-        "НАНЕСЕНО УРОНА", "УРОН ВЫЖИВШИХ", "КУПИТЬ ОПЫТ",
-    ]
     if let stage = stageMarker(in: lines), matcher.hasAny(battleHUDMarkers) {
         return Classification(
             state: .battle,
@@ -1011,8 +1012,9 @@ private func main() -> Int32 {
         return 64
     }
 
+    let diagnosticMode = arguments == ["--telemetry-diagnostics-stdin"]
     do {
-        let telemetryMode = arguments == ["--telemetry-stdin"]
+        let telemetryMode = arguments == ["--telemetry-stdin"] || diagnosticMode
         let image: CGImage
         if telemetryMode {
             var data = Data()
@@ -1036,8 +1038,16 @@ private func main() -> Int32 {
             let phase = battlePhase(for: classification, lines: lines,
                 combatCyanPixels: combatCyanMetrics.pixels, combatCyanLongestRun: combatCyanMetrics.longestRun,
                 imageWidth: image.width, imageHeight: image.height)
-            let result: [String: Any] = ["state": classification.state.rawValue,
+            var result: [String: Any] = ["state": classification.state.rawValue,
                 "stage": classification.stage ?? NSNull(), "phase": phase ?? NSNull()]
+            if diagnosticMode {
+                let observedStage = stageMarker(in: lines)?.stage
+                result["diagnostics_version"] = 1
+                result["dimensions"] = "\(image.width)x\(image.height)"
+                result["observed_stage"] = observedStage ?? NSNull()
+                result["stage_read"] = observedStage != nil
+                result["battle_hud"] = EvidenceMatcher(lines: lines).hasAny(battleHUDMarkers)
+            }
             FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]))
             return 0
         }
@@ -1068,11 +1078,29 @@ private func main() -> Int32 {
         )
         return 0
     } catch let error as ClassifierError {
+        if diagnosticMode {
+            let code: String
+            switch error {
+            case .wrongDimensions: code = "unsupported_dimensions"
+            case .recognitionFailed: code = "ocr_failed"
+            default: code = "invalid_image"
+            }
+            emitTelemetryError(code, dimensions: code == "unsupported_dimensions" ? "other" : "")
+            return 0
+        }
         writeStandardError("tft-screen-classifier: \(error)")
         return 65
     } catch {
+        if diagnosticMode { emitTelemetryError("helper_failed", dimensions: ""); return 0 }
         writeStandardError("tft-screen-classifier: \(error.localizedDescription)")
         return 70
+    }
+}
+
+private func emitTelemetryError(_ code: String, dimensions: String) {
+    let result: [String: Any] = ["diagnostics_version": 1, "error": code, "dimensions": dimensions]
+    if let data = try? JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]) {
+        FileHandle.standardOutput.write(data)
     }
 }
 

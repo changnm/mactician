@@ -129,3 +129,23 @@ production build. The performance dashboard was rendered and visually checked
 with explicitly labelled synthetic fixture data. Release signing/notarization
 and production collection were not exercised. Website design primitives and
 global styles were not changed.
+
+## Loss diagnosis baseline (2026-09-11 implementation)
+
+The recovery plan is in [performance-telemetry-recovery-plan.md](performance-telemetry-recovery-plan.md).
+Diagnostic v1 explains the existing `screen-bracket-v1` labels without changing
+OCR passes, context rules or sampling duty policy. Requested language is recorded
+at attempt creation; it is not an inferred language or a claim about OCR support.
+Frame failures, endpoint results and successful-window context have separate
+cumulative denominators. Coarse states and partial signals survive failed scene
+classification. Wall-time buckets cover screencap, classifier, TimeStats,
+before/after gaps, cycle and foreground start intervals; intervals may include
+background time. Before gap starts at screencap invocation, not a guest timestamp.
+
+The dashboard shows collection quality before FPS, hides unclassified FPS from
+gameplay tables, and separates descriptive samples from matched variants. Exact
+comparison configurations include the classifier and diagnostic implementation.
+The API accepts old checkpoints and prevents diagnostic identity/counter rewrites.
+Deploy API/privacy compatibility first, then the diagnostic launcher. A field
+baseline and sustained gameplay overhead measurement remain rollout checks;
+local fixture verification alone cannot establish gameplay classification accuracy.

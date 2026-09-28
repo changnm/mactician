@@ -461,14 +461,14 @@ final class LauncherTelemetryService {
         }
     }
 
-    func beginPerformance(runtime: PerformanceRuntime, settings: LauncherTelemetrySettings) {
+    func beginPerformance(runtime: PerformanceRuntime, settings: LauncherTelemetrySettings, language: String = "unknown") {
         queue.sync {
             guard performanceActive == nil else { return }
             performanceStartedUptime = ProcessInfo.processInfo.systemUptime
             performanceActive = PerformanceEvent(schemaVersion: 2, eventID: UUID().uuidString.lowercased(),
                 event: "game_session_performance", occurredAt: Date(), launcherVersion: launcherVersion,
                 launcherBuild: launcherBuild,
-                launcherSettings: settings, device: device, performance: PerformanceSnapshot(runtime: runtime))
+                launcherSettings: settings, device: device, performance: PerformanceSnapshot(runtime: runtime, diagnostics: PerformanceDiagnostics(language: language)))
             persistPerformance()
             let timer = DispatchSource.makeTimerSource(queue: queue)
             timer.schedule(deadline: .now() + 60, repeating: 60, leeway: .seconds(3))

@@ -65,6 +65,13 @@ for fixture in "${FIXTURES[@]}"; do
             exit 1
         fi
     done
+    "$CLASSIFIER" --telemetry-stdin < "$fixture" > "$TEST_ROOT/legacy.json"
+    "$CLASSIFIER" --telemetry-diagnostics-stdin < "$fixture" > "$TEST_ROOT/diagnostic.json"
+    "$JQ" -e --slurpfile legacy "$TEST_ROOT/legacy.json" '
+        .diagnostics_version == 1 and .error == null
+        and ({state, stage, phase} == $legacy[0])
+        and (keys | sort) == (["battle_hud", "diagnostics_version", "dimensions", "observed_stage", "phase", "stage", "stage_read", "state"] | sort)
+    ' "$TEST_ROOT/diagnostic.json" >/dev/null
     print "TFT classifier fixture: OK ($reference_state/${reference_stage:-none}, four resolutions)"
 done
 
@@ -73,5 +80,13 @@ if "$CLASSIFIER" "$TEST_ROOT/unsupported.png" >/dev/null 2>&1; then
     print "The classifier incorrectly accepted unsupported resolution 1920x1080."
     exit 1
 fi
+
+printf 'not a PNG' | "$CLASSIFIER" --telemetry-diagnostics-stdin > "$TEST_ROOT/invalid.json"
+"$JQ" -e '. == {diagnostics_version:1, dimensions:"", error:"invalid_image"}' "$TEST_ROOT/invalid.json" >/dev/null
+"$CLASSIFIER" --telemetry-stdin < "$TEST_ROOT/unsupported.png" > "$TEST_ROOT/1080-legacy.json"
+"$CLASSIFIER" --telemetry-diagnostics-stdin < "$TEST_ROOT/unsupported.png" > "$TEST_ROOT/1080-diagnostic.json"
+"$JQ" -e --slurpfile legacy "$TEST_ROOT/1080-legacy.json" '
+    .diagnostics_version == 1 and .dimensions == "1920x1080" and ({state, stage, phase} == $legacy[0])
+' "$TEST_ROOT/1080-diagnostic.json" >/dev/null
 
 print "TFT screen classifier scale fixtures: OK (${#FIXTURES} fixture(s))"
