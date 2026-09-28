@@ -45,10 +45,10 @@ fi
 
 typeset -A EXPECTED_APK_HASHES
 EXPECTED_APK_HASHES=(
-    base.apk 96a78f675d02cc3135891af0d3af70a2fac69794d72a5733c7c79cbef3611813
-    config.arm64_v8a.apk 04df5b1112bc36c25d9f46f1db192a6acbe30d5faac72feb4e4c4c057644b14a
-    config.en.apk b9ec210705ddcec84fd8ebb45895392e0e11dde3c9b267e924becacf60dd102e
-    config.mdpi.apk 96982b1ef91739223ada3a6dad829c02e6c41c9ca033c7978df1f44d586d36f4
+    base.apk 65c0a77440e2b60a409050881da15719aeeb66cf3bea3fe37f2226fe5718cd18
+    config.arm64_v8a.apk 83250733abc9a75e4531ff72eded017e81a810c1db97df3c63f66f14633798f9
+    config.en.apk 17e7f2f508b982c4fe8aa1f8719e059e16af6f12778978639fe1b0e6adfebc11
+    config.mdpi.apk 1f17c17cec6d585f30dcbaadd4691beeb622c883063a5e71654bc0d574cf1d52
 )
 
 for apk expected_hash in ${(kv)EXPECTED_APK_HASHES}; do
@@ -59,7 +59,7 @@ for apk expected_hash in ${(kv)EXPECTED_APK_HASHES}; do
     fi
     actual_hash="$(shasum -a 256 "$apk_path" | awk '{print $1}')"
     if [[ "$actual_hash" != "$expected_hash" ]]; then
-        print -u2 "SHA-256 for $apk does not match the TFT 18.1 manifest."
+        print -u2 "SHA-256 for $apk does not match the pinned TFT manifest."
         exit 1
     fi
 done
