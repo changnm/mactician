@@ -539,7 +539,9 @@ final class InstallerService {
     ) throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/curl")
-        process.arguments = Self.hostedDownloadArguments(url: url, destination: partial)
+        process.arguments = DevGameFeed.localURL(for: url).map {
+            DevGameFeed.curlArguments(source: $0, destination: partial)
+        } ?? Self.hostedDownloadArguments(url: url, destination: partial)
         process.standardOutput = FileHandle.nullDevice
         process.standardError = try SystemServices.appendHandle(for: paths.launcherLog)
         lock.lock()

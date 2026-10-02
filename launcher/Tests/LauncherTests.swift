@@ -89,6 +89,12 @@ enum LauncherTests {
         } catch let error as LauncherError {
             try expect(error == .integrity("The TFT feed signature is invalid"), "tampered game feed rejection")
         }
+        // Release builds must never redirect the hosted feed or trust another key.
+        try expect(
+            DevGameFeed.localURL(for: URL(string: "https://sergeinaumov.dev/mactician/updates/game/manifest.json")!) == nil,
+            "release build does not redirect the game feed"
+        )
+        try expect(DevGameFeed.publicKeyBase64 == nil, "release build has no development feed key")
         let updateNow = Date()
         try expect(GameUpdateCheckPolicy.isDue(lastChecked: nil, now: updateNow), "unchecked game feed is due")
         try expect(

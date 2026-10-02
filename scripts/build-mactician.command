@@ -94,8 +94,14 @@ mkdir -p "$BUILD_DIR" "$APP_CONTENTS/MacOS" "$RESOURCES" "$HELPERS" "$FRAMEWORKS
 mkdir -p "$BUILD_DIR/module-cache"
 typeset -a SWIFT_SOURCES
 SWIFT_SOURCES=("$LAUNCHER_DIR"/Sources/*.swift)
+# Development builds only: MACTICIAN_EXTRA_SWIFT_FLAGS="-D MACTICIAN_DEV_FEED" enables
+# the local game feed in DevGameFeed.swift. Never set it for a distributed build.
+if [[ -n "${MACTICIAN_EXTRA_SWIFT_FLAGS:-}" ]]; then
+    print -u2 "WARNING: building with extra Swift flags (${MACTICIAN_EXTRA_SWIFT_FLAGS}); do not distribute this build."
+fi
 xcrun swiftc \
     -O \
+    ${=MACTICIAN_EXTRA_SWIFT_FLAGS:-} \
     -parse-as-library \
     -target arm64-apple-macosx12.0 \
     -module-cache-path "$BUILD_DIR/module-cache" \

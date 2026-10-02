@@ -60,6 +60,7 @@ xcrun swiftc \
     "$LAUNCHER_DIR/Sources/LauncherPresentation.swift" \
     "$LAUNCHER_DIR/Sources/CoreModels.swift" \
     "$LAUNCHER_DIR/Sources/HostedGameUpdate.swift" \
+    "$LAUNCHER_DIR/Sources/DevGameFeed.swift" \
     "$LAUNCHER_DIR/Sources/LauncherPaths.swift" \
     "$LAUNCHER_DIR/Sources/SystemServices.swift" \
     "$LAUNCHER_DIR/Sources/InstallerService.swift" \

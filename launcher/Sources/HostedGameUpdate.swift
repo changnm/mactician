@@ -48,22 +48,35 @@ enum HostedGameUpdate {
     static func decodeAndVerify(
         _ envelopeData: Data,
         edition: GameEdition = .global,
-        publicKeyBase64: String = MacticianIdentity.gameUpdatePublicKeyBase64
+        publicKeyBase64: String? = nil
     ) throws -> HostedGameFeed {
         let envelope = try JSONDecoder().decode(HostedGameFeedEnvelope.self, from: envelopeData)
         guard envelope.schemaVersion == 1,
               let payload = Data(base64Encoded: envelope.payload),
-              let signature = Data(base64Encoded: envelope.signature),
-              let publicKeyData = Data(base64Encoded: publicKeyBase64) else {
+              let signature = Data(base64Encoded: envelope.signature) else {
             throw LauncherError.invalidManifest("Invalid hosted TFT feed envelope")
         }
-        let publicKey: Curve25519.Signing.PublicKey
-        do {
-            publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: publicKeyData)
-        } catch {
-            throw LauncherError.integrity("The TFT feed public key is invalid")
+        // An explicit key (tests) is the only trusted key. Otherwise the pinned
+        // key is trusted, plus the development key in development builds.
+        let trustedKeys = publicKeyBase64.map { [$0] }
+            ?? [MacticianIdentity.gameUpdatePublicKeyBase64] + (DevGameFeed.publicKeyBase64.map { [$0] } ?? [])
+        var signatureIsValid = false
+        for keyBase64 in trustedKeys {
+            guard let publicKeyData = Data(base64Encoded: keyBase64) else {
+                throw LauncherError.invalidManifest("Invalid hosted TFT feed envelope")
+            }
+            let publicKey: Curve25519.Signing.PublicKey
+            do {
+                publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: publicKeyData)
+            } catch {
+                throw LauncherError.integrity("The TFT feed public key is invalid")
+            }
+            if publicKey.isValidSignature(signature, for: payload) {
+                signatureIsValid = true
+                break
+            }
         }
-        guard publicKey.isValidSignature(signature, for: payload) else {
+        guard signatureIsValid else {
             throw LauncherError.integrity("The TFT feed signature is invalid")
         }
         let feed = try JSONDecoder().decode(HostedGameFeed.self, from: payload)
