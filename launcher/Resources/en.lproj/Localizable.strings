@@ -64,7 +64,7 @@
 "settings.game_update.checking" = "Checking for a new TFT patch…";
 "settings.game_update.available_format" = "TFT %@ is available.";
 "settings.game_update.failed_format" = "Update check failed: %@";
-"settings.game_update.up_to_date" = "TFT is up to date.";
+"settings.game_update.up_to_date" = "Up to date with the Mactician update feed.";
 "settings.game_update.unchecked" = "Not checked yet. Updates are also checked automatically every 30 minutes.";
 "settings.game_update.unavailable" = "Updates can be checked when the launcher is ready and the game is not running.";
 

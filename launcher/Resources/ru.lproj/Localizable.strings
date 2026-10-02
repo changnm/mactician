@@ -64,7 +64,7 @@
 "settings.game_update.checking" = "Проверяем наличие нового патча TFT…";
 "settings.game_update.available_format" = "Доступна TFT %@.";
 "settings.game_update.failed_format" = "Не удалось проверить обновления: %@";
-"settings.game_update.up_to_date" = "У вас актуальная версия TFT.";
+"settings.game_update.up_to_date" = "Версия совпадает с последней в ленте обновлений Mactician.";
 "settings.game_update.unchecked" = "Ещё не проверялось. Обновления также проверяются автоматически каждые 30 минут.";
 "settings.game_update.unavailable" = "Обновления можно проверить, когда лаунчер готов, а игра не запущена.";
 
