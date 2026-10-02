@@ -8,6 +8,12 @@ The current application metadata is version 1.3.0, build 55.
 
 - Taiwan edition with independent downloads, updates, and sign-in alongside Global
   and Vietnam (VNG).
+- The update button names the target patch ("Update to 18.4"), the launcher
+  rechecks the signed game feed every 30 minutes and when the app is
+  reactivated, and Settings has a "Check for game update" button that reports
+  up-to-date, available, or the network error instead of failing silently.
+- A scheduled workflow and `auto-publish-game-update.command` that fetch the newest
+  TFT build per edition, verify it, and publish the signed feed when it is newer.
 
 ### Changed
 

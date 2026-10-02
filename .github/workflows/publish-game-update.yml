@@ -1,0 +1,89 @@
+name: Publish TFT game update
+
+# Checks every few hours for a newer TFT build, verifies it against the pinned
+# Riot certificate, signs the feed, and uploads it. Scheduled runs only upload
+# when the repository variable GAME_FEED_AUTOPUBLISH is "true"; otherwise they
+# prepare and sign without uploading. See docs/releasing.md for the setup.
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: Edition to check
+        type: choice
+        options: [all, global, vietnam, taiwan]
+        default: all
+      publish:
+        description: Upload the signed feed (otherwise prepare only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: ${{ matrix.edition }}
+    # Forks stay inert until the owner opts in with GAME_FEED_ENABLED=true.
+    if: ${{ vars.GAME_FEED_ENABLED == 'true' }}
+    runs-on: macos-latest
+    timeout-minutes: 60
+    environment: game-feed
+    concurrency:
+      group: game-feed-${{ matrix.edition }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.edition != 'all' && format('["{0}"]', inputs.edition) || '["global","vietnam","taiwan"]') }}
+    env:
+      DO_PUBLISH: ${{ (github.event_name == 'schedule' && vars.GAME_FEED_AUTOPUBLISH == 'true') || (github.event_name == 'workflow_dispatch' && inputs.publish) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          command -v jq >/dev/null || brew install jq
+          command -v apkeep >/dev/null || brew install apkeep
+
+      - name: Install Android build tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "build-tools;36.0.0"
+          echo "MACTICIAN_ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/36.0.0" >> "$GITHUB_ENV"
+
+      - name: Configure signing key and SSH
+        env:
+          SIGNING_KEY: ${{ secrets.GAME_FEED_SIGNING_KEY }}
+          SSH_KEY: ${{ secrets.GAME_FEED_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.GAME_FEED_SSH_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          test -n "$SIGNING_KEY" || { echo "GAME_FEED_SIGNING_KEY is not set"; exit 1; }
+          printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/game-feed-signing-key"
+          echo "MACTICIAN_GAME_SIGNING_KEY_FILE=$RUNNER_TEMP/game-feed-signing-key" >> "$GITHUB_ENV"
+          if [ "$DO_PUBLISH" = "true" ]; then
+            test -n "$SSH_KEY" || { echo "GAME_FEED_SSH_KEY is not set"; exit 1; }
+            mkdir -p ~/.ssh
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          fi
+
+      - name: Check for and publish a newer build
+        env:
+          MACTICIAN_GAME_EDITION: ${{ matrix.edition }}
+          MACTICIAN_UPDATE_BASE_URL: ${{ vars.MACTICIAN_UPDATE_BASE_URL }}
+          MACTICIAN_UPDATE_SSH_TARGET: ${{ vars.MACTICIAN_UPDATE_SSH_TARGET }}
+          MACTICIAN_UPDATE_SSH_PORT: ${{ vars.MACTICIAN_UPDATE_SSH_PORT || '22' }}
+          MACTICIAN_UPDATE_REMOTE_ROOT: ${{ vars.MACTICIAN_UPDATE_REMOTE_ROOT }}
+        run: |
+          test -n "$MACTICIAN_UPDATE_BASE_URL" || { echo "Set the MACTICIAN_UPDATE_BASE_URL variable"; exit 1; }
+          if [ "$DO_PUBLISH" = "true" ]; then export MACTICIAN_AUTO_PUBLISH=1; else export MACTICIAN_AUTO_PUBLISH=0; fi
+          ./scripts/auto-publish-game-update.command
+
+      - name: Remove credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/game-feed-signing-key" ~/.ssh/id_ed25519 ~/.ssh/known_hosts

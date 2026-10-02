@@ -128,6 +128,40 @@ Publish each regional feed before distributing a launcher that offers that editi
 Never publish an incomplete split set, reuse a
 release URL for different bytes, or roll the version code backwards.
 
+## Automate TFT game updates
+
+`.github/workflows/publish-game-update.yml` runs every six hours (and on demand)
+for Global, Vietnam, and Taiwan. For each edition,
+`scripts/auto-publish-game-update.command` downloads the newest build, rebuilds
+the exact four-file split set, and compares its version code with the live signed
+feed. Only a strictly newer build continues, and it passes through the same
+`publish-game-update.command` checks as a manual release: pinned Riot
+certificate, package name, version metadata, and split set. Installed launchers
+then offer the update within 30 minutes.
+
+One-time setup for a fork:
+
+1. Replace the feed key and host in `launcher/Sources/CoreModels.swift` with your
+   own, then ship that launcher build.
+2. Create an environment named `game-feed` and add these secrets:
+   `GAME_FEED_SIGNING_KEY` (the exported Sparkle Ed25519 private key),
+   `GAME_FEED_SSH_KEY` (a deploy key limited to the update directory), and
+   `GAME_FEED_SSH_KNOWN_HOSTS` (the output of `ssh-keyscan -p PORT HOST`).
+3. Add these repository variables: `GAME_FEED_ENABLED=true`,
+   `MACTICIAN_UPDATE_BASE_URL`, `MACTICIAN_UPDATE_SSH_TARGET`,
+   `MACTICIAN_UPDATE_REMOTE_ROOT`, and optionally `MACTICIAN_UPDATE_SSH_PORT`.
+4. Run the workflow manually with `publish` off and read the job summary. Scheduled
+   runs only prepare and sign until you also set `GAME_FEED_AUTOPUBLISH=true`.
+
+The default download source is APKPure through `apkeep`. To use another source,
+point `MACTICIAN_APK_FETCH_SCRIPT` at an executable that receives the package name
+and an output directory and leaves the APK files or an XAPK there. Check that
+source's terms before automating downloads. Scheduled workflows are paused by
+GitHub after 60 days without repository activity, and a job fails visibly when the
+download is missing a required split, so watch for failed runs. New game builds can
+change rendering behavior; the performance patches stay limited to builds listed in
+the changelog.
+
 ## Make the repository public
 
 The canonical repository is `https://github.com/tweet9ra/mactician`. Before

@@ -29,6 +29,7 @@ REQUIRED_FILES=(
     .gitattributes
     .gitignore
     .github/workflows/ci.yml
+    .github/workflows/publish-game-update.yml
     .github/ISSUE_TEMPLATE/bug_report.yml
     .github/ISSUE_TEMPLATE/feature_request.yml
     .github/ISSUE_TEMPLATE/config.yml

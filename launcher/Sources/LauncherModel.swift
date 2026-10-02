@@ -34,6 +34,9 @@ final class LauncherModel: ObservableObject {
     @Published private(set) var gameUpdateResultMessage: String?
     @Published private(set) var isGameUpdateAvailable = false
     @Published private(set) var isCheckingGameUpdate = false
+    @Published private(set) var availableGameRelease: GameRelease?
+    @Published private(set) var gameUpdateCheckError: String?
+    @Published private(set) var lastGameUpdateCheck: Date?
     @Published var shouldShowTelemetryNotice: Bool
     @Published var extendedDiagnosticsEnabled: Bool
     @Published private(set) var activeConfiguration: LaunchConfigurationSnapshot?
@@ -72,6 +75,8 @@ final class LauncherModel: ObservableObject {
     private var gameSessionTracker = GameSessionTracker()
     private var pendingAnnouncements: [LauncherAnnouncement] = []
     private var activeRuntimeKind: GameRuntimeKind?
+    private var gameUpdateCheckToken = UUID()
+    private var gameUpdateTimer: Timer?
 
     init() {
         do {
@@ -164,6 +169,7 @@ final class LauncherModel: ObservableObject {
                 )
             }
             requestAnnouncement(for: .launcherStarted)
+            startGameUpdatePolling()
         } catch {
             fatalError("Launcher resources are invalid: \(error)")
         }
@@ -237,6 +243,24 @@ final class LauncherModel: ObservableObject {
         return "\(selectedEdition.title) · \(LauncherMetadata.gameDisplayVersion(from: gameRelease.version))"
     }
 
+    var availableGameVersion: String? {
+        availableGameRelease.map { LauncherMetadata.gameDisplayVersion(from: $0.version) }
+    }
+
+    var gameUpdateStatus: GameUpdateStatus {
+        GameUpdateStatus(
+            isChecking: isCheckingGameUpdate,
+            availableVersion: isGameUpdateAvailable ? (availableGameVersion ?? gameDisplayVersion) : nil,
+            hasError: gameUpdateCheckError != nil,
+            hasChecked: lastGameUpdateCheck != nil
+        )
+    }
+
+    var canCheckGameUpdate: Bool {
+        selectedRuntimeKind == .androidEmulator && mode == .ready
+            && !isCheckingGameUpdate && !androidRuntime.isRunning && !nativeRuntime.isRunning
+    }
+
     func selectEdition(_ edition: GameEdition) {
         guard selectedRuntimeKind == .androidEmulator,
               edition != selectedEdition, !editionSelectionLocked,
@@ -245,7 +269,7 @@ final class LauncherModel: ObservableObject {
         UserDefaults.standard.set(edition.id, forKey: "gameEdition")
         failure = nil
         gameUpdateResultMessage = nil
-        isGameUpdateAvailable = false
+        clearGameUpdateIndicators()
         reloadInstallation()
         applySelectedRuntimePresentation()
         if mode == .needsInstall, hasAndroidRuntime {
@@ -372,7 +396,7 @@ final class LauncherModel: ObservableObject {
         )
         failure = nil
         activeConfiguration = nil
-        isGameUpdateAvailable = false
+        clearGameUpdateIndicators()
         isCheckingGameUpdate = false
         loginAnimationRepair.stop()
         audioRecovery.stop()
@@ -484,7 +508,7 @@ final class LauncherModel: ObservableObject {
                 gameRelease = HostedGameUpdate.installedRelease(
                     for: selectedEdition, state: state, paths: paths, manifest: manifest
                 )
-                isGameUpdateAvailable = false
+                clearGameUpdateIndicators()
                 mode = .ready
                 progress = 1
                 status = "Ready to play"
@@ -672,7 +696,8 @@ final class LauncherModel: ObservableObject {
                 installCancellationRequested = false
                 installState = update.state
                 gameRelease = update.release
-                isGameUpdateAvailable = false
+                clearGameUpdateIndicators()
+                lastGameUpdateCheck = Date()
                 mode = .ready
                 progress = 1
                 status = update.changed ? "TFT updated" : "TFT is up to date"
@@ -708,20 +733,28 @@ final class LauncherModel: ObservableObject {
         })
     }
 
-    func refreshGameUpdateAvailability() {
-        guard selectedRuntimeKind == .androidEmulator,
-              mode == .ready,
-              !androidRuntime.isRunning,
-              !nativeRuntime.isRunning,
-              !isCheckingGameUpdate else { return }
+    /// Checks the signed hosted feed for a newer game build. Automatic checks are
+    /// throttled by `minimumAge`; a user-initiated check always runs.
+    func refreshGameUpdateAvailability(userInitiated: Bool = false, minimumAge: TimeInterval = 0) {
+        guard canCheckGameUpdate else { return }
+        if !userInitiated {
+            guard !isGameUpdateAvailable,
+                  GameUpdateCheckPolicy.isDue(
+                      lastChecked: lastGameUpdateCheck, now: Date(), interval: minimumAge
+                  ) else { return }
+        }
         isCheckingGameUpdate = true
-        isGameUpdateAvailable = false
+        let token = UUID()
+        gameUpdateCheckToken = token
         installer.checkGameUpdateAvailability(edition: selectedEdition, currentState: installState) { [weak self] result in
-            guard let self else { return }
+            guard let self, token == gameUpdateCheckToken else { return }
             isCheckingGameUpdate = false
+            lastGameUpdateCheck = Date()
             switch result {
             case let .success(availability):
+                gameUpdateCheckError = nil
                 isGameUpdateAvailable = availability.isAvailable
+                availableGameRelease = availability.isAvailable ? availability.release : nil
                 if availability.isAvailable {
                     let versionCode = availability.release.versionCode.map(String.init) ?? "unknown"
                     SystemServices.appendLog(
@@ -730,10 +763,39 @@ final class LauncherModel: ObservableObject {
                         to: paths.launcherLog
                     )
                 }
-            case .failure:
+            case let .failure(error):
+                gameUpdateCheckError = error.localizedDescription
                 isGameUpdateAvailable = false
+                availableGameRelease = nil
             }
         }
+    }
+
+    func checkGameUpdateNow() {
+        refreshGameUpdateAvailability(userInitiated: true)
+    }
+
+    func refreshGameUpdateAvailabilityOnActivation() {
+        refreshGameUpdateAvailability(minimumAge: GameUpdateCheckPolicy.activationInterval)
+    }
+
+    private func clearGameUpdateIndicators() {
+        gameUpdateCheckToken = UUID()
+        isGameUpdateAvailable = false
+        availableGameRelease = nil
+        gameUpdateCheckError = nil
+        lastGameUpdateCheck = nil
+    }
+
+    private func startGameUpdatePolling() {
+        let timer = Timer(timeInterval: GameUpdateCheckPolicy.interval, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refreshGameUpdateAvailability(minimumAge: GameUpdateCheckPolicy.interval)
+            }
+        }
+        timer.tolerance = 60
+        RunLoop.main.add(timer, forMode: .common)
+        gameUpdateTimer = timer
     }
 
     func dismissGameUpdateResult() {
@@ -756,7 +818,7 @@ final class LauncherModel: ObservableObject {
             }
             installState = InstallState()
             gameRelease = selectedEdition == .global ? manifest.game : nil
-            isGameUpdateAvailable = false
+            clearGameUpdateIndicators()
             isCheckingGameUpdate = false
             mode = .needsInstall
             failure = nil

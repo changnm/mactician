@@ -441,23 +441,44 @@ private struct LauncherReadyView: View {
     @ObservedObject var model: LauncherModel
     @Binding var showSettings: Bool
 
+    private var updateButtonTitle: String {
+        switch model.gameUpdateStatus {
+        case let .available(version):
+            return LauncherL10n.format("action.update_game_to", version)
+        default:
+            return LauncherL10n.text("action.update_game")
+        }
+    }
+
+    private var readyDescription: String {
+        switch model.gameUpdateStatus {
+        case let .available(version):
+            return LauncherL10n.format("ready.update_available", version)
+        case .failed:
+            return LauncherL10n.text("ready.update_check_failed")
+        default:
+            return LauncherL10n.text("ready.description")
+        }
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: LauncherTheme.Spacing.large) {
             LauncherStatusHeader(
                 symbol: "checkmark",
                 color: LauncherTheme.ColorToken.success,
                 title: LauncherL10n.text("ready.title"),
-                description: LauncherL10n.text("ready.description")
+                description: readyDescription
             )
             Spacer(minLength: LauncherTheme.Spacing.regular)
             HStack(spacing: LauncherTheme.Spacing.regular) {
                 if model.isGameUpdateAvailable {
                     Button { model.updateGame() } label: {
-                        Label(LauncherL10n.text("action.update_game"), systemImage: "arrow.down.circle.fill")
+                        Label(updateButtonTitle, systemImage: "arrow.down.circle.fill")
                             .frame(minWidth: 116)
                     }
                     .buttonStyle(LauncherActionButtonStyle())
                     .keyboardShortcut(.defaultAction)
+                    .disabled(model.isCheckingGameUpdate)
                 } else {
                     Button { model.play() } label: {
                         Label(LauncherL10n.text("action.play"), systemImage: "play.fill")
@@ -472,7 +493,7 @@ private struct LauncherReadyView: View {
         }
         .onAppear {
             model.refreshHotkeyStatus()
-            model.refreshGameUpdateAvailability()
+            model.refreshGameUpdateAvailabilityOnActivation()
         }
         .alert(
             LauncherL10n.text("game_update.result.title"),

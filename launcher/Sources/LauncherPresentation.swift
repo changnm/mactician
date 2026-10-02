@@ -125,6 +125,38 @@ enum LauncherMetadata {
     }
 }
 
+enum GameUpdateStatus: Equatable {
+    case unchecked
+    case checking
+    case upToDate
+    case available(version: String)
+    case failed
+
+    init(isChecking: Bool, availableVersion: String?, hasError: Bool, hasChecked: Bool) {
+        if isChecking {
+            self = .checking
+        } else if let availableVersion {
+            self = .available(version: availableVersion)
+        } else if hasError {
+            self = .failed
+        } else if hasChecked {
+            self = .upToDate
+        } else {
+            self = .unchecked
+        }
+    }
+}
+
+enum GameUpdateCheckPolicy {
+    static let interval: TimeInterval = 30 * 60
+    static let activationInterval: TimeInterval = 5 * 60
+
+    static func isDue(lastChecked: Date?, now: Date, interval: TimeInterval = interval) -> Bool {
+        guard let lastChecked else { return true }
+        return now.timeIntervalSince(lastChecked) >= interval
+    }
+}
+
 enum LauncherL10n {
     static func text(_ key: String) -> String {
         NSLocalizedString(key, tableName: nil, bundle: .main, value: key, comment: "")

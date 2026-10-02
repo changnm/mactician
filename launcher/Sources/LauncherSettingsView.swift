@@ -535,6 +535,59 @@ struct LauncherSettingsView: View {
                 .buttonStyle(LauncherSecondaryButtonStyle())
                 .disabled(!updateController.canCheckForUpdates)
             }
+
+            if !model.isNativeIPadRuntimeSelected {
+                LauncherDivider()
+                gameUpdateRow
+            }
+        }
+    }
+
+    private var gameUpdateRow: some View {
+        HStack(spacing: LauncherTheme.Spacing.regular) {
+            VStack(alignment: .leading, spacing: LauncherTheme.Spacing.xSmall) {
+                Text(LauncherL10n.format("settings.game_update.title_format", model.gameVersionSummary))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(LauncherTheme.ColorToken.textPrimary)
+                Text(gameUpdateStatusText)
+                    .font(.system(size: 12))
+                    .foregroundColor(LauncherTheme.ColorToken.textSecondary)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+            if case let .available(version) = model.gameUpdateStatus {
+                Button(LauncherL10n.format("action.update_game_to", version)) {
+                    presentationMode.wrappedValue.dismiss()
+                    model.updateGame()
+                }
+                .buttonStyle(LauncherSecondaryButtonStyle())
+                .disabled(model.mode != .ready)
+            } else {
+                Button(LauncherL10n.text("action.check_game_update")) { model.checkGameUpdateNow() }
+                    .buttonStyle(LauncherSecondaryButtonStyle())
+                    .disabled(!model.canCheckGameUpdate)
+            }
+        }
+    }
+
+    private var gameUpdateStatusText: String {
+        switch model.gameUpdateStatus {
+        case .checking:
+            return LauncherL10n.text("settings.game_update.checking")
+        case let .available(version):
+            return LauncherL10n.format("settings.game_update.available_format", version)
+        case .failed:
+            return LauncherL10n.format(
+                "settings.game_update.failed_format",
+                model.gameUpdateCheckError ?? "—"
+            )
+        case .upToDate:
+            return LauncherL10n.text("settings.game_update.up_to_date")
+        case .unchecked:
+            return LauncherL10n.text(
+                model.canCheckGameUpdate ? "settings.game_update.unchecked" : "settings.game_update.unavailable"
+            )
         }
     }
 

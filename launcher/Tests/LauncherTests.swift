@@ -89,6 +89,47 @@ enum LauncherTests {
         } catch let error as LauncherError {
             try expect(error == .integrity("The TFT feed signature is invalid"), "tampered game feed rejection")
         }
+        let updateNow = Date()
+        try expect(GameUpdateCheckPolicy.isDue(lastChecked: nil, now: updateNow), "unchecked game feed is due")
+        try expect(
+            !GameUpdateCheckPolicy.isDue(
+                lastChecked: updateNow.addingTimeInterval(-60), now: updateNow,
+                interval: GameUpdateCheckPolicy.activationInterval
+            ),
+            "recent game update check is throttled"
+        )
+        try expect(
+            GameUpdateCheckPolicy.isDue(
+                lastChecked: updateNow.addingTimeInterval(-GameUpdateCheckPolicy.interval - 1), now: updateNow,
+                interval: GameUpdateCheckPolicy.interval
+            ),
+            "stale game update check is due"
+        )
+        try expect(
+            GameUpdateCheckPolicy.isDue(lastChecked: updateNow, now: updateNow, interval: 0),
+            "zero minimum age always checks"
+        )
+        try expect(
+            GameUpdateStatus(isChecking: true, availableVersion: "18.4", hasError: true, hasChecked: true) == .checking,
+            "checking status wins"
+        )
+        try expect(
+            GameUpdateStatus(isChecking: false, availableVersion: "18.4", hasError: false, hasChecked: true)
+                == .available(version: "18.4"),
+            "available game update status"
+        )
+        try expect(
+            GameUpdateStatus(isChecking: false, availableVersion: nil, hasError: true, hasChecked: true) == .failed,
+            "failed check is distinct from up to date"
+        )
+        try expect(
+            GameUpdateStatus(isChecking: false, availableVersion: nil, hasError: false, hasChecked: true) == .upToDate,
+            "up to date status"
+        )
+        try expect(
+            GameUpdateStatus(isChecking: false, availableVersion: nil, hasError: false, hasChecked: false) == .unchecked,
+            "unchecked status"
+        )
         try expect(
             manifest.profiles.map(\.id) == ["balanced", "quality", "ultra", "4k"],
             "profile order"
