@@ -197,7 +197,7 @@ assesses the distribution.
 | `TFT_JQ` | Non-standard `jq` path |
 | `MACTICIAN_KEYCHAIN_SERVICE` | Optional login-helper Keychain service |
 | `MACTICIAN_SPARKLE_ACCOUNT` | Sparkle Ed25519 Keychain account for appcast generation |
-| `MACTICIAN_UPDATE_*` | Release URLs, SSH destination, remote root, work directory, and inputs |
+| `MACTICIAN_UPDATE_*` | Launcher updates: GitHub repository, update release tag, Pages branch, work directory, and inputs (see [Releasing](releasing.md#update-channel-on-github)). Game-feed publishing also reads the SSH destination and remote root |
 
 ## Common failures
 

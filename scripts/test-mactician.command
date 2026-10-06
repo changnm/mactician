@@ -2395,7 +2395,7 @@ if ! grep -Fq -- '--allow-adhoc' "$PROJECT_DIR/scripts/publish-mactician-update.
     exit 1
 fi
 
-if ! grep -Fq 'RELEASE_FILES=("$RELEASE_ARCHIVE" "$RELEASE_NOTES")' \
+if ! grep -Fq 'RELEASE_FILES=("$RELEASE_ARCHIVE")' \
         "$PROJECT_DIR/scripts/publish-mactician-update.command" \
         || ! grep -Fq 'Mactician"$BUILD"-*.delta(.N)' \
             "$PROJECT_DIR/scripts/publish-mactician-update.command"; then

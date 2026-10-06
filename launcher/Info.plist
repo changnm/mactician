@@ -47,9 +47,9 @@
     <key>SUEnableAutomaticChecks</key>
     <true/>
     <key>SUFeedURL</key>
-    <string>https://sergeinaumov.dev/mactician/updates/appcast.xml</string>
+    <string>https://changnm.github.io/mactician/appcast.xml</string>
     <key>SUPublicEDKey</key>
-    <string>77t8YuvP4mvvP/3oMpVR/TqGRMCcUlrpWFIZGcWqokY=</string>
+    <string>eBbmAXoj411ac+FvqD4NNxQZ56HZO9LvIW+mdo1zmfY=</string>
     <key>SUScheduledCheckInterval</key>
     <integer>86400</integer>
     <key>SUVerifyUpdateBeforeExtraction</key>

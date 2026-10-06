@@ -72,6 +72,12 @@ and the launcher's identity.
 - **Local development feed.** A development-only game feed
   (`-D MACTICIAN_DEV_FEED`) for testing updates against a local folder. It is not
   compiled into normal builds.
+- **Own launcher update channel.** The app polls this fork's Sparkle appcast on
+  GitHub Pages and verifies it with the fork's own Ed25519 key, so it is no longer
+  offered the original author's builds. `publish-mactician-update.command` uploads
+  the DMG and deltas to a fixed `updates` GitHub release and commits the appcast
+  to the `gh-pages` branch, refusing to run if the app's key or feed URL does not
+  match. Builds made before this change still use the original channel.
 - **Build and release documentation.** A rewritten build guide, a guide to
   preparing and verifying the APK inputs, and a guide to publishing a build on
   GitHub Releases from a fork ([Building](docs/building.md),
@@ -81,13 +87,15 @@ and the launcher's identity.
 
 ### What still uses the original author's services
 
-This fork keeps the original identity: a build checks the original Sparkle
-appcast and signed game feed, uses the original telemetry and announcement API,
+This fork keeps the original identity except for launcher updates: a build checks
+the original signed game feed, uses the original telemetry and announcement API,
 and links to the original feedback, donation, and privacy pages (all on
 `sergeinaumov.dev`). The privacy behavior in
-[Telemetry and privacy](docs/telemetry.md) therefore applies unchanged. A fork
-build can be offered the original author's builds as updates; see
-[Releasing](docs/releasing.md#publish-on-github-releases-forks-and-ad-hoc-builds).
+[Telemetry and privacy](docs/telemetry.md) therefore applies unchanged. Launcher
+updates come from this fork's own appcast; see
+[Releasing](docs/releasing.md#update-channel-on-github). The game feed can also
+be moved to your own host; see
+[Run your own game feed](docs/releasing.md#run-your-own-game-feed).
 
 ## Project status
 

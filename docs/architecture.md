@@ -165,7 +165,7 @@ Sparkle replaces the complete application bundle atomically. The runtime root
 and `UserDefaults` remain outside that bundle, preserving user state. The
 current identifiers are `dev.sergeinaumov.mactician`,
 `~/Library/Application Support/Mactician`, and
-`https://sergeinaumov.dev/mactician/updates/appcast.xml`.
+`https://changnm.github.io/mactician/appcast.xml`.
 
 ## Telemetry and operator messages
 

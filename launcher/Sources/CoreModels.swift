@@ -49,7 +49,9 @@ enum GameEdition: String, Codable, CaseIterable, Identifiable {
         "/mactician/updates/game" + (self == .global ? "" : "/\(id)")
     }
     var updateURL: URL {
-        URL(string: "https://sergeinaumov.dev\(updatePath)/manifest.json")!
+        // One host serves the manifest and every APK it lists; HostedGameFeed.validate
+        // requires the APK host to equal gameUpdateURL's host.
+        URL(string: "https://\(MacticianIdentity.gameUpdateURL.host!)\(updatePath)/manifest.json")!
     }
 
     static func selection(saved: String?) -> GameEdition {

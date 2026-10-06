@@ -4,6 +4,9 @@ import Foundation
 
 @main
 enum LauncherTests {
+    /// The one host that serves the signed game feed and its APKs.
+    static let feedHost = MacticianIdentity.gameUpdateURL.host!
+
     static func main() throws {
         guard CommandLine.arguments.count == 3 else {
             throw TestFailure("usage: LauncherTests MANIFEST SOURCE_ROOT")
@@ -26,13 +29,13 @@ enum LauncherTests {
                     name: "base.apk",
                     size: 100,
                     sha256: String(repeating: "a", count: 64),
-                    url: URL(string: "https://sergeinaumov.dev/mactician/updates/game/releases/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/base.apk")
+                    url: URL(string: "https://\(feedHost)/mactician/updates/game/releases/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/base.apk")
                 ),
                 GameAPK(
                     name: "split_config.arm64_v8a.apk",
                     size: 50,
                     sha256: String(repeating: "b", count: 64),
-                    url: URL(string: "https://sergeinaumov.dev/mactician/updates/game/releases/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/split_config.arm64_v8a.apk")
+                    url: URL(string: "https://\(feedHost)/mactician/updates/game/releases/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/split_config.arm64_v8a.apk")
                 )
             ]
         )
@@ -92,7 +95,7 @@ enum LauncherTests {
         }
         // Release builds must never redirect the hosted feed or trust another key.
         try expect(
-            DevGameFeed.localURL(for: URL(string: "https://sergeinaumov.dev/mactician/updates/game/manifest.json")!) == nil,
+            DevGameFeed.localURL(for: GameEdition.global.updateURL) == nil,
             "release build does not redirect the game feed"
         )
         try expect(DevGameFeed.publicKeyBase64 == nil, "release build has no development feed key")
@@ -990,11 +993,11 @@ enum LauncherTests {
         try expect(infoPlist["CFBundleShortVersionString"] as? String == "1.3.1", "launcher version")
         try expect(infoPlist["CFBundleVersion"] as? String == "56", "launcher build")
         try expect(
-            infoPlist["SUFeedURL"] as? String == "https://sergeinaumov.dev/mactician/updates/appcast.xml",
+            infoPlist["SUFeedURL"] as? String == "https://changnm.github.io/mactician/appcast.xml",
             "Sparkle appcast URL"
         )
         try expect(
-            infoPlist["SUPublicEDKey"] as? String == "77t8YuvP4mvvP/3oMpVR/TqGRMCcUlrpWFIZGcWqokY=",
+            infoPlist["SUPublicEDKey"] as? String == "eBbmAXoj411ac+FvqD4NNxQZ56HZO9LvIW+mdo1zmfY=",
             "Sparkle public key"
         )
         try expect(
@@ -1734,7 +1737,7 @@ enum LauncherTests {
                 versionCode: globalRelease.versionCode, baseSHA256: globalRelease.baseSHA256,
                 apks: globalRelease.apks.map { apk in
                     GameAPK(name: apk.name, size: apk.size, sha256: apk.sha256, url: URL(string:
-                        "https://sergeinaumov.dev\(edition.updatePath)/releases/\(globalRelease.baseSHA256)/\(apk.name)"))
+                        "https://\(feedHost)\(edition.updatePath)/releases/\(globalRelease.baseSHA256)/\(apk.name)"))
                 }
             )
             func signed(_ release: GameRelease) throws -> Data {
@@ -1764,10 +1767,10 @@ enum LauncherTests {
             }
             for url in [
                 globalRelease.apks[0].url!.absoluteString,
-                "https://sergeinaumov.dev\(otherRegional.updatePath)/releases/\(regional.baseSHA256)/base.apk",
-                "https://sergeinaumov.dev\(edition.updatePath)/releases/wrong/base.apk",
+                "https://\(feedHost)\(otherRegional.updatePath)/releases/\(regional.baseSHA256)/base.apk",
+                "https://\(feedHost)\(edition.updatePath)/releases/wrong/base.apk",
                 regional.apks[0].url!.absoluteString + "?redirect=other",
-                regional.apks[0].url!.absoluteString.replacingOccurrences(of: "sergeinaumov.dev", with: "example.com")
+                regional.apks[0].url!.absoluteString.replacingOccurrences(of: feedHost, with: "example.com")
             ] {
                 let badRelease = GameRelease(packageName: regional.packageName, version: regional.version,
                     versionCode: regional.versionCode, baseSHA256: regional.baseSHA256,
