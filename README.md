@@ -72,16 +72,27 @@ and the launcher's identity.
 - **Local development feed.** A development-only game feed
   (`-D MACTICIAN_DEV_FEED`) for testing updates against a local folder. It is not
   compiled into normal builds.
-- **Own launcher update channel.** The app polls this fork's Sparkle appcast on
-  GitHub Pages and verifies it with the fork's own Ed25519 key, so it is no longer
-  offered the original author's builds. `publish-mactician-update.command` uploads
-  the DMG and deltas to a fixed `updates` GitHub release and commits the appcast
-  to the `gh-pages` branch, refusing to run if the app's key or feed URL does not
-  match. Builds made before this change still use the original channel.
+- **Own launcher update channel.** The app polls this fork's Sparkle appcast
+  (`https://changnm.github.io/mactician/appcast.xml`, served by GitHub Pages) and
+  verifies it with the fork's own Ed25519 key, so it is no longer offered the
+  original author's builds. `scripts/publish-mactician-update.command` uploads the
+  DMG and deltas to a fixed `updates` GitHub release and commits the signed appcast
+  to a Pages branch (`gh-pages` by default). It refuses to run if the app's key or
+  feed URL does not match. The channel goes live with the first publish; see
+  [Update channel on GitHub](docs/releasing.md#update-channel-on-github). A copy
+  built before this change still follows the original channel and has to be
+  reinstalled once.
+- **Own game feed, prepared but not switched on.** The game-feed host and public
+  key are two constants in `CoreModels.swift`, a feed key of your own can be
+  created in Keychain, and [Run your own game feed](docs/releasing.md#run-your-own-game-feed)
+  covers hosting and rollout. Until those constants are switched, the app still
+  trusts the original author's game feed and only sees patches that author
+  publishes. Bundling a newer game in your own build works either way.
 - **Build and release documentation.** A rewritten build guide, a guide to
   preparing and verifying the APK inputs, and a guide to publishing a build on
   GitHub Releases from a fork ([Building](docs/building.md),
-  [Releasing](docs/releasing.md)), plus new tests for the changes above.
+  [Releasing](docs/releasing.md)), the launcher update channel, and running your
+  own game feed, plus new tests for the changes above.
 - **Version 1.3.1 (build 56).** Ad-hoc signed and not notarized; see
   [Download and installation](#download-and-installation).
 
@@ -135,8 +146,9 @@ is configured independently.
 - Provides game hotkeys for shop, reroll, XP, item/trait and player/damage tabs,
   plus the macOS window-fill shortcut.
 - Links to the feedback board and [donations](https://app.lava.top/mactician?tabId=donate).
-- Uses a Sparkle appcast with Ed25519 archive verification for updates; public
-  releases are Developer ID signed and Apple-notarized.
+- Uses a Sparkle appcast with Ed25519 archive verification for updates. This fork
+  serves its own appcast and signs its releases ad hoc without notarization; the
+  original project's public releases are Developer ID signed and Apple-notarized.
 - Sends minimized activation events, a versioned one-time fresh census, and an
   unlinkable duration-only summary after every completed session; separately
   consented extended diagnostics remain optional. It can also display validated operator messages. See
@@ -182,6 +194,15 @@ and the SHA-256 published with that release before opening it.
 3. Review and accept the Android SDK terms, then choose **Install**. About
    2.3 GB is downloaded before extraction and AVD provisioning.
 4. Enter Riot credentials manually inside the official TFT client.
+
+After the first install the launcher updates itself. It checks for a new
+launcher every 24 hours and from **Check for Updates…**, and it asks before
+installing. The game has its own check every 30 minutes that offers
+**Update to** the new patch. A launcher update keeps your game data and Riot
+sign-in, and a newer game bundled in the launcher installs without downloading
+the APKs again. A copy built before this fork's update channel was added follows
+the original author's appcast instead, so install the first build that includes
+the channel by hand.
 
 Mactician-managed data stays in
 `$HOME/Library/Application Support/Mactician`.
@@ -232,7 +253,7 @@ export TFT_GAME_APK_DIR="$PWD/private/tft-apks"   # Global; Vietnam defaults to 
 ./scripts/build-mactician.command
 ```
 
-This produces `dist/Mactician.app` and `dist/Mactician-1.3.0.dmg`, signed ad hoc.
+This produces `dist/Mactician.app` and `dist/Mactician-<version>.dmg`, signed ad hoc.
 Global and Vietnam (VNG) APKs are bundled, so the build installs the newest game
 listed in the manifest without the hosted feed. Notes:
 
@@ -282,6 +303,19 @@ To publish a DMG on GitHub Releases like the upstream
 tagged release, one DMG, and its SHA-256 in the notes), follow
 [Publish on GitHub Releases](docs/releasing.md#publish-on-github-releases-forks-and-ad-hoc-builds).
 Read its notes on versioning, signing, and update behavior first.
+
+For installed copies to find the build, also publish the Sparkle update. Create
+the `updates` release once, then:
+
+```sh
+export MACTICIAN_SPARKLE_ACCOUNT=mactician-launcher-updates
+./scripts/publish-mactician-update.command --prepare-only   # sign without uploading
+./scripts/publish-mactician-update.command --allow-adhoc    # upload, ad-hoc build
+```
+
+`MACTICIAN_UPDATE_PAGES_BRANCH` selects the branch that serves the appcast. Setup,
+the Pages settings, and the rules for immutable archives are in
+[Update channel on GitHub](docs/releasing.md#update-channel-on-github).
 
 ## How it works
 
