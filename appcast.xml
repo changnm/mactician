@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Mactician Updates</title>
+        <item>
+            <title>Mactician 1.3.1</title>
+            <pubDate>Tue, 06 Oct 2026 17:24:03 +0700</pubDate>
+            <link>https://github.com/changnm/mactician</link>
+            <sparkle:version>56</sparkle:version>
+            <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# Mactician Release Notes — 1.3.1
+
+- Bundle Vietnam (VNG) TFT 18.3-5530794 with the launcher, so Vietnam installs
+  without a game download. An installed Vietnam game older than the bundled
+  release is upgraded on launch.
+- Add the Taiwan edition with independent downloads, updates, and sign-in
+  alongside Global and Vietnam (VNG).
+- Name the target patch on the update button ("Update to 18.4"), recheck the
+  signed game feed every 30 minutes and when the app is reactivated, and add a
+  "Check for game update" button in Settings. A game feed older than the
+  installed game counts as up to date instead of failing the check.
+
+Build 56 for Apple Silicon, macOS 12 or later. This build is signed ad hoc and
+not notarized; open it through System Settings → Privacy & Security → Open Anyway.
+]]></description>
+            <enclosure url="https://github.com/changnm/mactician/releases/download/updates/Mactician-1.3.1.dmg" length="362830081" type="application/octet-stream" sparkle:edSignature="jGBww4N7qP76DEnBjO14LYQ8/YeSVN0tMIh59TQtG+Z3j1sQjAs0jgDyzV+bC/Q9YNjv9o+w9SV3d5tHt18+BQ=="/>
+        </item>
+    </channel>
+</rss>
