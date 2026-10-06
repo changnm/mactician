@@ -9,13 +9,85 @@ Created by [Sergei Naumov](https://sergeinaumov.dev/writing), a backend and
 security platform engineer. Read my [technical writing](https://sergeinaumov.dev/writing/how-i-built-mactician) about this project
 or connect with me on [LinkedIn](https://www.linkedin.com/in/sergei-naumov-dev/).
 
-[Download Mactician](https://github.com/tweet9ra/mactician/releases/latest) ·
+> **Fork notice.** This repository is a community fork of
+> [tweet9ra/mactician](https://github.com/tweet9ra/mactician). Mactician was
+> created by Sergei Naumov, and the paragraph above is his own text. See
+> [About this fork](#about-this-fork) for the credits and exactly what this fork
+> changes.
+
+[Download Mactician](https://github.com/changnm/mactician/releases/tag/v1.3.1) ·
 [Documentation](#documentation) ·
 [Technical case study](https://sergeinaumov.dev/writing/how-i-built-mactician)
 
 Built for two tacticians. Shared with everyone.
 
 ![Mactician social preview](branding/generated/mactician-social-preview.png)
+
+## About this fork
+
+**Mactician is the work of [Sergei Naumov](https://sergeinaumov.dev/writing).**
+The launcher, the Android runtime integration, the graphics and performance
+research, and nearly all of the code and documentation in this repository are
+his. This fork is maintained independently by
+[Trang Nguyen](https://github.com/changnm) and is not an official release of the
+original project. Please credit and support the original author:
+
+- [Original repository](https://github.com/tweet9ra/mactician) and its
+  [releases](https://github.com/tweet9ra/mactician/releases)
+- [Technical case study](https://sergeinaumov.dev/writing/how-i-built-mactician)
+- [Donations](https://app.lava.top/mactician?tabId=donate) and the
+  [feedback board](https://sergeinaumov.dev/mactician/feedback)
+
+The original MIT license and copyright notice are kept unchanged in
+[LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+
+### Based on
+
+Upstream `master` at commit `8a94fba`. That includes upstream work that is not
+yet in an upstream release (the latest is
+[v1.3.0](https://github.com/tweet9ra/mactician/releases/tag/v1.3.0)): the Taiwan
+edition and the Global TFT 18.3 pin.
+
+### What this fork changes
+
+Everything below is on top of that commit; the rest is upstream's. Unmodified
+areas include the emulator runtime, graphics and performance code, telemetry,
+and the launcher's identity.
+
+- **Game update checks.** The update button names the target patch
+  ("Update to 18.4"), the launcher rechecks the signed game feed every 30 minutes
+  and when the app is reactivated, and Settings has a "Check for game update"
+  button that reports up to date, available, or the network error. English and
+  Russian strings included.
+- **Newest game on every build.** Vietnam (VNG) TFT 18.3-5530794 now ships inside
+  the launcher, like Global, through a new `editionGames` section in the release
+  manifest. A newer bundled release upgrades an older install on launch, and a
+  hosted feed older than the installed game counts as up to date instead of
+  failing the check. The build script verifies the bundled APKs against the
+  manifest hashes.
+- **Automated feed publishing.** A scheduled workflow and
+  `scripts/auto-publish-game-update.command` that fetch the newest TFT build per
+  edition, verify it, and publish the signed feed when it is newer. This needs
+  your own feed key and server; it does not publish to the original author's.
+- **Local development feed.** A development-only game feed
+  (`-D MACTICIAN_DEV_FEED`) for testing updates against a local folder. It is not
+  compiled into normal builds.
+- **Build and release documentation.** A rewritten build guide, a guide to
+  preparing and verifying the APK inputs, and a guide to publishing a build on
+  GitHub Releases from a fork ([Building](docs/building.md),
+  [Releasing](docs/releasing.md)), plus new tests for the changes above.
+- **Version 1.3.1 (build 56).** Ad-hoc signed and not notarized; see
+  [Download and installation](#download-and-installation).
+
+### What still uses the original author's services
+
+This fork keeps the original identity: a build checks the original Sparkle
+appcast and signed game feed, uses the original telemetry and announcement API,
+and links to the original feedback, donation, and privacy pages (all on
+`sergeinaumov.dev`). The privacy behavior in
+[Telemetry and privacy](docs/telemetry.md) therefore applies unchanged. A fork
+build can be offered the original author's builds as updates; see
+[Releasing](docs/releasing.md#publish-on-github-releases-forks-and-ad-hoc-builds).
 
 ## Project status
 
@@ -90,14 +162,15 @@ requirements.
 
 ## Download and installation
 
-When a public build is available, download the latest DMG from the repository's
-[GitHub Releases page](https://github.com/tweet9ra/mactician/releases/latest).
+Download the DMG from this fork's
+[release page](https://github.com/changnm/mactician/releases/tag/v1.3.1).
 Verify the version, build number,
 and the SHA-256 published with that release before opening it.
 
 1. Open the DMG and drag **Mactician** to **Applications**.
-2. Open it. Version 1.2.5 is signed with Apple Developer ID and notarized, so
-   Gatekeeper can verify it normally without **Open Anyway**.
+2. Open it. Version 1.3.1 is signed ad hoc and is not notarized, so Gatekeeper
+   blocks the first launch: open **System Settings → Privacy & Security** and
+   choose **Open Anyway**.
 3. Review and accept the Android SDK terms, then choose **Install**. About
    2.3 GB is downloaded before extraction and AVD provisioning.
 4. Enter Riot credentials manually inside the official TFT client.
