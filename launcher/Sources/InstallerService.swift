@@ -178,11 +178,10 @@ final class InstallerService {
                     withIntermediateDirectories: true
                 )
                 let hosted = try fetchHostedGameFeed(edition: edition, progress: { _ in })
-                let release = hosted.feed.release
-                try Self.validateCandidate(release, edition: edition, installed: currentState.games[edition.id])
-                let availability = GameUpdateAvailability(
-                    release: release,
-                    isAvailable: HostedGameUpdate.isNewer(release, than: currentState.games[edition.id] ?? InstalledGameState())
+                let availability = try Self.updateAvailability(
+                    for: hosted.feed.release,
+                    edition: edition,
+                    installed: currentState.games[edition.id]
                 )
                 withLock { operationInProgress = false }
                 DispatchQueue.main.async { completion(.success(availability)) }
@@ -248,7 +247,7 @@ final class InstallerService {
                 hosted = (data, feed)
             }
         }
-        let bundled: GameRelease? = edition == .global ? manifest.game : nil
+        let bundled = manifest.bundledGame(for: edition)
         if let bundled, let remote = hosted?.feed.release,
            (bundled.versionCode ?? 0) > (remote.versionCode ?? 0) {
             hosted = nil
@@ -267,7 +266,7 @@ final class InstallerService {
             try SystemServices.saveState(state, to: paths.stateFile)
         }
 
-        let usesBundledGame = edition == .global && gameRelease.baseSHA256 == manifest.game.baseSHA256
+        let usesBundledGame = bundled?.baseSHA256 == gameRelease.baseSHA256
         let gameDownloadBytes = usesBundledGame ? 0 : gameBytes
         let totalBytes = manifest.components.reduce(Int64(0)) { $0 + $1.size } + gameDownloadBytes
         var completedBytes: Int64 = 0
@@ -298,7 +297,7 @@ final class InstallerService {
                 progress: progress
             )
         } else {
-            gameResources = paths.gameResources
+            gameResources = paths.bundledGameResources(for: edition)
         }
 
         try verifyGame(release: gameRelease, in: gameResources)
@@ -394,6 +393,26 @@ final class InstallerService {
         try saveHostedGameFeed(hosted.data, edition: edition)
         progressOnMain(progress, .init(phase: .finished, message: "TFT updated", fraction: 1))
         return GameUpdateResult(state: state, release: release, changed: true)
+    }
+
+    /// A hosted feed that lags behind the installed game (for example a bundled
+    /// release newer than the feed) is not an update; it must not fail the check.
+    static func updateAvailability(
+        for release: GameRelease,
+        edition: GameEdition,
+        installed: InstalledGameState?
+    ) throws -> GameUpdateAvailability {
+        try release.validate(for: edition)
+        if let installedCode = installed?.gameVersionCode,
+           let hostedCode = release.versionCode,
+           hostedCode < installedCode {
+            return GameUpdateAvailability(release: release, isAvailable: false)
+        }
+        try validateCandidate(release, edition: edition, installed: installed)
+        return GameUpdateAvailability(
+            release: release,
+            isAvailable: HostedGameUpdate.isNewer(release, than: installed ?? InstalledGameState())
+        )
     }
 
     static func validateCandidate(

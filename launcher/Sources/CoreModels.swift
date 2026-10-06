@@ -62,7 +62,14 @@ struct ReleaseManifest: Codable, Equatable {
     let minimumFreeBytes: Int64
     let components: [SDKComponent]
     let game: GameRelease
+    /// Regional releases packaged with the launcher, keyed by `GameEdition.id`.
+    /// Global stays in `game`; an edition listed here installs without a download.
+    let editionGames: [String: GameRelease]?
     let profiles: [LaunchProfile]
+
+    func bundledGame(for edition: GameEdition) -> GameRelease? {
+        edition == .global ? game : editionGames?[edition.id]
+    }
 
     func validate() throws {
         guard schemaVersion == 1 else {
@@ -79,6 +86,12 @@ struct ReleaseManifest: Codable, Equatable {
             try component.validate()
         }
         try game.validate()
+        for (id, release) in editionGames ?? [:] {
+            guard let edition = GameEdition(rawValue: id), edition != .global else {
+                throw LauncherError.invalidManifest("Unknown bundled edition \(id)")
+            }
+            try release.validate(for: edition)
+        }
         guard Set(profiles.map(\.id)) == Set(["balanced", "quality", "ultra", "4k"]) else {
             throw LauncherError.invalidManifest("Required profiles are missing")
         }

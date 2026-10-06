@@ -11,6 +11,9 @@
 - Four exact unmodified TFT `18.3-5530794` APK splits in a private local
   directory; names, sizes, and hashes are in
   `launcher/Resources/release-manifest.json`
+- Four exact unmodified Vietnam (VNG) `18.3-5530794` APK splits for each
+  regional edition listed under `editionGames` in that manifest
+  (`private/tft-apks-vietnam` by default)
 
 Production binaries target `arm64-apple-macosx12.0`. Unit-test binaries target
 the current macOS host architecture so CI can run on either Intel or Apple
@@ -129,6 +132,8 @@ assesses the distribution.
 | Variable | Purpose |
 | --- | --- |
 | `TFT_GAME_APK_DIR` | Required build input directory containing four pinned APK splits |
+| `TFT_<EDITION>_APK_DIR` (for example `TFT_VIETNAM_APK_DIR`) | APK splits for a regional edition bundled by the manifest; default `$TFT_EDITION_APK_ROOT/tft-apks-<edition>` |
+| `TFT_EDITION_APK_ROOT` | Parent of the default regional APK directories; default `private` |
 | `TFT_ANDROID_NDK` / `ANDROID_NDK_HOME` | Android NDK r27d for the native cache build |
 | `TFT_VULKAN_VIEW_CACHE` | `auto` enables the built cache on the validated game/ANGLE combination; `0` disables it; `1` requires it |
 | `MACTICIAN_CODESIGN_IDENTITY` | Developer ID Application identity; default `-` is ad hoc |
@@ -146,7 +151,8 @@ assesses the distribution.
 
 - **Sparkle download/hash failure:** remove only the partial cache file and
   retry on a trusted network; do not change the pinned hash to match a download.
-- **Missing APK input:** set `TFT_GAME_APK_DIR`; the repository intentionally
+- **Missing APK input:** set `TFT_GAME_APK_DIR` (and `TFT_VIETNAM_APK_DIR` when
+  it is not under `private/tft-apks-vietnam`); the repository intentionally
   does not contain game packages.
 - **APK mismatch:** use the exact pinned release or update the manifest only as
   part of a separately verified game-version change.

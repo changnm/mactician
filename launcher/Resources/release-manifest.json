@@ -58,6 +58,36 @@
       }
     ]
   },
+  "editionGames": {
+    "vietnam": {
+      "packageName": "com.riotgames.league.teamfighttacticsvn",
+      "version": "18.3-5530794",
+      "versionCode": 8530794,
+      "baseSHA256": "0d121a3e423a1ccd0880e3f553afab8e2611a9934bc89f323a65c133127cff6f",
+      "apks": [
+        {
+          "name": "base.apk",
+          "size": 102453559,
+          "sha256": "0d121a3e423a1ccd0880e3f553afab8e2611a9934bc89f323a65c133127cff6f"
+        },
+        {
+          "name": "config.arm64_v8a.apk",
+          "size": 94156001,
+          "sha256": "9c135c7c4156530345e0595077f7acb75d88a235b7d0af1f581e596014c1c48c"
+        },
+        {
+          "name": "config.en.apk",
+          "size": 37273,
+          "sha256": "359112010f8bdda8665b698c58d2180e9a4ecfa6a60878271e147c4cec8a88f8"
+        },
+        {
+          "name": "config.mdpi.apk",
+          "size": 83007,
+          "sha256": "bdc2ae52f3f319bc8414ad68f4bc43e6515a3eb6c2d7030500c9ba44a3652202"
+        }
+      ]
+    }
+  },
   "profiles": [
     {
       "id": "balanced",

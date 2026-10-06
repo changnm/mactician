@@ -288,7 +288,12 @@ jq -e '.schemaVersion == 1
     and (.components | length == 3)
     and (.game.apks | length == 4)
     and (.components[] | .sha256 | test("^[0-9a-f]{64}$"))
-    and (.game.apks[] | .sha256 | test("^[0-9a-f]{64}$"))' \
+    and (.game.apks[] | .sha256 | test("^[0-9a-f]{64}$"))
+    and ((.editionGames // {}) | to_entries | all(
+        (.key | IN("vietnam", "taiwan"))
+        and (.value.apks | length == 4 and all(.[]; .sha256 | test("^[0-9a-f]{64}$")))
+        and (.value.apks[0].name == "base.apk")
+        and (.value.apks[0].sha256 == .value.baseSHA256)))' \
     launcher/Resources/release-manifest.json >/dev/null \
     || fail "release manifest structure or hashes are invalid"
 

@@ -24,7 +24,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-jq -e '.schemaVersion == 1 and (.components | length) == 3 and (.game.apks | length) == 4' \
+jq -e '.schemaVersion == 1 and (.components | length) == 3 and (.game.apks | length) == 4
+    and ((.editionGames // {}) | to_entries | all(.value.apks | length == 4))' \
     "$LAUNCHER_DIR/Resources/release-manifest.json" >/dev/null
 plutil -lint "$LAUNCHER_DIR/Info.plist" >/dev/null
 plutil -lint "$LAUNCHER_DIR/Resources/EmulatorHost-Info.plist" >/dev/null

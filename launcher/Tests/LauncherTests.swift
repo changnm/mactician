@@ -53,6 +53,7 @@ enum LauncherTests {
         )
         try expect(verifiedHostedFeed.release == hostedRelease, "signed hosted game feed")
         try testGameEditions(manifest: manifest, globalRelease: hostedRelease, key: hostedPrivateKey)
+        try testBundledEditionGame(manifest: manifest)
         var olderInstallState = InstalledGameState()
         olderInstallState.gameVersion = "18.1-old"
         olderInstallState.gameVersionCode = 8_210_000
@@ -1655,6 +1656,69 @@ enum LauncherTests {
         }
 
         print("Mactician tests: OK")
+    }
+
+    private static func testBundledEditionGame(manifest: ReleaseManifest) throws {
+        try manifest.validate()
+        guard let vietnam = manifest.bundledGame(for: .vietnam) else {
+            throw TestFailure("Vietnam release is not bundled")
+        }
+        try expect(manifest.bundledGame(for: .global) == manifest.game
+            && manifest.bundledGame(for: .taiwan) == nil, "bundled game per edition")
+        try expect(vietnam.packageName == GameEdition.vietnam.packageName
+            && vietnam.apks.count == 4 && vietnam.apks.allSatisfy { $0.url == nil }
+            && (vietnam.versionCode ?? 0) >= (manifest.game.versionCode ?? 1), "bundled Vietnam release")
+
+        func release(_ code: Int, base: String = String(repeating: "a", count: 64)) -> GameRelease {
+            GameRelease(
+                packageName: vietnam.packageName, version: "test-\(code)", versionCode: code, baseSHA256: base,
+                apks: [GameAPK(name: "base.apk", size: 1, sha256: base, url: nil)]
+            )
+        }
+        let older = release(8_450_971), current = release(8_530_794), newer = release(8_630_000)
+        func installed(_ release: GameRelease) -> InstalledGameState {
+            InstalledGameState(release: release, overlaySHA256: String(repeating: "c", count: 64))
+        }
+        try expect(HostedGameUpdate.selectRelease(installed: nil, cached: nil, bundled: current) == current,
+            "fresh install uses the bundled release")
+        try expect(HostedGameUpdate.selectRelease(installed: installed(older), cached: older, bundled: current) == current,
+            "a newer bundled release replaces a stale installed feed release")
+        try expect(HostedGameUpdate.selectRelease(installed: installed(newer), cached: newer, bundled: current) == newer,
+            "a newer installed hosted release is kept")
+        try expect(HostedGameUpdate.selectRelease(installed: installed(current), cached: older, bundled: current) == current,
+            "an installed bundled release is kept over an older feed")
+        try expect(HostedGameUpdate.selectRelease(installed: installed(older), cached: older, bundled: nil) == older,
+            "editions without a bundled release keep the installed feed release")
+
+        let lagging = try InstallerService.updateAvailability(
+            for: older, edition: .vietnam, installed: installed(current)
+        )
+        try expect(!lagging.isAvailable, "a feed older than the installed game is up to date")
+        let ahead = try InstallerService.updateAvailability(
+            for: newer, edition: .vietnam, installed: installed(current)
+        )
+        try expect(ahead.isAvailable && ahead.release == newer, "a newer feed release is an update")
+        do {
+            _ = try InstallerService.updateAvailability(
+                for: release(8_530_794, base: String(repeating: "f", count: 64)),
+                edition: .vietnam, installed: installed(current)
+            )
+            throw TestFailure("same version code with a different APK was accepted")
+        } catch is LauncherError { }
+
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let paths = try LauncherPaths(root: root, resources: root.appendingPathComponent("Resources"))
+        try expect(paths.bundledGameResources(for: .global) == paths.gameResources
+            && paths.bundledGameResources(for: .vietnam).lastPathComponent == "Game-vietnam"
+            && paths.gameResources(for: current, edition: .vietnam, bundled: current)
+                == paths.bundledGameResources(for: .vietnam)
+            && paths.gameResources(
+                for: current, edition: .vietnam,
+                bundled: release(8_450_971, base: String(repeating: "b", count: 64))
+            ) == paths.gameReleaseDirectory(for: .vietnam, baseSHA256: current.baseSHA256)
+            && paths.gameResources(for: current, edition: .vietnam)
+                == paths.gameReleaseDirectory(for: .vietnam, baseSHA256: current.baseSHA256),
+            "bundled resources are used only for the matching bundled release")
     }
 
     private static func testGameEditions(

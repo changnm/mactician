@@ -55,12 +55,21 @@ struct LauncherPaths {
     func gameReleaseDirectory(for edition: GameEdition, baseSHA256: String) -> URL {
         gameCache(for: edition).appendingPathComponent("releases/\(baseSHA256)", isDirectory: true)
     }
-    func gameResources(for release: GameRelease, edition: GameEdition) -> URL {
+    func gameResources(for release: GameRelease, edition: GameEdition, bundled: GameRelease? = nil) -> URL {
         let hosted = gameReleaseDirectory(for: edition, baseSHA256: release.baseSHA256)
         if FileManager.default.fileExists(atPath: hosted.appendingPathComponent("base.apk").path) {
             return hosted
         }
-        return edition == .global ? gameResources : hosted
+        if edition == .global { return gameResources }
+        if let bundled, bundled.baseSHA256 == release.baseSHA256 {
+            return bundledGameResources(for: edition)
+        }
+        return hosted
+    }
+    func bundledGameResources(for edition: GameEdition) -> URL {
+        edition == .global
+            ? gameResources
+            : bundleResources.appendingPathComponent("Game-\(edition.id)", isDirectory: true)
     }
     var staging: URL { root.appendingPathComponent(".staging", isDirectory: true) }
     var stateFile: URL { root.appendingPathComponent("install-state.json") }

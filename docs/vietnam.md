@@ -30,7 +30,7 @@ Riot certificate SHA-256:
 | config.en.apk | 37273 | 14ca6b77e7e638aeb0eb1c885b94ed48ccb5792b28cca1e2c39a79dc67ec45fd |
 | config.mdpi.apk | 83007 | 0535004ea3f74f881b2a1bd6258b560b97c76e5788d441533f35073da035a8a0 |
 
-The four private inputs live in `private/tft-vietnam-apks/`. The signed update
+The four private inputs live in `private/tft-apks-vietnam/`. The signed update
 feed is generated with `MACTICIAN_GAME_EDITION=vietnam`; see
 [the release procedure](releasing.md#publish-a-tft-game-update).
 
@@ -40,8 +40,11 @@ The VNG channel was published on 2026-09-05 with TFT `18.1-5423749`.
 The existing Global feed and launcher appcast were unchanged. Existing launcher
 releases continue using Global; the edition selector requires the new build.
 
-Global keeps its bundled APKs and existing feed URL. Vietnam is downloaded on
-demand and has no bundled Global fallback. Its feed uses the same pinned game
+Global keeps its bundled APKs and existing feed URL. Vietnam also ships inside
+the launcher (see [Bundled release](#bundled-release--tft-183)), so a build is
+never older than its bundled game and installs without downloading it; a signed
+feed release replaces the bundled one only when its version code is higher. The
+feed uses the same pinned game
 update signing key and the path `/mactician/updates/game/vietnam/manifest.json`.
 APK paths are `/mactician/updates/game/vietnam/releases/<baseSHA256>/<filename>`.
 Publish this signed feed and its APKs before distributing the new launcher.
@@ -79,3 +82,29 @@ The 18.2 signed game feed was published on 2026-09-10. The public manifest
 passed the launcher's signature verification, and all four downloaded APKs
 matched the tested sizes and SHA-256 hashes with immutable cache headers.
 The launcher appcast was unchanged.
+
+## Bundled release — TFT 18.3
+
+Release `18.3-5530794` (version code `8530794`) is listed under `editionGames` in
+`launcher/Resources/release-manifest.json` and copied to `Resources/Game-vietnam`
+by `scripts/build-mactician.command`, which refuses to build unless the four
+private APK splits match the manifest hashes. Inputs: the APKPure `18.3-5530794`
+ARM64 XAPK, extracted to `private/tft-apks-vietnam/` (base APK renamed to
+`base.apk`).
+
+Android Build Tools 36 `apksigner` and `aapt2` verified all four APKs on
+2026-10-06: package `com.riotgames.league.teamfighttacticsvn`, version code
+`8530794`, matching split IDs, and the same pinned Riot certificate as 18.2
+(`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`).
+
+| APK | Bytes | SHA-256 |
+| --- | ---: | --- |
+| base.apk | 102453559 | 0d121a3e423a1ccd0880e3f553afab8e2611a9934bc89f323a65c133127cff6f |
+| config.arm64_v8a.apk | 94156001 | 9c135c7c4156530345e0595077f7acb75d88a235b7d0af1f581e596014c1c48c |
+| config.en.apk | 37273 | 359112010f8bdda8665b698c58d2180e9a4ecfa6a60878271e147c4cec8a88f8 |
+| config.mdpi.apk | 83007 | bdc2ae52f3f319bc8414ad68f4bc43e6515a3eb6c2d7030500c9ba44a3652202 |
+
+An install that predates a newer bundled release is upgraded to it on the next
+launch. A hosted feed that is older than the installed game is reported as up to
+date instead of failing the update check. To move to a newer VNG build, replace
+the `editionGames.vietnam` entry and the private APKs together.

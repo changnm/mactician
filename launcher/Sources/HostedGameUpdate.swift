@@ -94,13 +94,27 @@ enum HostedGameUpdate {
         paths: LauncherPaths,
         manifest: ReleaseManifest
     ) -> GameRelease? {
-        let cached = try? loadVerifiedFeed(from: paths.hostedGameFeed(for: edition), edition: edition).release
-        let bundled: GameRelease? = edition == .global ? manifest.game : nil
+        selectRelease(
+            installed: state.games[edition.id],
+            cached: try? loadVerifiedFeed(from: paths.hostedGameFeed(for: edition), edition: edition).release,
+            bundled: manifest.bundledGame(for: edition)
+        )
+    }
+
+    static func selectRelease(
+        installed: InstalledGameState?,
+        cached: GameRelease?,
+        bundled: GameRelease?
+    ) -> GameRelease? {
         let candidates = [cached, bundled].compactMap { $0 }
-        if let installed = state.games[edition.id],
-           let matching = candidates.first(where: { installed.matches($0) }) {
+        let newest = candidates.max { ($0.versionCode ?? 0) < ($1.versionCode ?? 0) }
+        // The installed release wins only while nothing newer is available locally;
+        // otherwise a launcher that bundles a newer game upgrades the stale install.
+        if let installed,
+           let matching = candidates.first(where: { installed.matches($0) }),
+           (matching.versionCode ?? 0) >= (newest?.versionCode ?? 0) {
             return matching
         }
-        return candidates.max { ($0.versionCode ?? 0) < ($1.versionCode ?? 0) }
+        return newest
     }
 }

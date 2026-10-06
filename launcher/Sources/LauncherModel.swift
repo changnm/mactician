@@ -599,7 +599,11 @@ final class LauncherModel: ObservableObject {
                         uiScalePercent: selectedUIScalePercent,
                         state: installState,
                         gameRelease: gameRelease,
-                        gameResources: paths.gameResources(for: gameRelease, edition: selectedEdition)
+                        gameResources: paths.gameResources(
+                            for: gameRelease,
+                            edition: selectedEdition,
+                            bundled: manifest.bundledGame(for: selectedEdition)
+                        )
                     ))
                 ) { [weak self] event in
                     self?.handle(event)
@@ -817,7 +821,7 @@ final class LauncherModel: ObservableObject {
                 try FileManager.default.removeItem(at: paths.root)
             }
             installState = InstallState()
-            gameRelease = selectedEdition == .global ? manifest.game : nil
+            gameRelease = manifest.bundledGame(for: selectedEdition)
             clearGameUpdateIndicators()
             isCheckingGameUpdate = false
             mode = .needsInstall

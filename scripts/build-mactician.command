@@ -64,6 +64,31 @@ for apk expected_hash in ${(kv)EXPECTED_APK_HASHES}; do
     fi
 done
 
+# Regional editions listed in the manifest ship inside the app. Their inputs are
+# verified against the manifest itself, so a new release only edits one place.
+readonly EDITION_APK_ROOT="${TFT_EDITION_APK_ROOT:-$PROJECT_DIR/private}"
+typeset -a BUNDLED_EDITIONS
+BUNDLED_EDITIONS=(${(f)"$(jq -r '(.editionGames // {}) | keys[]' "$LAUNCHER_DIR/Resources/release-manifest.json")"})
+typeset -A EDITION_APK_DIRS
+for edition in $BUNDLED_EDITIONS; do
+    edition_env="TFT_${(U)edition}_APK_DIR"
+    edition_dir="${(P)edition_env:-$EDITION_APK_ROOT/tft-apks-$edition}"
+    EDITION_APK_DIRS[$edition]="$edition_dir"
+    while IFS=' ' read -r apk expected_hash; do
+        apk_path="$edition_dir/$apk"
+        if [[ ! -f "$apk_path" ]]; then
+            print -u2 "Private build input not found: $apk_path (set $edition_env for the $edition APK splits)."
+            exit 1
+        fi
+        actual_hash="$(shasum -a 256 "$apk_path" | awk '{print $1}')"
+        if [[ "$actual_hash" != "$expected_hash" ]]; then
+            print -u2 "SHA-256 for $edition/$apk does not match the pinned manifest."
+            exit 1
+        fi
+    done < <(jq -r --arg edition "$edition" '.editionGames[$edition].apks[] | "\(.name) \(.sha256)"' \
+        "$LAUNCHER_DIR/Resources/release-manifest.json")
+done
+
 "$PROJECT_DIR/scripts/build-vulkan-view-cache.command" >/dev/null
 
 copy_plain_file() {
@@ -161,6 +186,13 @@ xcrun clang \
 
 for apk in ${(k)EXPECTED_APK_HASHES}; do
     copy_plain_file "$APK_DIR/$apk" "$GAME_RESOURCES/$apk"
+done
+for edition in $BUNDLED_EDITIONS; do
+    mkdir -p "$RESOURCES/Game-$edition"
+    while IFS= read -r apk; do
+        copy_plain_file "$EDITION_APK_DIRS[$edition]/$apk" "$RESOURCES/Game-$edition/$apk"
+    done < <(jq -r --arg edition "$edition" '.editionGames[$edition].apks[].name' \
+        "$LAUNCHER_DIR/Resources/release-manifest.json")
 done
 
 copy_plain_file "$PROJECT_DIR/run-tft-root-affinity.command" "$RUNTIME_TEMPLATE/run-tft-root-affinity.command"
