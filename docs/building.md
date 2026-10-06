@@ -70,6 +70,56 @@ find . -type f -name '*.json' -print0 | xargs -0 -n 1 jq empty
 xcrun clang -target arm64-apple-macosx12.0 -fsyntax-only launcher/EmulatorHost/main.c
 ```
 
+## Prepare the APK inputs
+
+The build bundles the unmodified split APKs of each shipped edition. Keep them
+outside Git (`private/` is ignored):
+
+| Directory | Variable | Edition | Release |
+| --- | --- | --- | --- |
+| `private/tft-apks` | `TFT_GAME_APK_DIR` | Global | `18.3-5530794` |
+| `private/tft-apks-vietnam` | `TFT_VIETNAM_APK_DIR` | Vietnam (VNG) | `18.3-5530794` |
+
+Each directory holds exactly `base.apk`, `config.arm64_v8a.apk`, `config.en.apk`,
+and `config.mdpi.apk`. An XAPK bundle (a zip, for example from APKPure) is
+prepared by extracting the APKs and renaming the package-named base APK:
+
+```sh
+mkdir -p private/tft-apks-vietnam
+unzip -j Downloaded.xapk '*.apk' -d private/tft-apks-vietnam
+mv private/tft-apks-vietnam/com.riotgames.league.teamfighttacticsvn.apk \
+   private/tft-apks-vietnam/base.apk
+```
+
+Verify the inputs with Android Build Tools 36 before building:
+
+```sh
+BT="$ANDROID_HOME/build-tools/36.0.0"
+for apk in private/tft-apks-vietnam/*.apk; do
+  "$BT/apksigner" verify --print-certs "$apk" | grep 'Signer #1 certificate SHA-256'
+  "$BT/aapt2" dump badging "$apk" | grep '^package:'
+done
+shasum -a 256 private/tft-apks-vietnam/*.apk
+```
+
+Every split must report the pinned Riot certificate
+`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`, the expected
+package name, and the manifest's version code, and the hashes must equal the
+manifest. The build re-checks the hashes (not the certificate) and stops on any
+mismatch.
+
+To bundle a newer game, verify the new splits as above, then update together:
+
+1. The `game` (Global) or `editionGames.<edition>` entry in
+   `launcher/Resources/release-manifest.json`: `version`, `versionCode`,
+   `baseSHA256`, and every APK `size` and `sha256`.
+2. For Global only, `EXPECTED_APK_HASHES` in `scripts/build-mactician.command`
+   (regional hashes are read from the manifest) and the version expectations in
+   `launcher/Tests/LauncherTests.swift`.
+3. The README compatibility line, `CHANGELOG.md`, and the edition document.
+
+Then run `./scripts/test-mactician.command`.
+
 ## Local ad-hoc build
 
 ```sh
@@ -134,6 +184,8 @@ assesses the distribution.
 | `TFT_GAME_APK_DIR` | Required build input directory containing four pinned APK splits |
 | `TFT_<EDITION>_APK_DIR` (for example `TFT_VIETNAM_APK_DIR`) | APK splits for a regional edition bundled by the manifest; default `$TFT_EDITION_APK_ROOT/tft-apks-<edition>` |
 | `TFT_EDITION_APK_ROOT` | Parent of the default regional APK directories; default `private` |
+| `MACTICIAN_DIST_DIR` | Output directory; default `dist`. Use another path to build while the app is running |
+| `MACTICIAN_EXTRA_SWIFT_FLAGS` | Development only. `-D MACTICIAN_DEV_FEED` redirects game updates to a local folder; never set it for a build you keep or distribute |
 | `TFT_ANDROID_NDK` / `ANDROID_NDK_HOME` | Android NDK r27d for the native cache build |
 | `TFT_VULKAN_VIEW_CACHE` | `auto` enables the built cache on the validated game/ANGLE combination; `0` disables it; `1` requires it |
 | `MACTICIAN_CODESIGN_IDENTITY` | Developer ID Application identity; default `-` is ad hoc |

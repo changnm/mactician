@@ -1,6 +1,6 @@
 # Releasing
 
-The current metadata is Mactician version 1.3.0, build 55. Version and build
+The current metadata is Mactician version 1.3.1, build 56. Version and build
 numbers live in `launcher/Info.plist` and the matching emulator-host plist.
 Release notes live under `launcher/Resources/release-notes/` using the short
 version as the filename.
@@ -93,6 +93,76 @@ versioned DMG with different bytes.
 `--allow-adhoc` is reserved for an explicitly approved temporary release. It
 accepts only a valid ad-hoc-signed app, verifies the DMG, and still requires the
 Sparkle Ed25519 signature.
+
+## Publish on GitHub Releases (forks and ad-hoc builds)
+
+The upstream [v1.3.0 release](https://github.com/tweet9ra/mactician/releases/tag/v1.3.0)
+is a tag named `v1.3.0`, titled "Mactician 1.3.0", with one asset
+(`Mactician-1.3.0.dmg`, Developer ID signed and notarized) and notes ending in
+the DMG's SHA-256. A fork can publish the same shape without the upstream server,
+Sparkle key, or Apple account. Nothing below uploads automatically; creating a
+tag or release is a separate external action.
+
+1. **Choose a new version.** Do not reuse 1.3.0 (build 55): upstream already
+   shipped different bytes under it. Raise `CFBundleShortVersionString` and
+   `CFBundleVersion` in both `launcher/Info.plist` and
+   `launcher/Resources/EmulatorHost-Info.plist`, add
+   `launcher/Resources/release-notes/<version>.md`, and move the `Unreleased`
+   changelog entries under the new version. `verify-repository.command` also
+   requires the same version and build in the README `Version:` line, the first
+   line of `CHANGELOG.md`, and the first line of this guide.
+2. **Validate.** Run `./scripts/test-mactician.command` and the manual checks in
+   [Validation and rollback](#validation-and-rollback).
+3. **Build the DMG** from the commit you will tag.
+   - *Ad hoc, no Apple account:* the commands in
+     [Local ad-hoc build](../README.md#local-ad-hoc-build). Other Macs must use
+     **Open Anyway**, so mark the release as a pre-release.
+   - *Developer ID, as upstream:* needs an Apple Developer Program membership, a
+     Developer ID Application certificate and a `notarytool` Keychain profile
+     (`mactician-notary` by default), then `./scripts/build-mactician-release.command`.
+4. **Decide how the app updates.** `SUFeedURL` and `SUPublicEDKey` in
+   `launcher/Info.plist` are upstream's. A fork build checks upstream's appcast
+   every 24 hours and is offered any upstream build with a higher
+   `CFBundleVersion`, which would replace the fork build (including its bundled
+   game). Either accept that, or run your own channel: generate your own Sparkle
+   Ed25519 key, host an appcast, and change `SUFeedURL`/`SUPublicEDKey` together
+   with their pinned copies in `launcher/Tests/LauncherTests.swift`,
+   `scripts/publish-mactician-update.command`, and the docs. The signed game
+   feed (`MacticianIdentity.gameUpdateURL`) is read-only for the app and can stay
+   upstream's, because a newer bundled game is installed without it.
+5. **Write the notes.** The notes file ends with the DMG hash, which changes with
+   every build, so regenerate that section:
+
+   ```sh
+   VERSION=1.3.1   # the version you chose
+   DMG="dist/Mactician-$VERSION.dmg"
+   SHA="$(shasum -a 256 "$DMG" | awk '{print $1}')"
+   {
+     sed '/^## Verify the download/,$d' "launcher/Resources/release-notes/$VERSION.md"
+     printf '## Verify the download\n\n`%s` SHA-256:\n\n`%s`\n' "$(basename "$DMG")" "$SHA"
+   } > "$TMPDIR/notes-$VERSION.md"
+   ```
+
+6. **Tag and create the release.** `gh auth login` is interactive and is done
+   by you once; never put tokens in commands or files. Start with `--draft` to
+   review the page before it is public, and add `--prerelease` for ad-hoc builds:
+
+   ```sh
+   git tag -a "v$VERSION" -m "Mactician $VERSION"
+   git push origin "v$VERSION"
+   gh release create "v$VERSION" "$DMG" --repo OWNER/mactician \
+     --title "Mactician $VERSION" --notes-file "$TMPDIR/notes-$VERSION.md" --draft
+   ```
+
+   Publish the draft from the web page after checking the asset size and notes.
+7. **Check the published asset.** Download it on another Mac and compare its
+   SHA-256 with the notes before announcing it.
+
+The DMG contains Riot's unmodified game APKs (Global, and Vietnam when listed in
+`editionGames`). Upstream ships Global this way; publishing a DMG that also
+carries Vietnam redistributes that package too. Decide whether that is acceptable
+before making a release public: a draft, or a build kept for personal use, does
+not distribute anything.
 
 ## Publish a TFT game update
 

@@ -19,7 +19,7 @@ Built for two tacticians. Shared with everyone.
 
 ## Project status
 
-- Version: **1.3.0** (build 55)
+- Version: **1.3.1** (build 56)
 - Host architecture: **Apple Silicon (`arm64`)**
 - Minimum deployment target: **macOS 12.0**, enforced by the build target and
   runtime preflight
@@ -38,8 +38,9 @@ is configured independently.
 
 ## Features
 
-- Choose Global, Vietnam (VNG), or Taiwan in Settings. Regional editions
-  download on first selection; each edition keeps its own game data and sign-in.
+- Choose Global, Vietnam (VNG), or Taiwan in Settings. Global and Vietnam ship
+  inside the launcher and install without a game download; Taiwan downloads on
+  first selection. Each edition keeps its own game data and sign-in.
 
 - Installs and verifies pinned Android Platform Tools, Emulator, and system
   image archives.
@@ -80,9 +81,10 @@ is configured independently.
 
 ### To build from source
 
-Xcode Command Line Tools, zsh, `jq`, and four exact unmodified TFT APK
-splits matching the release manifest are required. Node.js is needed only for
-the optional Keychain-backed login helper. Developer ID credentials, a
+Xcode Command Line Tools, zsh, `jq`, `rg`, Android NDK r27d, and the exact
+unmodified TFT APK splits matching the release manifest (four for Global and
+four for Vietnam) are required. Node.js is needed only for the optional
+Keychain-backed login helper. Developer ID credentials, a
 notarytool Keychain profile, and a Sparkle Ed25519 key are release-only
 requirements.
 
@@ -110,9 +112,13 @@ including the AVD, sign-in state, and game data, after confirmation.
 
 ## Build from source
 
-Keep the four pinned APK files outside Git and point the build at their
-directory. Their names and hashes are recorded in
-[`launcher/Resources/release-manifest.json`](launcher/Resources/release-manifest.json).
+Keep the pinned APK files outside Git, in `private/` (ignored by Git): four
+Global splits in `private/tft-apks` and four Vietnam (VNG) splits in
+`private/tft-apks-vietnam`. Their names and hashes are recorded in
+[`launcher/Resources/release-manifest.json`](launcher/Resources/release-manifest.json),
+and the build refuses to run if any hash differs. See
+[Prepare the APK inputs](docs/building.md#prepare-the-apk-inputs) for getting and
+verifying them.
 
 ### Unit tests and typecheck
 
@@ -127,17 +133,37 @@ Apple Silicon production source set.
 
 ### Local ad-hoc build
 
-Install Android NDK r27d (`27.3.13750724`) and set `TFT_ANDROID_NDK` to its
-directory; see [Building](docs/building.md). It builds the bundled Vulkan cache.
+This is the recommended way to build the app you will actually run. One-time
+setup: Xcode Command Line Tools (`xcode-select --install`), `jq` and `ripgrep`
+(`brew install jq ripgrep`), and Android NDK r27d, which the build uses for the
+bundled Vulkan cache:
 
 ```sh
-PROJECT_DIR="$PWD"
-TFT_GAME_APK_DIR="$PROJECT_DIR/private/tft-apks" \
-  ./scripts/build-mactician.command
+"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.3.13750724"
 ```
 
-This produces `dist/Mactician.app` and
-`dist/Mactician-1.3.0.dmg`, signed ad hoc for local validation.
+Then validate and build from the repository root:
+
+```sh
+export TFT_ANDROID_NDK="$ANDROID_HOME/ndk/27.3.13750724"
+export TFT_GAME_APK_DIR="$PWD/private/tft-apks"   # Global; Vietnam defaults to private/tft-apks-vietnam
+./scripts/test-mactician.command
+./scripts/build-mactician.command
+```
+
+This produces `dist/Mactician.app` and `dist/Mactician-1.3.0.dmg`, signed ad hoc.
+Global and Vietnam (VNG) APKs are bundled, so the build installs the newest game
+listed in the manifest without the hosted feed. Notes:
+
+- Quit Mactician before building into `dist/`, or build elsewhere with
+  `MACTICIAN_DIST_DIR=/path/to/output` while the app is running.
+- Do not set `MACTICIAN_EXTRA_SWIFT_FLAGS` for a build you keep. `-D MACTICIAN_DEV_FEED`
+  is a development switch that redirects game updates to a local folder; without
+  it the app uses the signed hosted feed and the bundled releases.
+- A build is not notarized. On another Mac, open it through **System Settings →
+  Privacy & Security → Open Anyway**.
+- To ship a newer game, update the manifest and the private APKs together, as
+  described in [Building](docs/building.md#prepare-the-apk-inputs).
 
 ### Provisioning integration test
 
@@ -167,6 +193,14 @@ credentials. See [Building](docs/building.md) and
 
 Public releases use Developer ID signing, hardened runtime, Apple notarization,
 and stapled tickets; local builds remain ad hoc by default.
+
+### Publish a build
+
+To publish a DMG on GitHub Releases like the upstream
+[v1.3.0 release](https://github.com/tweet9ra/mactician/releases/tag/v1.3.0) (one
+tagged release, one DMG, and its SHA-256 in the notes), follow
+[Publish on GitHub Releases](docs/releasing.md#publish-on-github-releases-forks-and-ad-hoc-builds).
+Read its notes on versioning, signing, and update behavior first.
 
 ## How it works
 

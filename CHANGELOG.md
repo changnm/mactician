@@ -1,8 +1,12 @@
 # Changelog
 
-The current application metadata is version 1.3.0, build 55.
+The current application metadata is version 1.3.1, build 56.
 
 ## Unreleased
+
+No unreleased changes.
+
+## 1.3.1 — 2026-10-06
 
 ### Added
 
