@@ -52,47 +52,64 @@ edition and the Global TFT 18.3 pin.
 
 Everything below is on top of that commit; the rest is upstream's. Unmodified
 areas include the emulator runtime, graphics and performance code, telemetry,
-and the launcher's identity.
+and the launcher's bundle identity.
 
-- **Game update checks.** The update button names the target patch
+**Game updates**
+
+- **Update checks.** The update button names the target patch
   ("Update to 18.4"), the launcher rechecks the signed game feed every 30 minutes
-  and when the app is reactivated, and Settings has a "Check for game update"
-  button that reports up to date, available, or the network error. English and
-  Russian strings included.
-- **Newest game on every build.** Vietnam (VNG) TFT 18.3-5530794 now ships inside
+  and when the app is reactivated, and the game cannot be launched while an update
+  is waiting. Settings has a "Check for game update" button that reports up to
+  date, available, or the network error. English and Russian strings included.
+- **Newest game on every build.** Vietnam (VNG) TFT 18.3-5530794 ships inside
   the launcher, like Global, through a new `editionGames` section in the release
-  manifest. A newer bundled release upgrades an older install on launch, and a
-  hosted feed older than the installed game counts as up to date instead of
-  failing the check. The build script verifies the bundled APKs against the
-  manifest hashes.
-- **Automated feed publishing.** A scheduled workflow and
-  `scripts/auto-publish-game-update.command` that fetch the newest TFT build per
-  edition, verify it, and publish the signed feed when it is newer. This needs
-  your own feed key and server; it does not publish to the original author's.
+  manifest. A newer bundled release upgrades an older install on launch without
+  a download, and a hosted feed older than the installed game counts as up to date
+  instead of failing the check. The build script refuses to build unless the
+  bundled APKs match the manifest hashes.
+- **Automated feed publishing.** `scripts/auto-publish-game-update.command` fetches
+  the newest TFT build per edition (with `apkeep` from APKPure by default), has
+  `publish-game-update.command` verify it against the pinned Riot certificate, and
+  signs and publishes the feed when it is newer than the live one. A scheduled
+  workflow runs it every six hours, but it stays inert until you set
+  `GAME_FEED_ENABLED`, and scheduled runs only prepare and sign unless
+  `GAME_FEED_AUTOPUBLISH` is `true`. It needs your own feed key and server; it
+  does not publish to the original author's.
+- **Own game feed, prepared but not switched on.** The game-feed host and public
+  key are two constants in `CoreModels.swift` (the feed URL and the tests derive
+  from them), a feed key of your own can be created in Keychain, and
+  [Run your own game feed](docs/releasing.md#run-your-own-game-feed) covers
+  hosting and rollout. Until those constants are switched, the app still trusts
+  the original author's game feed and only sees patches that author publishes.
+  Bundling a newer game in your own build works either way.
 - **Local development feed.** A development-only game feed
   (`-D MACTICIAN_DEV_FEED`) for testing updates against a local folder. It is not
-  compiled into normal builds.
-- **Own launcher update channel.** The app polls this fork's Sparkle appcast
+  compiled into normal builds, which neither redirect the feed nor trust its key,
+  and the build script warns when the flag is set.
+
+**Launcher updates**
+
+- **Own update channel.** The app polls this fork's Sparkle appcast
   (`https://changnm.github.io/mactician/appcast.xml`, served by GitHub Pages) and
   verifies it with the fork's own Ed25519 key, so it is no longer offered the
   original author's builds. `scripts/publish-mactician-update.command` uploads the
   DMG and deltas to a fixed `updates` GitHub release and commits the signed appcast
-  to a Pages branch (`gh-pages` by default). It refuses to run if the app's key or
-  feed URL does not match. The channel goes live with the first publish; see
+  to a Pages branch (`gh-pages` by default, or any branch through
+  `MACTICIAN_UPDATE_PAGES_BRANCH`). It refuses to run if the app's key or feed URL
+  does not match the Keychain key and the appcast it publishes, embeds the release
+  notes in the appcast, skips an archive that is already uploaded with identical
+  content, and refuses to replace one whose bytes differ. See
   [Update channel on GitHub](docs/releasing.md#update-channel-on-github). A copy
-  built before this change still follows the original channel and has to be
-  reinstalled once.
-- **Own game feed, prepared but not switched on.** The game-feed host and public
-  key are two constants in `CoreModels.swift`, a feed key of your own can be
-  created in Keychain, and [Run your own game feed](docs/releasing.md#run-your-own-game-feed)
-  covers hosting and rollout. Until those constants are switched, the app still
-  trusts the original author's game feed and only sees patches that author
-  publishes. Bundling a newer game in your own build works either way.
-- **Build and release documentation.** A rewritten build guide, a guide to
-  preparing and verifying the APK inputs, and a guide to publishing a build on
-  GitHub Releases from a fork ([Building](docs/building.md),
-  [Releasing](docs/releasing.md)), the launcher update channel, and running your
-  own game feed, plus new tests for the changes above.
+  built before this channel existed still follows the original channel and has to
+  be reinstalled once.
+
+**Build and release**
+
+- **Documentation.** A rewritten build guide, a guide to preparing and verifying
+  the APK inputs, a guide to publishing a build on GitHub Releases from a fork,
+  the launcher update channel, and running your own game feed
+  ([Building](docs/building.md), [Releasing](docs/releasing.md)), plus new tests
+  for the changes above.
 - **Version 1.3.2 (build 57).** Ad-hoc signed and not notarized; see
   [Download and installation](#download-and-installation).
 
@@ -136,6 +153,8 @@ is configured independently.
 - Installs and verifies pinned Android Platform Tools, Emulator, and system
   image archives.
 - Verifies every downloaded component and bundled game split with SHA-256.
+- Checks the signed game feed for new TFT patches and updates the installed game in
+  place, keeping each edition's data and sign-in.
 - Creates, provisions, starts, stops, repairs, and resets a dedicated AVD.
 - Offers resolution, UI scale, Android RAM, vCPU, game-language, and three
   graphics-detail controls, including a reversible Maximum FPS profile.
@@ -179,6 +198,11 @@ four for Vietnam) are required. Node.js is needed only for the optional
 Keychain-backed login helper. Developer ID credentials, a
 notarytool Keychain profile, and a Sparkle Ed25519 key are release-only
 requirements.
+
+Publishing launcher updates also needs the authenticated GitHub CLI (`gh`), `git`,
+and the launcher Sparkle key in your login Keychain. Publishing game feeds needs
+your own game-feed key, Android Build Tools 36 (`aapt` and `apksigner`), `jq`,
+`openssl`, and `python3`, plus `apkeep` for the automated fetch.
 
 ## Download and installation
 
