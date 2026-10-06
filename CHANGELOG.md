@@ -1,15 +1,19 @@
 # Changelog
 
-The current application metadata is version 1.3.1, build 56.
+The current application metadata is version 1.3.2, build 57.
 
 ## Unreleased
+
+No unreleased changes.
+
+## 1.3.2 — 2026-10-06
 
 ### Changed
 
 - Launcher updates use the fork's own Sparkle channel: `SUFeedURL` is the appcast
   on GitHub Pages and `SUPublicEDKey` is a new key. `publish-mactician-update.command`
   uploads the DMG and deltas to an `updates` GitHub release and commits the signed
-  appcast to the `gh-pages` branch instead of copying files over SSH. It requires
+  appcast to a Pages branch (`gh-pages` by default) instead of copying files over SSH. It requires
   the app's key and feed URL to match the Keychain key and the appcast it publishes,
   embeds release notes in the appcast, and skips archives that are already uploaded
   with identical content. Builds made before this change keep following the original
@@ -18,6 +22,8 @@ The current application metadata is version 1.3.1, build 56.
   `MacticianIdentity.gameUpdateURL`, and the feed tests no longer hard-code the
   host, so running your own game feed means changing two constants. See
   [Run your own game feed](docs/releasing.md#run-your-own-game-feed).
+- No other application changes: this build confirms that installed copies update
+  through the in-app channel.
 
 ## 1.3.1 — 2026-10-06
 

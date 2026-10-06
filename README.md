@@ -15,7 +15,7 @@ or connect with me on [LinkedIn](https://www.linkedin.com/in/sergei-naumov-dev/)
 > [About this fork](#about-this-fork) for the credits and exactly what this fork
 > changes.
 
-[Download Mactician](https://github.com/changnm/mactician/releases/tag/v1.3.1) ·
+[Download Mactician](https://github.com/changnm/mactician/releases/tag/v1.3.2) ·
 [Documentation](#documentation) ·
 [Technical case study](https://sergeinaumov.dev/writing/how-i-built-mactician)
 
@@ -93,7 +93,7 @@ and the launcher's identity.
   GitHub Releases from a fork ([Building](docs/building.md),
   [Releasing](docs/releasing.md)), the launcher update channel, and running your
   own game feed, plus new tests for the changes above.
-- **Version 1.3.1 (build 56).** Ad-hoc signed and not notarized; see
+- **Version 1.3.2 (build 57).** Ad-hoc signed and not notarized; see
   [Download and installation](#download-and-installation).
 
 ### What still uses the original author's services
@@ -110,7 +110,7 @@ be moved to your own host; see
 
 ## Project status
 
-- Version: **1.3.1** (build 56)
+- Version: **1.3.2** (build 57)
 - Host architecture: **Apple Silicon (`arm64`)**
 - Minimum deployment target: **macOS 12.0**, enforced by the build target and
   runtime preflight
@@ -183,12 +183,12 @@ requirements.
 ## Download and installation
 
 Download the DMG from this fork's
-[release page](https://github.com/changnm/mactician/releases/tag/v1.3.1).
+[release page](https://github.com/changnm/mactician/releases/tag/v1.3.2).
 Verify the version, build number,
 and the SHA-256 published with that release before opening it.
 
 1. Open the DMG and drag **Mactician** to **Applications**.
-2. Open it. Version 1.3.1 is signed ad hoc and is not notarized, so Gatekeeper
+2. Open it. Version 1.3.2 is signed ad hoc and is not notarized, so Gatekeeper
    blocks the first launch: open **System Settings → Privacy & Security** and
    choose **Open Anyway**.
 3. Review and accept the Android SDK terms, then choose **Install**. About
