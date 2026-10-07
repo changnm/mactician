@@ -13,7 +13,7 @@ packages, downloaded Android runtime, AVD userdata, or signing credentials.
 | Google APIs ARM64 system image | Android 36 revision 7 | `fb47d861d6f87230ee0fe70f610d579935ca77f41a0eefbf391595d3dc4b5ee2` |
 | Sparkle | 2.9.4 | `ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9` |
 
-The game release is `18.3-5530794`, package
+The game release is `18.4-5637330`, package
 `com.riotgames.league.teamfighttactics`. The four split names, sizes, and
 SHA-256 values are in `launcher/Resources/release-manifest.json`; the APK bytes
 are deliberately absent from Git.
@@ -21,8 +21,23 @@ are deliberately absent from Git.
 The current release manifest itself hashes to:
 
 ```text
-f125e2d0b27617d5cf4f2ad56878d94c3f193cc5e16d923ac19c1da198238111  launcher/Resources/release-manifest.json
+8bcb4fc9ce9175de5a629cc37583eb5872afca56ffac82cfe7e624b9e5b82da1  launcher/Resources/release-manifest.json
 ```
+
+## TFT 18.4-5637330 input verification — 2026-10-07
+
+Global `18.4-5637330` (version code `8637330`) came from the APKPure ARM64 XAPK.
+Android Build Tools 36 `apksigner` and `aapt2` verified the four required splits
+(`base`, `config.arm64_v8a`, `config.en`, `config.mdpi`) against the pinned Riot
+certificate, package `com.riotgames.league.teamfighttactics`, matching split IDs,
+and version code `8637330`. The bundle's extra `config.fr` split is not part of the
+pinned set. Only signatures, package, split set, and version codes were checked;
+an emulator launch of 18.4 is not part of this record.
+
+The Vulkan buffer-view cache is enabled only for the exact Global base APKs of
+18.1 and 18.3 (`run-tft-root-affinity.command`). The 18.4 base APK
+(`47a870b3fbe5c7817eb7378298690497cbbdde8fcc9c9c0c123c41c5f48db043`) is not on
+that list, so 18.4 runs without the cache until it is validated on a device.
 
 ## TFT 18.3-5530794 validation — 2026-09-24
 

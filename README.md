@@ -61,9 +61,9 @@ and the launcher's bundle identity.
   and when the app is reactivated, and the game cannot be launched while an update
   is waiting. Settings has a "Check for game update" button that reports up to
   date, available, or the network error. English and Russian strings included.
-- **Newest game on every build.** Vietnam (VNG) TFT 18.4-5637330 ships inside
-  the launcher, like Global, through a new `editionGames` section in the release
-  manifest. A newer bundled release upgrades an older install on launch without
+- **Newest game on every build.** Global and Vietnam (VNG) TFT 18.4-5637330 ship
+  inside the launcher. Vietnam is listed through a new `editionGames` section in
+  the release manifest. A newer bundled release upgrades an older install on launch without
   a download, and a hosted feed older than the installed game counts as up to date
   instead of failing the check. The build script refuses to build unless the
   bundled APKs match the manifest hashes.
@@ -133,8 +133,9 @@ be moved to your own host; see
   runtime preflight
 - Status: **experimental, best effort**; there is no support or compatibility
   SLA
-- Compatibility is pinned to Global TFT `18.3-5530794` and the bundled Vietnam
-  (VNG) build `18.4-5637330`, Android Emulator 37.1.11, and Android 36. A game or emulator update can require a new Mactician release.
+- Compatibility is pinned to TFT `18.4-5637330` (Global and Vietnam), Android
+  Emulator 37.1.11, and Android 36. The Global graphics optimization still covers
+  only 18.1 and 18.3, so 18.4 uses the standard rendering path. A game or emulator update can require a new Mactician release.
 
 ## Preview
 
