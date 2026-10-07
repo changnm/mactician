@@ -1,6 +1,6 @@
 # Releasing
 
-The current metadata is Mactician version 1.3.2, build 57. Version and build
+The current metadata is Mactician version 1.3.3, build 58. Version and build
 numbers live in `launcher/Info.plist` and the matching emulator-host plist.
 Release notes live under `launcher/Resources/release-notes/` using the short
 version as the filename.
@@ -178,7 +178,7 @@ tag or release is a separate external action.
    every build, so regenerate that section:
 
    ```sh
-   VERSION=1.3.2   # the version you chose
+   VERSION=1.3.3   # the version you chose
    DMG="dist/Mactician-$VERSION.dmg"
    SHA="$(shasum -a 256 "$DMG" | awk '{print $1}')"
    {

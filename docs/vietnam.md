@@ -41,7 +41,7 @@ The existing Global feed and launcher appcast were unchanged. Existing launcher
 releases continue using Global; the edition selector requires the new build.
 
 Global keeps its bundled APKs and existing feed URL. Vietnam also ships inside
-the launcher (see [Bundled release](#bundled-release--tft-183)), so a build is
+the launcher (see [Bundled release](#bundled-release--tft-184)), so a build is
 never older than its bundled game and installs without downloading it; a signed
 feed release replaces the bundled one only when its version code is higher. The
 feed uses the same pinned game
@@ -83,26 +83,30 @@ passed the launcher's signature verification, and all four downloaded APKs
 matched the tested sizes and SHA-256 hashes with immutable cache headers.
 The launcher appcast was unchanged.
 
-## Bundled release — TFT 18.3
+## Bundled release — TFT 18.4
 
-Release `18.3-5530794` (version code `8530794`) is listed under `editionGames` in
+Release `18.4-5637330` (version code `8637330`) is listed under `editionGames` in
 `launcher/Resources/release-manifest.json` and copied to `Resources/Game-vietnam`
 by `scripts/build-mactician.command`, which refuses to build unless the four
-private APK splits match the manifest hashes. Inputs: the APKPure `18.3-5530794`
+private APK splits match the manifest hashes. Inputs: the APKPure `18.4-5637330`
 ARM64 XAPK, extracted to `private/tft-apks-vietnam/` (base APK renamed to
 `base.apk`).
 
 Android Build Tools 36 `apksigner` and `aapt2` verified all four APKs on
-2026-10-06: package `com.riotgames.league.teamfighttacticsvn`, version code
-`8530794`, matching split IDs, and the same pinned Riot certificate as 18.2
+2026-10-07: package `com.riotgames.league.teamfighttacticsvn`, version code
+`8637330`, matching split IDs, and the same pinned Riot certificate as 18.2
 (`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`).
 
 | APK | Bytes | SHA-256 |
 | --- | ---: | --- |
-| base.apk | 102453559 | 0d121a3e423a1ccd0880e3f553afab8e2611a9934bc89f323a65c133127cff6f |
-| config.arm64_v8a.apk | 94156001 | 9c135c7c4156530345e0595077f7acb75d88a235b7d0af1f581e596014c1c48c |
-| config.en.apk | 37273 | 359112010f8bdda8665b698c58d2180e9a4ecfa6a60878271e147c4cec8a88f8 |
-| config.mdpi.apk | 83007 | bdc2ae52f3f319bc8414ad68f4bc43e6515a3eb6c2d7030500c9ba44a3652202 |
+| base.apk | 113017143 | fe37e7fbcdf68c6d74a97ecf1159bb678a1beff902c622cd8b95539b2bcf3abc |
+| config.arm64_v8a.apk | 95139041 | 624143e86e669717e993eef6d504ad1ba0062a7029c74091fca424f1298a5580 |
+| config.en.apk | 37273 | 61154b649700d41c5a38ba9724c4ce059fd9cf706901f5b44c0179f2903be6a7 |
+| config.mdpi.apk | 83007 | 005ceca1e6774febfa97eaa28bd32b7610d409f6168bd45e0fdbea36975b27a3 |
+
+Only the signatures, package, split set, and version codes were verified for this
+build; an emulator launch of 18.4 was not part of the release check. The previous
+bundled release was `18.3-5530794` (version code `8530794`).
 
 An install that predates a newer bundled release is upgraded to it on the next
 launch. A hosted feed that is older than the installed game is reported as up to
