@@ -3,6 +3,32 @@
     <channel>
         <title>Mactician Updates</title>
         <item>
+            <title>Mactician 1.3.3</title>
+            <pubDate>Wed, 07 Oct 2026 22:42:46 +0700</pubDate>
+            <link>https://github.com/changnm/mactician</link>
+            <sparkle:version>58</sparkle:version>
+            <sparkle:shortVersionString>1.3.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[# Mactician Release Notes — 1.3.3
+
+- Bundle TFT 18.4-5637330 (version code 8637330) for Global and Vietnam (VNG).
+  An installed game is upgraded to it on the next launch without downloading the
+  APKs again, and keeps its game data and Riot sign-in.
+- The Global graphics optimization still covers only TFT 18.1 and 18.3, so 18.4
+  runs on the standard rendering path.
+- No other application changes.
+
+Build 58 for Apple Silicon, macOS 12 or later. This build is signed ad hoc and
+not notarized; open it through System Settings → Privacy & Security → Open Anyway.
+]]></description>
+            <enclosure url="https://github.com/changnm/mactician/releases/download/updates/Mactician-1.3.3.dmg" length="374947345" type="application/octet-stream" sparkle:edSignature="U4m4sJ9cdNovNwk4+jRvQbMugkLoOCxQWS1CBfNiWwyTvXERGv6pywAF+/8zDk2XuoztATty2qqn4EVADKaTBg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/changnm/mactician/releases/download/updates/Mactician58-57.delta" sparkle:deltaFrom="57" length="170635218" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977616" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="fdyj5y2NLqnzupOYG0n9mkBFMDTlG3iRVI5US4VNF3AUpJyYgArr2NUvWxBHtzuXcm/Qt8sj247zF6pGPK1eCA=="/>
+                <enclosure url="https://github.com/changnm/mactician/releases/download/updates/Mactician58-56.delta" sparkle:deltaFrom="56" length="170635262" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977616" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="JRpB9SsWV12CpJUmSm0GZzoEO8zVeP3+vpnZbHQPFR2u3oQOB6Ehwu7w7HNcNaeHqGGO2655qkpVrOLElpg1Bw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>Mactician 1.3.2</title>
             <pubDate>Tue, 06 Oct 2026 17:33:10 +0700</pubDate>
             <link>https://github.com/changnm/mactician</link>
