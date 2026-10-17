@@ -11,7 +11,7 @@
 - Four exact unmodified TFT `18.4-5637330` APK splits in a private local
   directory; names, sizes, and hashes are in
   `launcher/Resources/release-manifest.json`
-- Four exact unmodified Vietnam (VNG) `18.4-5637330` APK splits for each
+- Four exact unmodified Vietnam (VNG) `18.4-5673041` APK splits for each
   regional edition listed under `editionGames` in that manifest
   (`private/tft-apks-vietnam` by default)
 

@@ -85,28 +85,28 @@ The launcher appcast was unchanged.
 
 ## Bundled release — TFT 18.4
 
-Release `18.4-5637330` (version code `8637330`) is listed under `editionGames` in
+Release `18.4-5673041` (version code `8673041`) is listed under `editionGames` in
 `launcher/Resources/release-manifest.json` and copied to `Resources/Game-vietnam`
 by `scripts/build-mactician.command`, which refuses to build unless the four
-private APK splits match the manifest hashes. Inputs: the APKPure `18.4-5637330`
+private APK splits match the manifest hashes. Inputs: the APKPure `18.4-5673041`
 ARM64 XAPK, extracted to `private/tft-apks-vietnam/` (base APK renamed to
 `base.apk`).
 
 Android Build Tools 36 `apksigner` and `aapt2` verified all four APKs on
-2026-10-07: package `com.riotgames.league.teamfighttacticsvn`, version code
-`8637330`, matching split IDs, and the same pinned Riot certificate as 18.2
+2026-10-18: package `com.riotgames.league.teamfighttacticsvn`, version code
+`8673041`, matching split IDs, and the same pinned Riot certificate as 18.2
 (`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`).
 
 | APK | Bytes | SHA-256 |
 | --- | ---: | --- |
-| base.apk | 113017143 | fe37e7fbcdf68c6d74a97ecf1159bb678a1beff902c622cd8b95539b2bcf3abc |
-| config.arm64_v8a.apk | 95139041 | 624143e86e669717e993eef6d504ad1ba0062a7029c74091fca424f1298a5580 |
-| config.en.apk | 37273 | 61154b649700d41c5a38ba9724c4ce059fd9cf706901f5b44c0179f2903be6a7 |
-| config.mdpi.apk | 83007 | 005ceca1e6774febfa97eaa28bd32b7610d409f6168bd45e0fdbea36975b27a3 |
+| base.apk | 114377015 | 52a7a698976dbaea1b526cf5e3fad3a23bcd7139dce5ef995c98de9bc27d01e2 |
+| config.arm64_v8a.apk | 95139041 | 8c323c77c96699f8a08d7e21c44d0c937ad7adeba463f3210b6f8604268a73a2 |
+| config.en.apk | 37273 | 3caea0d581c7ad6b7bd8f935ebc076e0463f91773fd37f90f63c94360f5a04f8 |
+| config.mdpi.apk | 83007 | e271ed5a2bb4b3a75372f35dc7030b6ead2746ea10e911957d5d46ddd642e39c |
 
 Only the signatures, package, split set, and version codes were verified for this
 build; an emulator launch of 18.4 was not part of the release check. The previous
-bundled release was `18.3-5530794` (version code `8530794`).
+bundled release was `18.4-5637330` (version code `8637330`).
 
 An install that predates a newer bundled release is upgraded to it on the next
 launch. A hosted feed that is older than the installed game is reported as up to
