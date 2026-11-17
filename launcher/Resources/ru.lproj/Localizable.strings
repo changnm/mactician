@@ -119,6 +119,9 @@
 "hotkeys.title" = "Горячие клавиши игры";
 "hotkeys.description" = "Всегда включены, когда окно игры в фокусе. Accessibility-разрешение получает Mactician, а не эмулятор.";
 "hotkeys.grant_access" = "Разрешить Accessibility";
+"hotkeys.reset_access" = "Сбросить разрешение";
+"hotkeys.reset_hint" = "Уже разрешено, но хоткеи выключены? Сбросьте разрешение и разрешите заново.";
+"hotkeys.reset_failed" = "Не удалось сбросить разрешение Accessibility. Удалите Mactician в Системных настройках → Конфиденциальность и безопасность → Универсальный доступ и добавьте снова.";
 "hotkeys.status.label" = "Состояние";
 "hotkeys.status.permission_required" = "Хоткеи выключены — разрешите Accessibility для Mactician";
 "hotkeys.status.ready" = "Включены для следующего запуска игры";

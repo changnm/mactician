@@ -557,6 +557,33 @@ final class InputBridgeService {
         NSWorkspace.shared.open(settingsURL)
     }
 
+    static func resetAccessibilityArguments(bundleIdentifier: String) -> [String] {
+        ["reset", "Accessibility", bundleIdentifier]
+    }
+
+    /// Clears a stale Accessibility entry (ad-hoc signed builds get a new code
+    /// identity on every update, so an old toggle can stay on but no longer
+    /// match), then asks for access again. Returns false if the reset failed.
+    @discardableResult
+    func resetPermissions() -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = Self.resetAccessibilityArguments(
+            bundleIdentifier: MacticianIdentity.bundleIdentifier
+        )
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return false
+        }
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return false }
+        requestPermissions()
+        return true
+    }
+
     func start(targetPID: pid_t, adb: URL, width: Int, height: Int, packageName: String) {
         stop()
         let configuration = BridgeConfiguration(

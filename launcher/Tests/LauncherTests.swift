@@ -1248,6 +1248,11 @@ enum LauncherTests {
             "hotkey permission presentation mapping"
         )
         try expect(
+            InputBridgeService.resetAccessibilityArguments(bundleIdentifier: "dev.sergeinaumov.mactician")
+                == ["reset", "Accessibility", "dev.sergeinaumov.mactician"],
+            "accessibility reset command arguments"
+        )
+        try expect(
             InstallerService.unrealCommandLine(for: GameLanguage.language(withID: "ru-RU"))
                 .contains("-culture=ru-RU"),
             "Unreal culture argument"

@@ -4,7 +4,12 @@ The current application metadata is version 1.3.5, build 60.
 
 ## Unreleased
 
-No unreleased changes.
+### Added
+
+- A "Reset permission" button next to the hotkey Accessibility prompt. Ad-hoc
+  signed builds get a new code identity on every update, so an old Accessibility
+  toggle can stay on yet no longer match; the button clears the stale entry with
+  `tccutil` and asks for access again. English and Russian strings included.
 
 ## 1.3.5 — 2026-11-17
 

@@ -628,6 +628,10 @@ private struct LauncherPlayingView: View {
                         model.requestInputPermissions()
                     }
                     .buttonStyle(LauncherTertiaryButtonStyle())
+                    Button(LauncherL10n.text("hotkeys.reset_access")) {
+                        model.resetInputPermissions()
+                    }
+                    .buttonStyle(LauncherTertiaryButtonStyle())
                 }
                 Label(
                     LauncherL10n.text("playing.fill_window_tip"),

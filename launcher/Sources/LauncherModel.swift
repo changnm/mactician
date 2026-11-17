@@ -855,6 +855,20 @@ final class LauncherModel: ObservableObject {
         refreshHotkeyStatus()
     }
 
+    func resetInputPermissions() {
+        guard selectedRuntimeKind == .androidEmulator else { return }
+        let bridge = inputBridge
+        Task.detached { [weak self] in
+            let succeeded = bridge.resetPermissions()
+            await self?.finishInputPermissionReset(succeeded: succeeded)
+        }
+    }
+
+    private func finishInputPermissionReset(succeeded: Bool) {
+        refreshHotkeyStatus()
+        if !succeeded { status = LauncherL10n.text("hotkeys.reset_failed") }
+    }
+
     func refreshHotkeyStatus() {
         guard selectedRuntimeKind == .androidEmulator else {
             hotkeyStatus = .ready

@@ -429,6 +429,19 @@ struct LauncherSettingsView: View {
                     )
             )
 
+            if needsPermissionAction {
+                HStack(spacing: LauncherTheme.Spacing.medium) {
+                    Text(LauncherL10n.text("hotkeys.reset_hint"))
+                        .font(.system(size: 12))
+                        .foregroundColor(LauncherTheme.ColorToken.textSecondary)
+                    Spacer()
+                    Button(LauncherL10n.text("hotkeys.reset_access")) {
+                        model.resetInputPermissions()
+                    }
+                    .buttonStyle(LauncherTertiaryButtonStyle())
+                }
+            }
+
             Text(LauncherL10n.text("hotkeys.shortcuts"))
                 .font(.system(size: 12, weight: .medium, design: .monospaced))
                 .foregroundColor(LauncherTheme.ColorToken.textSecondary)

@@ -119,6 +119,9 @@
 "hotkeys.title" = "Game hotkeys";
 "hotkeys.description" = "Always enabled while the game window is focused. Accessibility access belongs to Mactician, not the emulator.";
 "hotkeys.grant_access" = "Allow Accessibility";
+"hotkeys.reset_access" = "Reset permission";
+"hotkeys.reset_hint" = "Already allowed but still off? Reset the permission, then allow it again.";
+"hotkeys.reset_failed" = "Could not reset the Accessibility permission. Remove Mactician in System Settings → Privacy & Security → Accessibility, then add it again.";
 "hotkeys.status.label" = "Status";
 "hotkeys.status.permission_required" = "Hotkeys are off — allow Accessibility for Mactician";
 "hotkeys.status.ready" = "Enabled for the next game launch";
