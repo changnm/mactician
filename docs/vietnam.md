@@ -83,6 +83,26 @@ passed the launcher's signature verification, and all four downloaded APKs
 matched the tested sizes and SHA-256 hashes with immutable cache headers.
 The launcher appcast was unchanged.
 
+## Bundled release — TFT 18.6 (18.6-5895859)
+
+Release `18.6-5895859` (version code `8895859`) is listed under `editionGames` in
+`launcher/Resources/release-manifest.json` and copied to `Resources/Game-vietnam` by
+`scripts/build-mactician.command`. It was imported from a downloaded XAPK with
+`scripts/ingest-game-apk.py`, which normalized the base APK to `base.apk` and verified all four
+APKs with Android Build Tools: package `com.riotgames.league.teamfighttacticsvn`, version code
+`8895859`, matching split IDs, and the pinned Riot certificate
+(`931d969502f3de01a4c239e4199211ebdc57bb9a7526394b9e3e2d1cc079ff0c`).
+
+| APK | Bytes | SHA-256 |
+| --- | ---: | --- |
+| base.apk | 100630839 | ac87b78e250509bf297f631dd501e08f887524375fb5cb09491da9121cd4b567 |
+| config.arm64_v8a.apk | 99396662 | bb368cb0c401124b3f9be0d29197a6725c96a231c3f0f0649fcd1398f764fff4 |
+| config.en.apk | 37273 | baaa2573a7562f9acd46006e921d90dac5100d22509cd6ba50564fbdaca6a77d |
+| config.mdpi.apk | 83007 | 68efaee41762d1ae736cc90a27a010024adb7819f228b0354445f1a08c980d09 |
+
+Only the signatures, package, split set, and version codes were verified; an emulator launch of this
+build was not part of the release check. The previous bundled release was `18.4-5673041` (version code `8673041`).
+
 ## Bundled release — TFT 18.4
 
 Release `18.4-5673041` (version code `8673041`) is listed under `editionGames` in

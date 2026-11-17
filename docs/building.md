@@ -11,7 +11,7 @@
 - Four exact unmodified TFT `18.4-5637330` APK splits in a private local
   directory; names, sizes, and hashes are in
   `launcher/Resources/release-manifest.json`
-- Four exact unmodified Vietnam (VNG) `18.4-5673041` APK splits for each
+- Four exact unmodified Vietnam (VNG) `18.6-5895859` APK splits for each
   regional edition listed under `editionGames` in that manifest
   (`private/tft-apks-vietnam` by default)
 
@@ -78,7 +78,7 @@ outside Git (`private/` is ignored):
 | Directory | Variable | Edition | Release |
 | --- | --- | --- | --- |
 | `private/tft-apks` | `TFT_GAME_APK_DIR` | Global | `18.4-5637330` |
-| `private/tft-apks-vietnam` | `TFT_VIETNAM_APK_DIR` | Vietnam (VNG) | `18.4-5637330` |
+| `private/tft-apks-vietnam` | `TFT_VIETNAM_APK_DIR` | Vietnam (VNG) | `18.6-5895859` |
 
 Each directory holds exactly `base.apk`, `config.arm64_v8a.apk`, `config.en.apk`,
 and `config.mdpi.apk`. An XAPK bundle (a zip, for example from APKPure) is

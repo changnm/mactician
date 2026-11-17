@@ -1,6 +1,6 @@
 # Releasing
 
-The current metadata is Mactician version 1.3.4, build 59. Version and build
+The current metadata is Mactician version 1.3.5, build 60. Version and build
 numbers live in `launcher/Info.plist` and the matching emulator-host plist.
 Release notes live under `launcher/Resources/release-notes/` using the short
 version as the filename.
@@ -178,7 +178,7 @@ tag or release is a separate external action.
    every build, so regenerate that section:
 
    ```sh
-   VERSION=1.3.4   # the version you chose
+   VERSION=1.3.5   # the version you chose
    DMG="dist/Mactician-$VERSION.dmg"
    SHA="$(shasum -a 256 "$DMG" | awk '{print $1}')"
    {
@@ -207,6 +207,35 @@ The DMG contains Riot's unmodified game APKs (Global, and Vietnam when listed in
 carries Vietnam redistributes that package too. Decide whether that is acceptable
 before making a release public: a draft, or a build kept for personal use, does
 not distribute anything.
+
+## Ship a new TFT build from a downloaded APK
+
+This fork does not control the signed game feed (it is the original author's),
+so a newer game reaches your users by shipping inside a new launcher build that
+Sparkle offers through your own appcast. One command does it all from the file
+you downloaded (an APKPure XAPK/zip, `.apks`, or a folder of APKs):
+
+```sh
+./scripts/update-game-from-apk.command ~/Downloads/<game>.zip             # import + verify only
+./scripts/update-game-from-apk.command ~/Downloads/<game>.zip --build     # + tests + DMG
+./scripts/update-game-from-apk.command ~/Downloads/<game>.zip --publish   # + upload (asks first)
+```
+
+Importing (`scripts/ingest-game-apk.py`) extracts the bundle, renames the base
+APK to `base.apk`, detects Global or Vietnam from the package, and requires the
+pinned Riot certificate, matching package, version code, and the four-split set.
+It refuses a build that is not strictly newer than the manifest. It then replaces
+the private APKs and the manifest entry, raises the patch version and build in
+both plists and the tests, and updates the release notes, changelog, README, and
+docs. Review `git diff` before committing; nothing is committed for you.
+
+`--publish` runs the repository tests, builds the ad-hoc DMG, then (after you
+confirm) uploads it to the `updates` release and commits the signed appcast to
+the Pages branch (read from the repository's Pages settings). Installed
+launchers offer the update on their next daily check, or immediately via
+**Check for Updates…**, and a game older than the bundled one is upgraded on the
+next launch without downloading APKs. Only the signatures, package, split set,
+and version code are verified; try the new game in the app before publishing.
 
 ## Publish a TFT game update
 

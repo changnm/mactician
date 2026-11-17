@@ -61,29 +61,29 @@
   "editionGames": {
     "vietnam": {
       "packageName": "com.riotgames.league.teamfighttacticsvn",
-      "version": "18.4-5673041",
-      "versionCode": 8673041,
-      "baseSHA256": "52a7a698976dbaea1b526cf5e3fad3a23bcd7139dce5ef995c98de9bc27d01e2",
+      "version": "18.6-5895859",
+      "versionCode": 8895859,
+      "baseSHA256": "ac87b78e250509bf297f631dd501e08f887524375fb5cb09491da9121cd4b567",
       "apks": [
         {
           "name": "base.apk",
-          "size": 114377015,
-          "sha256": "52a7a698976dbaea1b526cf5e3fad3a23bcd7139dce5ef995c98de9bc27d01e2"
+          "size": 100630839,
+          "sha256": "ac87b78e250509bf297f631dd501e08f887524375fb5cb09491da9121cd4b567"
         },
         {
           "name": "config.arm64_v8a.apk",
-          "size": 95139041,
-          "sha256": "8c323c77c96699f8a08d7e21c44d0c937ad7adeba463f3210b6f8604268a73a2"
+          "size": 99396662,
+          "sha256": "bb368cb0c401124b3f9be0d29197a6725c96a231c3f0f0649fcd1398f764fff4"
         },
         {
           "name": "config.en.apk",
           "size": 37273,
-          "sha256": "3caea0d581c7ad6b7bd8f935ebc076e0463f91773fd37f90f63c94360f5a04f8"
+          "sha256": "baaa2573a7562f9acd46006e921d90dac5100d22509cd6ba50564fbdaca6a77d"
         },
         {
           "name": "config.mdpi.apk",
           "size": 83007,
-          "sha256": "e271ed5a2bb4b3a75372f35dc7030b6ead2746ea10e911957d5d46ddd642e39c"
+          "sha256": "68efaee41762d1ae736cc90a27a010024adb7819f228b0354445f1a08c980d09"
         }
       ]
     }

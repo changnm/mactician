@@ -1,10 +1,19 @@
 # Changelog
 
-The current application metadata is version 1.3.4, build 59.
+The current application metadata is version 1.3.5, build 60.
 
 ## Unreleased
 
 No unreleased changes.
+
+## 1.3.5 — 2026-11-17
+
+### Changed
+
+- Update the bundled Vietnam (VNG) TFT to `18.6-5895859` (version code
+  `8895859`). An installed Vietnam (VNG) game older than the bundled
+  release is upgraded on launch without a download, keeping its game data and
+  sign-in. Global stays on `18.4-5637330`.
 
 ## 1.3.4 — 2026-10-18
 
